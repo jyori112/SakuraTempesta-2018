@@ -1,9 +1,9 @@
 package org.usfirst.frc.team6909.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the IterativeRobot
@@ -16,7 +16,7 @@ public class Robot extends IterativeRobot {
 	final String customAuto = "My Auto";
 	String autoSelected;
 	SendableChooser<String> chooser = new SendableChooser<>();
-	TalonSRX talon = new TalonSRX(7);
+	PWMTalonSRX talon = new PWMTalonSRX(7);
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
