@@ -5,13 +5,14 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.Relay;
-import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.Ultrasonic.Unit;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -21,15 +22,21 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
  * directory.
  */
 public class Robot extends IterativeRobot {
+	final String defaultAuto = "Default";
+	final String customAuto = "My Auto";
 
-	// モーターコントローラ及びエンコーダのポート(RoboRio)
+	String autoSelected;
+
+	SendableChooser<String> chooser = new SendableChooser<>();
+
+	// モーターコントローラ, エンコーダ, Relay, 距離センサのポート(RoboRio)
 	private static final int kLeftFrontPort = 0;
 	private static final int kLeftRearPort = 1;
 	private static final int kRightFrontPort = 2;
 	private static final int kRightRearPort = 3;
 	private static final int kLiftMotorPort =4;
-	private static final int kLiftEncoderChannelAPort = 0; //Analog Input
-	private static final int kLiftEncoderChannelBPort = 1; //Analog Input
+	private static final int kLiftEncoderChannelAPort = 0; //Digital Input
+	private static final int kLiftEncoderChannelBPort = 1; //Digital Input
 	private static final int kRelayPort = 0; //Digital Input
 	private static final int kRightArmPort = 5;
 	private static final int kLeftArmPort = 6;
@@ -40,6 +47,12 @@ public class Robot extends IterativeRobot {
 
 	// Xboxコントローラのポート(PC)
 	private static final int kXbox1Port = 0;
+	private static final int kXbox2Port = 1;
+
+	//エンコーダ1Pulseごとの移動距離
+	private static final int kLiftEncoderMMPerPulse = 2; //[mm / pulse]
+	// 不感帯の大きさ
+	private static final double kNoReact = 0.2;
 
 	// ドライブ用の宣言
 	private Spark leftFront;
@@ -66,10 +79,14 @@ public class Robot extends IterativeRobot {
 
 
 	// Xboxコントローラの宣言
-	private XboxController xbox_1;
+	private XboxController xbox_drive;
+	private XboxController xbox_lift;
 
 	@Override
 	public void robotInit() {
+		chooser.addDefault("Default Auto", defaultAuto);
+		chooser.addObject("My Auto", customAuto);
+		SmartDashboard.putData("Auto choices", chooser);
 
 		leftFront = new Spark(kLeftFrontPort);
 		leftRear = new Spark(kLeftRearPort);
@@ -81,7 +98,7 @@ public class Robot extends IterativeRobot {
 
 		lift = new PWMTalonSRX(kLiftMotorPort);
 		liftEncoder = new Encoder(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort);
-		liftEncoder.setDistancePerPulse(2); // using [mm] as unit would be good
+		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
 
 		rightArm = new PWMTalonSRX(kRightArmPort);
 		leftArm = new PWMTalonSRX(kLeftArmPort);
@@ -93,20 +110,30 @@ public class Robot extends IterativeRobot {
 		leftEye = new Ultrasonic(kLeftEyePingPort, kLeftEyeEchoPort, Unit.kMillimeters);
 		rightEye = new Ultrasonic(kRightEyePingPort, kRightEyeEchoPort, Unit.kMillimeters);
 
-		xbox_1 = new XboxController(kXbox1Port);
-
+		xbox_drive = new XboxController(kXbox1Port);
+		xbox_lift = new XboxController(kXbox2Port);
 	}
 
 
 	@Override
 	public void autonomousInit() {
-
+		autoSelected = chooser.getSelected();
+		System.out.println("Auto selected" + autoSelected);
 	}
 
 
 	@Override
 	public void autonomousPeriodic() {
+		switch(autoSelected) {
+		case customAuto:
+			// Put custom auto code here
 
+			break;
+		case defaultAuto:
+			// Put default auto code here
+
+			break;
+		}
 	}
 
 	@Override
@@ -116,80 +143,41 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		// 運転
-		my_arcade_drive.arcadeDrive(xbox_1.getY(Hand.kLeft), xbox_1.getX(Hand.kLeft));
-
-		// cubeをゲット
-		my_arms.set(-xbox_1.getTriggerAxis(Hand.kLeft));
-		// cubeを射出
-		my_arms.set(xbox_1.getTriggerAxis(Hand.kRight));
-
-		// switch <二種類の高さ(最も高いHIGHと中間のMIDDLE)に対応>
-		if( xbox_1.getAButton() ) {
-			// A + ↑ でHIGHに至るまで全速力UP → 超えたら速度0にする
-			if( xbox_1.getPOV() == 0 && ( liftEncoder.getDistance() < 710 ) ) { //エンコーダの値によって計算する距離の閾値は要調整
-				lift.set(1.0);
-			}else if( xbox_1.getPOV() == 0 && ( liftEncoder.getDistance() > 710 ) ) {
-				lift.set(0.0);
-			}
-			// A + ↓ でMIDDLEに至るまで全速力UP → 超えたら速度0にする
-			if( xbox_1.getPOV() == 180 && ( liftEncoder.getDistance() < 550 ) ) {
-				lift.set(1.0);
-			}else if( xbox_1.getPOV() == 180 && ( liftEncoder.getDistance() > 550) ) {
-				lift.set(0.0);
-			}
+		//Drive
+		if( (Math.abs(xbox_drive.getY(Hand.kLeft)) < kNoReact) && (Math.abs(xbox_drive.getX(Hand.kRight)) < kNoReact) ) {
+			my_arcade_drive.arcadeDrive(0.0, 0.0); // Stay
+		}else if( (Math.abs(xbox_drive.getY(Hand.kLeft)) > kNoReact) && (Math.abs(xbox_drive.getX(Hand.kRight)) < kNoReact) ) {
+			my_arcade_drive.arcadeDrive(xbox_drive.getY(Hand.kLeft), 0.0); // Drive forward/backward
+		}else if( (Math.abs(xbox_drive.getY(Hand.kLeft)) < kNoReact) && (Math.abs(xbox_drive.getX(Hand.kRight)) > kNoReact) ) {
+			my_arcade_drive.arcadeDrive(0.0, xbox_drive.getX(Hand.kRight)); // Turn right/left
+		}else {
+			my_arcade_drive.arcadeDrive(xbox_drive.getY(Hand.kLeft), xbox_drive.getX(Hand.kRight)); // Free drive
 		}
 
-		// scale <三種類の高さ(HIGHとMIDDLEとクライム用の高さCLIMB)に対応>
-		if( xbox_1.getBButton() ) {
-			// B + ↑ でHIGHに至るまで全速力UP → 超えたら速度0にする
-			if( xbox_1.getPOV() == 0 && ( liftEncoder.getDistance() < 1900) ) { //PID制御を導入予定
-				lift.set(1.0);
-			}else if( xbox_1.getPOV() == 0 && ( liftEncoder.getDistance() > 1900) ) {
-				lift.set(0.0);
-			}
-			// B + ↓ でMIDDLEに至るまで全速力UP → 超えたら速度0にする
-			if( xbox_1.getPOV() == 180 && ( liftEncoder.getDistance() < 1500 ) ) {
-				lift.set(1.0);
-			}else if( xbox_1.getPOV() == 180 && (liftEncoder.getDistance() > 1500) ) {
-				lift.set(0.0);
-			}
-			// B + ← でCLIMBに至るまで全速力UP → 超えたら速度0にする
-			if( xbox_1.getPOV() == 270 && ( liftEncoder.getDistance() < 2200) ) {
-				lift.set(1.0);
-			}else if( xbox_1.getPOV() == 270 && ( liftEncoder.getDistance() > 2200) ) {
-				lift.set(0.0);
-			}
+		//Arm
+		if( (xbox_lift.getTriggerAxis(Hand.kLeft) > kNoReact) && (xbox_lift.getTriggerAxis(Hand.kRight) < kNoReact) ) {
+			my_arms.set(-xbox_lift.getTriggerAxis(Hand.kLeft)); // Get Cube
+		}else if( (xbox_lift.getTriggerAxis(Hand.kLeft) > kNoReact) && (xbox_lift.getTriggerAxis(Hand.kRight) < kNoReact) ) {
+			my_arms.set(xbox_lift.getTriggerAxis(Hand.kRight)); // Shoot Cube
+		}else {
+			my_arms.set(0.0); // Stay
 		}
 
-		// lift <liftが床(正確には初期位置)についているか判断するrelayを使う>
-		if( xbox_1.getYButton() )  {
-			// Y + (床についていない) で全速力DOWN → 床についたら速度0にして、エンコーダの値によって計算する距離を0にリセット
-			if(touch_floor.get() == Value.kOff) {
-				lift.set(-1.0);
-			}else if(touch_floor.get() == Value.kOn) {
-				lift.set(0.0);
-				liftEncoder.reset();
-			}
+
+		// SWITCH用PID
+		if(xbox_lift.getAButton() && xbox_lift.getBumper(Hand.kLeft)) {
+			// Lift up/down the arm SWITCH MIDDLE
+		}else if(xbox_lift.getAButton() && xbox_lift.getBumper(Hand.kRight)) {
+			// Lift up/down the arm SWITCH HIGH
 		}
 
-		// 姿勢調整 <ロボットのドライブトレインの前面の左右にひとつずつ付けた距離センサーの値を使う>
-		if( xbox_1.getXButton() ) {
-			// Y + (正面したい面に対して右斜めに侵入) で50%右回転
-			if( leftEye.getRangeMM() > rightEye.getRangeMM() ) {
-				leftMotors.set(0.5);
-				rightMotors.set(-0.5);
-			}
-			// Y + (正面したい面に対して左斜めに侵入) で50%左回転
-			if( leftEye.getRangeMM() < rightEye.getRangeMM() ) {
-				leftMotors.set(-0.5);
-				rightMotors.set(0.5);
-			}
-			// 正面にいるとき停止
-			if( leftEye.getRangeMM() == rightEye.getRangeMM() ) {
-				leftMotors.set(0.0);
-				rightMotors.set(0.0);
-			}
+		// SCALE & CLIMB用PID
+		if(xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kLeft)) {
+			// Lift up/down the arm SCALE MIDDLE
+		}else if(xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kRight)) {
+			// Lift up/down the arm SCALE HIGH
+		}else if(xbox_lift.getBButton() && xbox_lift.getPOV() == 0) {
+			// Lift up the arm CLIMB high
 		}
 
 	}
