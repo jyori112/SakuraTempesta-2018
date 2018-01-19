@@ -1,8 +1,10 @@
 package org.usfirst.frc.team6909.robot;
 
-import edu.wpi.first.wpilibj.Encoder;
+
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Spark;
@@ -12,7 +14,6 @@ import edu.wpi.first.wpilibj.Ultrasonic.Unit;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -35,24 +36,42 @@ public class Robot extends IterativeRobot {
 	private static final int kRightFrontPort = 2;
 	private static final int kRightRearPort = 3;
 	private static final int kLiftMotorPort =4;
-	private static final int kLiftEncoderChannelAPort = 0; //Digital Input
-	private static final int kLiftEncoderChannelBPort = 1; //Digital Input
-	private static final int kRelayPort = 0; //Digital Input
+	private static final int kLiftEncoderChannelAPort = 0; //Digital
+	private static final int kLiftEncoderChannelBPort = 1; //Digital
+	private static final int kRelayPort = 0; //Relay
 	private static final int kRightArmPort = 5;
 	private static final int kLeftArmPort = 6;
-	private static final int kLeftEyePingPort = 1;
-	private static final int kLeftEyeEchoPort = 2;
-	private static final int kRightEyePingPort = 3;
-	private static final int kRightEyeEchoPort = 4;
+	private static final int kLeftEyePingPort = 2; //Digital
+	private static final int kLeftEyeEchoPort = 3;
+	private static final int kRightEyePingPort = 4;
+	private static final int kRightEyeEchoPort = 5;
 
 	// Xboxコントローラのポート(PC)
 	private static final int kXbox1Port = 0;
 	private static final int kXbox2Port = 1;
 
-	//エンコーダ1Pulseごとの移動距離
+	//エンコーダ関連
 	private static final int kLiftEncoderMMPerPulse = 2; //[mm / pulse]
+	private static final double armsOriginalHeightFromGround = 200;
+	private static final double secondndColumnLengthMM = 1350;
+	private static final double armsHeightOfItselfMM = 100;
+	private static final double stringLengthMM = 1400;
+	private static final double stringLengthLossMM = 50;
+
 	// 不感帯の大きさ
 	private static final double kNoReact = 0.2;
+
+	// 目的高さ
+	private static final int kSwitchMiddle = 500;
+	private static final int kSwitchHigh = 700;
+	private static final int kScaleMiddle = 1700;
+	private static final int kScaleHigh = 1900;
+	private static final int kClimb  = 2200;
+
+	// PID値
+	private static final double kP = 0.01;
+	private static final double kI = 0.01;
+	private static final double kD = 0.01;
 
 	// ドライブ用の宣言
 	private Spark leftFront;
@@ -65,8 +84,9 @@ public class Robot extends IterativeRobot {
 
 	// リフト用の宣言
 	private PWMTalonSRX lift;
-	private Encoder liftEncoder;
+	private Encoder_withF liftEncoder;
 	private Relay touch_floor;
+	private PIDController lift_pidController;
 
 	// アーム用の宣言
 	private PWMTalonSRX rightArm;
@@ -82,11 +102,14 @@ public class Robot extends IterativeRobot {
 	private XboxController xbox_drive;
 	private XboxController xbox_lift;
 
+
 	@Override
 	public void robotInit() {
+		/*
 		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto choices", chooser);
+		*/
 
 		leftFront = new Spark(kLeftFrontPort);
 		leftRear = new Spark(kLeftRearPort);
@@ -97,7 +120,8 @@ public class Robot extends IterativeRobot {
 		my_arcade_drive = new DifferentialDrive(leftMotors, rightMotors);
 
 		lift = new PWMTalonSRX(kLiftMotorPort);
-		liftEncoder = new Encoder(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort);
+		//Encoder_withFのコンストラクタに渡す値はConstにまとめて7→3個にできる
+		liftEncoder = new Encoder_withF(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort, armsOriginalHeightFromGround, secondndColumnLengthMM, armsHeightOfItselfMM, stringLengthMM,  stringLengthLossMM);
 		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
 
 		rightArm = new PWMTalonSRX(kRightArmPort);
@@ -113,7 +137,6 @@ public class Robot extends IterativeRobot {
 		xbox_drive = new XboxController(kXbox1Port);
 		xbox_lift = new XboxController(kXbox2Port);
 	}
-
 
 	@Override
 	public void autonomousInit() {
@@ -136,9 +159,12 @@ public class Robot extends IterativeRobot {
 		}
 	}
 
+
 	@Override
 	public void teleopInit() {
-
+		// PID用意
+		lift_pidController = new PIDController(kP, kI, kD, liftEncoder, new LiftPidOutput());
+		lift_pidController.enable();
 	}
 
 	@Override
@@ -167,17 +193,22 @@ public class Robot extends IterativeRobot {
 		// SWITCH用PID
 		if(xbox_lift.getAButton() && xbox_lift.getBumper(Hand.kLeft)) {
 			// Lift up/down the arm SWITCH MIDDLE
+			lift_pidController.setSetpoint(kSwitchMiddle);
 		}else if(xbox_lift.getAButton() && xbox_lift.getBumper(Hand.kRight)) {
 			// Lift up/down the arm SWITCH HIGH
+			lift_pidController.setSetpoint(kSwitchHigh);
 		}
 
 		// SCALE & CLIMB用PID
 		if(xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kLeft)) {
 			// Lift up/down the arm SCALE MIDDLE
+			lift_pidController.setSetpoint(kScaleMiddle);
 		}else if(xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kRight)) {
 			// Lift up/down the arm SCALE HIGH
+			lift_pidController.setSetpoint(kScaleHigh);
 		}else if(xbox_lift.getBButton() && xbox_lift.getPOV() == 0) {
-			// Lift up the arm CLIMB high
+			// Lift up the arm CLIMB High;
+			lift_pidController.setSetpoint(kClimb);
 		}
 
 	}
@@ -191,6 +222,10 @@ public class Robot extends IterativeRobot {
 	public void testPeriodic() {
 
 	}
-
+	private class LiftPidOutput implements PIDOutput{
+		@Override
+		public void pidWrite(double output) {
+			lift.set(output);
+		}
+	}
 }
-
