@@ -10,7 +10,7 @@ public class Encoder_withF extends Encoder {
 	 private double strL;
 	 private double strLLoss;
 	 private double Const;
-	 private double encoderDistance;
+	 private double distance;
 
 	 private double armsCurrentHeightFromGround;
 
@@ -25,8 +25,8 @@ public class Encoder_withF extends Encoder {
 	}
 
 	public double getArmsHeight(){
-		encoderDistance = this.getDistance();
-		armsCurrentHeightFromGround =(2 * encoderDistance) + Const;
+		distance = this.getDistance();
+		armsCurrentHeightFromGround =(2 * distance) + Const;
 		return armsCurrentHeightFromGround;
 	}
 

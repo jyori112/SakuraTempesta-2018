@@ -1,6 +1,7 @@
 package org.usfirst.frc.team6909.robot;
 
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.PIDController;
@@ -9,11 +10,11 @@ import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.Ultrasonic.Unit;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,19 +24,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
  * directory.
  */
 public class Robot extends IterativeRobot {
-	final String defaultAuto = "Default";
-	final String customAuto = "My Auto";
-
-	String autoSelected;
-
-	SendableChooser<String> chooser = new SendableChooser<>();
 
 	// モーターコントローラ, エンコーダ, Relay, 距離センサのポート(RoboRio)
 	private static final int kLeftFrontPort = 0;
 	private static final int kLeftRearPort = 1;
 	private static final int kRightFrontPort = 2;
 	private static final int kRightRearPort = 3;
-	private static final int kLiftMotorPort =4;
+	private static final int kLiftMotorPort = 4;
 	private static final int kLiftEncoderChannelAPort = 0; //Digital
 	private static final int kLiftEncoderChannelBPort = 1; //Digital
 	private static final int kRelayPort = 0; //Relay
@@ -47,8 +42,8 @@ public class Robot extends IterativeRobot {
 	private static final int kRightEyeEchoPort = 5;
 
 	// Xboxコントローラのポート(PC)
-	private static final int kXbox1Port = 0;
-	private static final int kXbox2Port = 1;
+	private static final int kXbox1Port = 1;
+	private static final int kXbox2Port = 0;
 
 	//エンコーダ関連
 	private static final int kLiftEncoderMMPerPulse = 2; //[mm / pulse]
@@ -83,7 +78,7 @@ public class Robot extends IterativeRobot {
 	private DifferentialDrive my_arcade_drive;
 
 	// リフト用の宣言
-	private PWMTalonSRX lift;
+	private Spark lift;
 	private Encoder_withF liftEncoder;
 	private Relay touch_floor;
 	private PIDController lift_pidController;
@@ -102,6 +97,9 @@ public class Robot extends IterativeRobot {
 	private XboxController xbox_drive;
 	private XboxController xbox_lift;
 
+	private String gameData;
+	private int location;
+	private Timer timer;
 
 	@Override
 	public void robotInit() {
@@ -119,7 +117,7 @@ public class Robot extends IterativeRobot {
 		rightMotors = new SpeedControllerGroup(rightFront, rightRear);
 		my_arcade_drive = new DifferentialDrive(leftMotors, rightMotors);
 
-		lift = new PWMTalonSRX(kLiftMotorPort);
+		lift = new Spark(kLiftMotorPort);
 		//Encoder_withFのコンストラクタに渡す値はConstにまとめて7→3個にできる
 		liftEncoder = new Encoder_withF(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort, armsOriginalHeightFromGround, secondndColumnLengthMM, armsHeightOfItselfMM, stringLengthMM,  stringLengthLossMM);
 		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
@@ -127,7 +125,6 @@ public class Robot extends IterativeRobot {
 		rightArm = new PWMTalonSRX(kRightArmPort);
 		leftArm = new PWMTalonSRX(kLeftArmPort);
 		my_arms = new SpeedControllerGroup(leftArm, rightArm);
-		leftArm.setInverted(true);
 
 		touch_floor = new Relay(kRelayPort);
 
@@ -136,26 +133,27 @@ public class Robot extends IterativeRobot {
 
 		xbox_drive = new XboxController(kXbox1Port);
 		xbox_lift = new XboxController(kXbox2Port);
+
 	}
 
 	@Override
 	public void autonomousInit() {
-		autoSelected = chooser.getSelected();
-		System.out.println("Auto selected" + autoSelected);
+		gameData = DriverStation.getInstance().getGameSpecificMessage();
+		location = DriverStation.getInstance().getLocation();
+		timer = new Timer();
+		timer.reset();
+		timer.start();
 	}
 
 
 	@Override
 	public void autonomousPeriodic() {
-		switch(autoSelected) {
-		case customAuto:
-			// Put custom auto code here
-
-			break;
-		case defaultAuto:
-			// Put default auto code here
-
-			break;
+		if( (gameData.charAt(0) == 'L') && (location == 1) && (timer.get() < 5.0) ) {
+			my_arcade_drive.arcadeDrive(1.1, 0.0);
+		}else if((gameData.charAt(0) == 'L') && (location == 1) && (timer.get() > 5.0)) {
+			my_arcade_drive.arcadeDrive(0.0, 1.0);
+		}else {
+			my_arcade_drive.arcadeDrive(0.0, 0.0);
 		}
 	}
 
