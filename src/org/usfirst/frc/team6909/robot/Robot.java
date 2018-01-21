@@ -149,7 +149,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousPeriodic() {
 		if( (gameData.charAt(0) == 'L') && (location == 1) && (timer.get() < 5.0) ) {
-			my_arcade_drive.arcadeDrive(1.1, 0.0);
+			my_arcade_drive.arcadeDrive(1.0, 0.0);
 		}else if((gameData.charAt(0) == 'L') && (location == 1) && (timer.get() > 5.0)) {
 			my_arcade_drive.arcadeDrive(0.0, 1.0);
 		}else {
