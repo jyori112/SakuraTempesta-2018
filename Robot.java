@@ -209,7 +209,6 @@ public class Robot extends IterativeRobot {
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		location = DriverStation.getInstance().getLocation();
 		lift_pidController = new PIDController(kP, kI, kD, liftEncoder, new LiftPidOutput());
-		lift_pidController.enable();
 		gyro.reset();
 		DriveEncoder.reset();
 		status = 0;
@@ -337,11 +336,13 @@ public class Robot extends IterativeRobot {
 		case 4:
 			//リフト上昇
 			//lift_pidController.setSetpoint(kSwitchHigh);
+			//lift_pidController.enable();
 			my_arcade_drive.arcadeDrive(0.0, 0.0);
 			break;
 		case 5:
 			//キューブ射出
 			//my_arms.set(-1);
+			//lift_pidController.free();
 			my_arcade_drive.arcadeDrive(0.0, 0.0);
 			break;
 		default:
