@@ -54,11 +54,11 @@ public class Robot extends IterativeRobot {
 
 	//エンコーダ関連
 	private static final int kLiftEncoderMMPerPulse = 2; //[mm / pulse]
-	private static final double armsOriginalHeightFromGround = 200;
-	private static final double secondndColumnLengthMM = 1350;
-	private static final double armsHeightOfItselfMM = 100;
-	private static final double stringLengthMM = 1400;
-	private static final double stringLengthLossMM = 50;
+	private static final double kArmsOriginalHeightFromGround = 200;
+	private static final double kSecondndColumnLengthMM = 1350;
+	private static final double kArmsHeightOfItselfMM = 100;
+	private static final double kStringLengthMM = 1400;
+	private static final double kStringLengthLossMM = 50;
 	private static final double kDriveEncoderMMPerPulse = 77 * Math.PI;
 
 	// 不感帯の大きさ
@@ -91,9 +91,9 @@ public class Robot extends IterativeRobot {
 	private EncoderWithNewFuncs liftEncoder;
 	private Relay touch_floor;
 	private PIDController lift_pidController;
-	private static final double lift_kP = 0.01; //調整中
-	private static final double lift_kI = 0.00; //基本0とする
-	private static final double lift_kD = 0.00; //基本0とする
+	private static final double kLift_P = 0.01; //調整中
+	private static final double kLift_I = 0.00; //基本0とする
+	private static final double kLift_D = 0.00; //基本0とする
 	// アーム用の宣言
 	private PWMTalonSRX rightArm;
 	private PWMTalonSRX leftArm;
@@ -108,9 +108,9 @@ public class Robot extends IterativeRobot {
 	private ADXRS450_Gyro gyro;
 	private PIDController Gyro_Pid;
 	private static final int kAngle = 30;
-	private static final double gyro_kP = 0.01; //調整中
-	private static final double gyro_kI = 0.00; //基本0とする
-	private static final double gyro_kD = 0.00; //基本0とする
+	private static final double kGyro_P = 0.01; //調整中
+	private static final double kGyro_I = 0.00; //基本0とする
+	private static final double kGyro_D = 0.00; //基本0とする
 	//加速度
 	private ADXL362 accel;
 	private Range meter;
@@ -156,11 +156,11 @@ public class Robot extends IterativeRobot {
 		lift = new Spark(kLiftMotorPort);
 		//Encoder_withFのコンストラクタに渡す値はConstにまとめて7→3個にできる
 		liftEncoder = new EncoderWithNewFuncs(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort,
-				armsOriginalHeightFromGround, secondndColumnLengthMM, armsHeightOfItselfMM, stringLengthMM,
-				stringLengthLossMM);
+				kArmsOriginalHeightFromGround, kSecondndColumnLengthMM, kArmsHeightOfItselfMM, kStringLengthMM,
+				kStringLengthLossMM);
 		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
 		// PID用意
-		lift_pidController = new PIDController(lift_kP, lift_kI, lift_kD, liftEncoder, lift);
+		lift_pidController = new PIDController(kLift_P, kLift_I, kLift_D, liftEncoder, lift);
 
 		rightArm = new PWMTalonSRX(kRightArmPort);
 		leftArm = new PWMTalonSRX(kLeftArmPort);
@@ -398,7 +398,7 @@ public class Robot extends IterativeRobot {
 			lift_pidController.enable();
 		} else if (xbox_lift.getBumper(Hand.kRight) && xbox_lift.getBumper(Hand.kLeft)) {
 			// 降下
-			lift_pidController.setSetpoint(armsOriginalHeightFromGround);
+			lift_pidController.setSetpoint(kArmsOriginalHeightFromGround);
 			lift_pidController.enable();
 		} else if (Math.abs(xbox_lift.getY(Hand.kLeft)) < kNoReact) {
 			// 手動操作
