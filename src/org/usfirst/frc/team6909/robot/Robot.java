@@ -384,15 +384,7 @@ public class Robot extends IterativeRobot {
 			// Lift up/down the arm SWITCH HIGH
 			lift_pidController.setSetpoint(kSwitchHigh);
 			lift_pidController.enable();
-		} else if (xbox_lift.getAButton() && xbox_lift.getBumper(Hand.kRight) && xbox_lift.getBumper(Hand.kLeft)) {
-			lift_pidController.setSetpoint(armsOriginalHeightFromGround);
-			lift_pidController.enable();
-		} else {
-			lift_pidController.disable();
-		}
-
-		// SCALE & CLIMB用PID
-		if (xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kLeft)) {
+		} else if (xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kLeft)) {
 			// Lift up/down the arm SCALE MIDDLE
 			lift_pidController.setSetpoint(kScaleMiddle);
 			lift_pidController.enable();
@@ -404,7 +396,7 @@ public class Robot extends IterativeRobot {
 			// Lift up the arm CLIMB High;
 			lift_pidController.setSetpoint(kClimb);
 			lift_pidController.enable();
-		} else if (xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kRight) && xbox_lift.getBumper(Hand.kLeft)) {
+		} else if (xbox_lift.getBumper(Hand.kRight) && xbox_lift.getBumper(Hand.kLeft)) {
 			lift_pidController.setSetpoint(armsOriginalHeightFromGround);
 			lift_pidController.enable();
 		} else {
