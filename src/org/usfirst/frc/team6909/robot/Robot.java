@@ -402,6 +402,7 @@ public class Robot extends IterativeRobot {
 			lift_pidController.enable();
 		} else if (Math.abs(xbox_lift.getY(Hand.kLeft)) < kNoReact) {
 			// 手動操作
+			lift_pidController.disable();
 			lift.set(xbox_lift.getY(Hand.kLeft));
 		} else {
 
