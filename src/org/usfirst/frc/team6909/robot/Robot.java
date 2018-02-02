@@ -375,7 +375,7 @@ public class Robot extends IterativeRobot {
 			my_arms.set(0.0); // Stay
 		}
 
-		// SWITCH用PID
+		//lift用PID
 		if (xbox_lift.getAButton() && xbox_lift.getBumper(Hand.kLeft)) {
 			// Lift up/down the arm SWITCH MIDDLE
 			lift_pidController.setSetpoint(kSwitchMiddle);
@@ -397,18 +397,17 @@ public class Robot extends IterativeRobot {
 			lift_pidController.setSetpoint(kClimb);
 			lift_pidController.enable();
 		} else if (xbox_lift.getBumper(Hand.kRight) && xbox_lift.getBumper(Hand.kLeft)) {
+			// 降下
 			lift_pidController.setSetpoint(armsOriginalHeightFromGround);
 			lift_pidController.enable();
+		} else if (Math.abs(xbox_lift.getY(Hand.kLeft)) < kNoReact) {
+			// 手動操作
+			lift.set(xbox_lift.getY(Hand.kLeft));
 		} else {
+
 			lift_pidController.disable();
 		}
 
-		// リフト手動コントロール用
-		if (xbox_lift.getY(Hand.kLeft) < 0.1 ) {
-			//do nothing
-		} else {
-			lift.set(xbox_lift.getY(Hand.kLeft));
-		}
 
 		SmartDashboard.putNumber("Gyro", gyro.getAngle());
 		SmartDashboard.putNumber("Rate", gyro.getRate());
