@@ -159,6 +159,8 @@ public class Robot extends IterativeRobot {
 				armsOriginalHeightFromGround, secondndColumnLengthMM, armsHeightOfItselfMM, stringLengthMM,
 				stringLengthLossMM);
 		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
+		// PID用意
+		lift_pidController = new PIDController(lift_kP, lift_kI, lift_kD, liftEncoder, lift);
 
 		rightArm = new PWMTalonSRX(kRightArmPort);
 		leftArm = new PWMTalonSRX(kLeftArmPort);
@@ -188,12 +190,10 @@ public class Robot extends IterativeRobot {
 	public void autonomousInit() {
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		location = DriverStation.getInstance().getLocation();
-		lift_pidController = new PIDController(lift_kP, lift_kI, lift_kD, liftEncoder, lift);
 		gyro.reset();
 		DriveEncoder.reset();
 		status = 0;
 		changer = 0;
-		timer = new Timer();
 		timer.reset();
 		timer.start();
 	}
@@ -345,8 +345,6 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopInit() {
-		// PID用意
-		lift_pidController = new PIDController(lift_kP, lift_kI, lift_kD, liftEncoder, lift);
 		my_arms.set(1);
 		//gyro起動
 		gyro.reset();
