@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.GyroBase;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Spark;
@@ -27,7 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * functions corresponding to each mode, as described in the IterativeRobot
  * documentation. If you change the name of this class or the package after
  * creating this project, you must also update the manifest file in the resource
- * directory. テスト２回目
+ * directory.
  */
 public class Robot extends IterativeRobot {
 
@@ -66,7 +65,7 @@ public class Robot extends IterativeRobot {
 	private static final double kNoReact = 0.1;
 
 	// 目的高さ
-	private static final int kGround = 0;
+	//private static final int armsOriginalHeightFromGround = 200;
 	private static final int kSwitchMiddle = 500;
 	private static final int kSwitchHigh = 700;
 	private static final int kScaleMiddle = 1700;
@@ -76,22 +75,6 @@ public class Robot extends IterativeRobot {
 	//オート処理
 	//距離
 	private static final int kSwitchDis = 36600;
-	//Gyro関係
-	private PIDController Gyro_Pid;
-	private gyro_source gyro_source;
-	private ADXRS450_Gyro gyrodeta;
-	private static final int kAngle = 30;
-	private static final double kkP = 0.01;
-	private static final double kkI = 0.01;
-	private static final double kkD = 0.01;
-	//加速度
-	private ADXL362 accel;
-	private Range meter;
-
-	// PID値
-	private static final double kP = 0.01;
-	private static final double kI = 0.01;
-	private static final double kD = 0.01;
 
 	// ドライブ用の宣言
 	private Spark leftFront;
@@ -105,10 +88,12 @@ public class Robot extends IterativeRobot {
 
 	// リフト用の宣言
 	private Spark lift;
-	private Encoder_withF liftEncoder;
+	private EncoderWithNewFuncs liftEncoder;
 	private Relay touch_floor;
 	private PIDController lift_pidController;
-
+	private static final double lift_kP = 0.01; //調整中
+	private static final double lift_kI = 0.00; //基本0とする
+	private static final double lift_kD = 0.00; //基本0とする
 	// アーム用の宣言
 	private PWMTalonSRX rightArm;
 	private PWMTalonSRX leftArm;
@@ -121,6 +106,14 @@ public class Robot extends IterativeRobot {
 	//ジャイロセンサーの宣言
 	private GyroBase GyroBase;
 	private ADXRS450_Gyro gyro;
+	private PIDController Gyro_Pid;
+	private static final int kAngle = 30;
+	private static final double gyro_kP = 0.01; //調整中
+	private static final double gyro_kI = 0.00; //基本0とする
+	private static final double gyro_kD = 0.00; //基本0とする
+	//加速度
+	private ADXL362 accel;
+	private Range meter;
 
 	// Xboxコントローラの宣言
 	private XboxController xbox_drive;
@@ -162,7 +155,7 @@ public class Robot extends IterativeRobot {
 
 		lift = new Spark(kLiftMotorPort);
 		//Encoder_withFのコンストラクタに渡す値はConstにまとめて7→3個にできる
-		liftEncoder = new Encoder_withF(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort,
+		liftEncoder = new EncoderWithNewFuncs(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort,
 				armsOriginalHeightFromGround, secondndColumnLengthMM, armsHeightOfItselfMM, stringLengthMM,
 				stringLengthLossMM);
 		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
@@ -182,13 +175,9 @@ public class Robot extends IterativeRobot {
 		//accel = new ADXL362(Accelerometer.Range.k16G);
 
 		timer = new Timer();
-		gyro_source = new gyro_source();
 		//カメラ起動
 		CameraServer.getInstance().startAutomaticCapture();
 		CameraServer.getInstance().getVideo();
-
-		gyrodeta = new ADXRS450_Gyro();
-		//accel = new ADXL362(Range.k16G);
 
 		DriveEncoder = new Encoder(kDriveEncodeerChannelAPort, kDriveEncoderChannelBPort);
 		DriveEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
@@ -199,7 +188,7 @@ public class Robot extends IterativeRobot {
 	public void autonomousInit() {
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		location = DriverStation.getInstance().getLocation();
-		lift_pidController = new PIDController(kP, kI, kD, liftEncoder, new LiftPidOutput());
+		lift_pidController = new PIDController(lift_kP, lift_kI, lift_kD, liftEncoder, lift);
 		gyro.reset();
 		DriveEncoder.reset();
 		status = 0;
@@ -357,8 +346,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopInit() {
 		// PID用意
-		lift_pidController = new PIDController(kP, kI, kD, liftEncoder, new LiftPidOutput());
-		lift_pidController.enable();
+		lift_pidController = new PIDController(lift_kP, lift_kI, lift_kD, liftEncoder, lift);
 		my_arms.set(1);
 		//gyro起動
 		gyro.reset();
@@ -393,25 +381,43 @@ public class Robot extends IterativeRobot {
 		if (xbox_lift.getAButton() && xbox_lift.getBumper(Hand.kLeft)) {
 			// Lift up/down the arm SWITCH MIDDLE
 			lift_pidController.setSetpoint(kSwitchMiddle);
+			lift_pidController.enable();
 		} else if (xbox_lift.getAButton() && xbox_lift.getBumper(Hand.kRight)) {
 			// Lift up/down the arm SWITCH HIGH
 			lift_pidController.setSetpoint(kSwitchHigh);
+			lift_pidController.enable();
 		} else if (xbox_lift.getAButton() && xbox_lift.getBumper(Hand.kRight) && xbox_lift.getBumper(Hand.kLeft)) {
-			lift_pidController.setSetpoint(kGround);
+			lift_pidController.setSetpoint(armsOriginalHeightFromGround);
+			lift_pidController.enable();
+		} else {
+			lift_pidController.disable();
 		}
 
 		// SCALE & CLIMB用PID
 		if (xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kLeft)) {
 			// Lift up/down the arm SCALE MIDDLE
 			lift_pidController.setSetpoint(kScaleMiddle);
+			lift_pidController.enable();
 		} else if (xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kRight)) {
 			// Lift up/down the arm SCALE HIGH
 			lift_pidController.setSetpoint(kScaleHigh);
+			lift_pidController.enable();
 		} else if (xbox_lift.getBButton() && xbox_lift.getPOV() == 0) {
 			// Lift up the arm CLIMB High;
 			lift_pidController.setSetpoint(kClimb);
+			lift_pidController.enable();
 		} else if (xbox_lift.getBButton() && xbox_lift.getBumper(Hand.kRight) && xbox_lift.getBumper(Hand.kLeft)) {
-			lift_pidController.setSetpoint(kGround);
+			lift_pidController.setSetpoint(armsOriginalHeightFromGround);
+			lift_pidController.enable();
+		} else {
+			lift_pidController.disable();
+		}
+
+		// リフト手動コントロール用
+		if (xbox_lift.getY(Hand.kLeft) < 0.1 ) {
+			//do nothing
+		} else {
+			lift.set(xbox_lift.getY(Hand.kLeft));
 		}
 
 		SmartDashboard.putNumber("Gyro", gyro.getAngle());
@@ -456,18 +462,20 @@ public class Robot extends IterativeRobot {
 		}
 	}
 
+	/*
 	private class LiftPidOutput implements PIDOutput {
 		@Override
 		public void pidWrite(double output) {
 			lift.set(output);
 		}
 	}
+	*/
 
 	/*private class GyroPidOutput implements PIDOutput {
 		@Override
 		public void pidWrite(double output) {
 			my_arcade_drive.arcadeDrive(0, output);
-	
+
 		}
 	}**/
 }
