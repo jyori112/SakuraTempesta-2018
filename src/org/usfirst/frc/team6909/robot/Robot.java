@@ -424,7 +424,7 @@ public class Robot extends IterativeRobot {
 		} else if (DriveEncoder.getDistance() >= 3000 && gyro.getAngle() < 90) {
 			status = 2;
 		} else {
-			status = 4;
+			status = 0;
 			;
 		}
 
