@@ -1,12 +1,10 @@
 package org.usfirst.frc.team6909.robot;
 
-import edu.wpi.first.wpilibj.ADXL362;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.GyroBase;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
@@ -19,7 +17,6 @@ import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.Ultrasonic.Unit;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -60,7 +57,7 @@ public class Robot extends IterativeRobot {
 	private static final double armsHeightOfItselfMM = 100;
 	private static final double stringLengthMM = 1400;
 	private static final double stringLengthLossMM = 50;
-	private static final double kDriveEncoderMMPerPulse = 77 * Math.PI;
+	private static final double kDriveEncoderMMPerPulse = (77 * Math.PI) / 10.71;
 
 	// 不感帯の大きさ
 	private static final double kNoReact = 0.1;
@@ -77,17 +74,10 @@ public class Robot extends IterativeRobot {
 	//距離
 	private static final int kSwitchDis = 36600;
 	//Gyro関係
-	private PIDController Gyro_Pid;
-	private gyro_source gyro_source;
-	private ADXRS450_Gyro gyrodeta;
 	private static final int kAngle = 30;
 	private static final double kkP = 0.01;
 	private static final double kkI = 0.01;
 	private static final double kkD = 0.01;
-	//加速度
-	private ADXL362 accel;
-	private Range meter;
-
 	// PID値
 	private static final double kP = 0.01;
 	private static final double kI = 0.01;
@@ -104,7 +94,7 @@ public class Robot extends IterativeRobot {
 	private Encoder DriveEncoder;
 
 	// リフト用の宣言
-	private Spark lift;
+	private PWMTalonSRX lift;
 	private Encoder_withF liftEncoder;
 	private Relay touch_floor;
 	private PIDController lift_pidController;
@@ -119,7 +109,6 @@ public class Robot extends IterativeRobot {
 	private Ultrasonic rightEye;
 
 	//ジャイロセンサーの宣言
-	private GyroBase GyroBase;
 	private ADXRS450_Gyro gyro;
 
 	// Xboxコントローラの宣言
@@ -160,7 +149,7 @@ public class Robot extends IterativeRobot {
 		rightMotors = new SpeedControllerGroup(rightFront, rightRear);
 		my_arcade_drive = new DifferentialDrive(leftMotors, rightMotors);
 
-		lift = new Spark(kLiftMotorPort);
+		lift = new PWMTalonSRX(kLiftMotorPort);
 		//Encoder_withFのコンストラクタに渡す値はConstにまとめて7→3個にできる
 		liftEncoder = new Encoder_withF(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort,
 				armsOriginalHeightFromGround, secondndColumnLengthMM, armsHeightOfItselfMM, stringLengthMM,
@@ -182,12 +171,10 @@ public class Robot extends IterativeRobot {
 		//accel = new ADXL362(Accelerometer.Range.k16G);
 
 		timer = new Timer();
-		gyro_source = new gyro_source();
 		//カメラ起動
 		CameraServer.getInstance().startAutomaticCapture();
 		CameraServer.getInstance().getVideo();
 
-		gyrodeta = new ADXRS450_Gyro();
 		//accel = new ADXL362(Range.k16G);
 
 		DriveEncoder = new Encoder(kDriveEncodeerChannelAPort, kDriveEncoderChannelBPort);
@@ -215,7 +202,7 @@ public class Robot extends IterativeRobot {
 			//Phase1,2
 			if (DriveEncoder.getDistance() < DriveDistance1 && gyro.getAngle() < Angle1) {
 				status = 1;
-			} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() < Angle1) {
+			} else if (DriveEncoder.getDistance() >= DriveDistance1 && gyro.getAngle() < Angle1) {
 				status = 2;
 			} else {
 				changer = 1;
@@ -296,7 +283,7 @@ public class Robot extends IterativeRobot {
 			//Phase1,2
 			if (DriveEncoder.getDistance() < DriveDistance1 && gyro.getAngle() > Angle6) {
 				status = 1;
-			} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() > Angle1) {
+			} else if (DriveEncoder.getDistance() >= DriveDistance1 && gyro.getAngle() > Angle1) {
 				status = 3;
 			} else {
 				changer = 1;
@@ -432,9 +419,9 @@ public class Robot extends IterativeRobot {
 	public void testPeriodic() {
 
 		//Phase1,2
-		if (DriveEncoder.getDistance() < DriveDistance1 && gyro.getAngle() < Angle1) {
+		if (DriveEncoder.getDistance() < 3000 && gyro.getAngle() < 90) {
 			status = 1;
-		} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() < Angle1) {
+		} else if (DriveEncoder.getDistance() >= 3000 && gyro.getAngle() < 90) {
 			status = 2;
 		} else {
 			status = 4;
@@ -444,7 +431,7 @@ public class Robot extends IterativeRobot {
 		//入力
 		switch (status) {
 		case 1:
-			my_arcade_drive.arcadeDrive(0.8, 0.0);
+			my_arcade_drive.arcadeDrive(0.6, 0.0);
 			break;
 		case 2:
 			my_arcade_drive.arcadeDrive(0.0, 0.5);
@@ -463,11 +450,4 @@ public class Robot extends IterativeRobot {
 		}
 	}
 
-	/*private class GyroPidOutput implements PIDOutput {
-		@Override
-		public void pidWrite(double output) {
-			my_arcade_drive.arcadeDrive(0, output);
-	
-		}
-	}**/
 }
