@@ -308,19 +308,19 @@ public class Robot extends IterativeRobot {
 		//入力
 		switch (status) {
 		case 1:
-			drive_PID.enable();
 			drive_PID.setSetpoint(DriveDistance1);
+			drive_PID.enable();
 			gyro_PID.disable();
 			break;
 		case 2:
+			gyro_PID.setSetpoint(Angle1);
 			drive_PID.disable();
 			gyro_PID.enable();
-			gyro_PID.setSetpoint(Angle1);
 			break;
 		case 3:
+			gyro_PID.setSetpoint(Angle1);
 			drive_PID.disable();
 			gyro_PID.enable();
-			gyro_PID.setSetpoint(Angle1);
 		case 4:
 			drive_PID.disable();
 			gyro_PID.disable();
@@ -431,13 +431,13 @@ public class Robot extends IterativeRobot {
 		switch (status) {
 		case 1:
 			gyro_PID.disable();
-			drive_PID.enable();
 			drive_PID.setSetpoint(3000);
+			drive_PID.enable();
 			break;
 		case 2:
 			drive_PID.disable();
-			gyro_PID.enable();
 			gyro_PID.setSetpoint(90);
+			gyro_PID.enable();
 			break;
 		case 3:
 			drive_PID.disable();
