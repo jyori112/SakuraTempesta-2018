@@ -132,6 +132,8 @@ public class Robot extends IterativeRobot {
 	private double Angle4 = 30;
 	private double Angle5 = -130;
 	private double Angle6 = -90;
+	private PIDController gyro_PID;
+	private PIDController drive_PID;
 
 	@Override
 	public void robotInit() {
@@ -179,6 +181,9 @@ public class Robot extends IterativeRobot {
 
 		DriveEncoder = new Encoder(kDriveEncodeerChannelAPort, kDriveEncoderChannelBPort);
 		DriveEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
+		gyro_PID = new PIDController(kP, kI, kD, gyro, new gyroPidOutput());
+		drive_PID = new PIDController(kP, kI, kD, DriveEncoder, new drivePidOutput());
+		lift_pidController = new PIDController(kP, kI, kD, liftEncoder, new LiftPidOutput());
 
 	}
 
@@ -186,14 +191,10 @@ public class Robot extends IterativeRobot {
 	public void autonomousInit() {
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		location = DriverStation.getInstance().getLocation();
-		lift_pidController = new PIDController(kP, kI, kD, liftEncoder, new LiftPidOutput());
 		gyro.reset();
 		DriveEncoder.reset();
 		status = 0;
 		changer = 0;
-		timer = new Timer();
-		timer.reset();
-		timer.start();
 	}
 
 	@Override
@@ -307,14 +308,22 @@ public class Robot extends IterativeRobot {
 		//入力
 		switch (status) {
 		case 1:
-			my_arcade_drive.arcadeDrive(0.8, 0.0);
+			drive_PID.enable();
+			drive_PID.setSetpoint(DriveDistance1);
+			gyro_PID.disable();
 			break;
 		case 2:
-			my_arcade_drive.arcadeDrive(0.0, 0.5);
+			drive_PID.disable();
+			gyro_PID.enable();
+			gyro_PID.setSetpoint(Angle1);
 			break;
 		case 3:
-			my_arcade_drive.arcadeDrive(0.0, -0.5);
+			drive_PID.disable();
+			gyro_PID.enable();
+			gyro_PID.setSetpoint(Angle1);
 		case 4:
+			drive_PID.disable();
+			gyro_PID.disable();
 			//リフト上昇
 			//lift_pidController.setSetpoint(kSwitchHigh);
 			//lift_pidController.enable();
@@ -329,14 +338,6 @@ public class Robot extends IterativeRobot {
 		default:
 			break;
 
-		}
-
-		if ((gameData.charAt(0) == 'L') && (location == 1) && (timer.get() < 5.0)) {
-			my_arcade_drive.arcadeDrive(1.0, 0.0);
-		} else if ((gameData.charAt(0) == 'L') && (location == 1) && (timer.get() > 5.0)) {
-			my_arcade_drive.arcadeDrive(0.0, 1.0);
-		} else {
-			my_arcade_drive.arcadeDrive(0.0, 0.0);
 		}
 
 	}
@@ -427,26 +428,47 @@ public class Robot extends IterativeRobot {
 			status = 0;
 			;
 		}
-
-		//入力
 		switch (status) {
 		case 1:
-			my_arcade_drive.arcadeDrive(0.6, 0.0);
+			gyro_PID.disable();
+			drive_PID.enable();
+			drive_PID.setSetpoint(3000);
 			break;
 		case 2:
-			my_arcade_drive.arcadeDrive(0.0, 0.5);
+			drive_PID.disable();
+			gyro_PID.enable();
+			gyro_PID.setSetpoint(90);
 			break;
 		case 3:
-			my_arcade_drive.arcadeDrive(0.0, -0.5);
+			drive_PID.disable();
+			gyro_PID.enable();
+			gyro_PID.setSetpoint(90);
 		default:
+			drive_PID.disable();
+			gyro_PID.disable();
 			break;
 		}
+
 	}
 
 	private class LiftPidOutput implements PIDOutput {
 		@Override
 		public void pidWrite(double output) {
 			lift.set(output);
+		}
+	}
+
+	private class gyroPidOutput implements PIDOutput {
+		@Override
+		public void pidWrite(double output) {
+			my_arcade_drive.arcadeDrive(0, output);
+		}
+	}
+
+	private class drivePidOutput implements PIDOutput {
+		@Override
+		public void pidWrite(double output) {
+			my_arcade_drive.arcadeDrive(output, 0.0);
 		}
 	}
 
