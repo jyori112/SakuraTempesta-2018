@@ -2,7 +2,6 @@ package org.usfirst.frc.team6909.robot;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.CameraServer;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -34,8 +33,8 @@ public class Robot extends IterativeRobot {
 	private static final int kRightFrontPort = 2;
 	private static final int kRightRearPort = 3;
 	private static final int kLiftMotorPort = 4;
-	private static final int kLiftEncoderChannelAPort = 0; //Digital
-	private static final int kLiftEncoderChannelBPort = 1; //Digital
+	private static final int kLiftEncoderChannelAPort = 7; //Digital
+	private static final int kLiftEncoderChannelBPort = 8; //Digital
 	private static final int kRelayPort = 0; //Relay
 	private static final int kRightArmPort = 5;
 	private static final int kLeftArmPort = 6;
@@ -43,8 +42,8 @@ public class Robot extends IterativeRobot {
 	private static final int kLeftEyeEchoPort = 3;
 	private static final int kRightEyePingPort = 4;
 	private static final int kRightEyeEchoPort = 5;
-	private static final int kDriveEncodeerChannelAPort = 6;
-	private static final int kDriveEncoderChannelBPort = 7;
+	private static final int kDriveEncoderChannelAPort = 0;
+	private static final int kDriveEncoderChannelBPort = 1;
 
 	// Xboxコントローラのポート(PC)
 	private static final int kXbox1Port = 1;
@@ -80,8 +79,8 @@ public class Robot extends IterativeRobot {
 	private static final double kkD = 0.01;
 	// PID値
 	private static final double kP = 0.01;
-	private static final double kI = 0.01;
-	private static final double kD = 0.01;
+	private static final double kI = 0;
+	private static final double kD = 0;
 
 	// ドライブ用の宣言
 	private Spark leftFront;
@@ -110,7 +109,6 @@ public class Robot extends IterativeRobot {
 
 	//ジャイロセンサーの宣言
 	private ADXRS450_Gyro gyro;
-
 	// Xboxコントローラの宣言
 	private XboxController xbox_drive;
 	private XboxController xbox_lift;
@@ -132,7 +130,7 @@ public class Robot extends IterativeRobot {
 	private double Angle4 = 30;
 	private double Angle5 = -130;
 	private double Angle6 = -90;
-	private PIDController gyro_PID;
+	private drivesource drivesource;
 	private PIDController drive_PID;
 
 	@Override
@@ -176,170 +174,24 @@ public class Robot extends IterativeRobot {
 		//カメラ起動
 		CameraServer.getInstance().startAutomaticCapture();
 		CameraServer.getInstance().getVideo();
+		drivesource = new drivesource(kDriveEncoderChannelAPort, kDriveEncoderChannelBPort);
 
 		//accel = new ADXL362(Range.k16G);
 
-		DriveEncoder = new Encoder(kDriveEncodeerChannelAPort, kDriveEncoderChannelBPort);
-		DriveEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
-		gyro_PID = new PIDController(kP, kI, kD, gyro, new gyroPidOutput());
-		drive_PID = new PIDController(kP, kI, kD, DriveEncoder, new drivePidOutput());
-		lift_pidController = new PIDController(kP, kI, kD, liftEncoder, new LiftPidOutput());
+		drivesource.setDistancePerPulse(kDriveEncoderMMPerPulse);
+		drive_PID = new PIDController(kP, kI, kD, drivesource, new drivePidOutput());
 
 	}
 
 	@Override
 	public void autonomousInit() {
-		gameData = DriverStation.getInstance().getGameSpecificMessage();
-		location = DriverStation.getInstance().getLocation();
-		gyro.reset();
-		DriveEncoder.reset();
-		status = 0;
-		changer = 0;
+		drive_PID.setSetpoint(-30000);
+
 	}
 
 	@Override
 	public void autonomousPeriodic() {
-		if (gameData.charAt(0) == 'L' && location == 1) {
-			//Phase1,2
-			if (DriveEncoder.getDistance() < DriveDistance1 && gyro.getAngle() < Angle1) {
-				status = 1;
-			} else if (DriveEncoder.getDistance() >= DriveDistance1 && gyro.getAngle() < Angle1) {
-				status = 2;
-			} else {
-				changer = 1;
-			}
-			//Phase3
-			if (changer == 1 && leftEye.getRangeMM() >= DistanceFromSwitch) {
-				status = 1;
-			} else if (changer == 1) {
-				changer = 2;
-			}
-			//Phase4
-			if (changer == 2 && leftEye.getRangeMM() < DistanceFromSwitch) {
-				status = 4;
-			}
-			//Phase5
-			if (liftEncoder.getArmsHeight() >= kSwitchHigh) {
-				status = 5;
-			}
-		}
-
-		if (gameData.charAt(0) == 'L' && location == 2) {
-			if (gyro.getAngle() > Angle2) {
-				status = 3;
-			} else {
-				changer = 1;
-			}
-			if (changer == 1 && DriveEncoder.getDistance() < DriveDistance2) {
-				status = 1;
-			}
-			if (DriveEncoder.getDistance() >= DriveDistance2) {
-				changer = 2;
-			}
-			if (changer == 2 && gyro.getAngle() < Angle3) {
-				status = 2;
-			} else if (changer == 2) {
-				changer = 3;
-			}
-			if (changer == 3 && leftEye.getRangeMM() < DistanceFromSwitch) {
-				status = 1;
-			}
-			if (changer == 3 && leftEye.getRangeMM() >= DistanceFromSwitch) {
-				status = 4;
-			}
-			if (liftEncoder.getArmsHeight() >= kSwitchHigh) {
-				status = 5;
-			}
-		}
-
-		if (gameData.charAt(0) == 'R' && location == 2) {
-			if (gyro.getAngle() < Angle4) {
-				status = 2;
-			} else {
-				changer = 1;
-			}
-			if (changer == 1 && DriveEncoder.getDistance() < DriveDistance2) {
-				status = 1;
-			}
-			if (DriveEncoder.getDistance() >= DriveDistance2) {
-				changer = 2;
-			}
-			if (changer == 2 && gyro.getAngle() > Angle5) {
-				status = 3;
-			} else if (changer == 2) {
-				changer = 3;
-			}
-			if (changer == 3 && leftEye.getRangeMM() < DistanceFromSwitch) {
-				status = 1;
-			}
-			if (changer == 3 && leftEye.getRangeMM() >= DistanceFromSwitch) {
-				status = 4;
-			}
-			if (liftEncoder.getArmsHeight() >= kSwitchHigh) {
-				status = 5;
-			}
-		}
-
-		if (gameData.charAt(0) == 'R' && location == 3) {
-			//Phase1,2
-			if (DriveEncoder.getDistance() < DriveDistance1 && gyro.getAngle() > Angle6) {
-				status = 1;
-			} else if (DriveEncoder.getDistance() >= DriveDistance1 && gyro.getAngle() > Angle1) {
-				status = 3;
-			} else {
-				changer = 1;
-			}
-			//Phase3
-			if (changer == 1 && leftEye.getRangeMM() >= DistanceFromSwitch) {
-				status = 1;
-			} else if (changer == 1) {
-				changer = 2;
-			}
-			//Phase4
-			if (changer == 2 && leftEye.getRangeMM() < DistanceFromSwitch) {
-				status = 4;
-			}
-			//Phase5
-			if (liftEncoder.getArmsHeight() >= kSwitchHigh) {
-				status = 5;
-			}
-		}
-
-		//入力
-		switch (status) {
-		case 1:
-			drive_PID.setSetpoint(DriveDistance1);
-			drive_PID.enable();
-			gyro_PID.disable();
-			break;
-		case 2:
-			gyro_PID.setSetpoint(Angle1);
-			drive_PID.disable();
-			gyro_PID.enable();
-			break;
-		case 3:
-			gyro_PID.setSetpoint(Angle1);
-			drive_PID.disable();
-			gyro_PID.enable();
-		case 4:
-			drive_PID.disable();
-			gyro_PID.disable();
-			//リフト上昇
-			//lift_pidController.setSetpoint(kSwitchHigh);
-			//lift_pidController.enable();
-			my_arcade_drive.arcadeDrive(0.0, 0.0);
-			break;
-		case 5:
-			//キューブ射出
-			//my_arms.set(-1);
-			//lift_pidController.free();
-			my_arcade_drive.arcadeDrive(0.0, 0.0);
-			break;
-		default:
-			break;
-
-		}
-
+		drive_PID.enable();
 	}
 
 	@Override
@@ -359,12 +211,12 @@ public class Robot extends IterativeRobot {
 			my_arcade_drive.arcadeDrive(0.0, 0.0); // Stay
 		} else if ((Math.abs(xbox_drive.getY(Hand.kLeft)) > kNoReact)
 				&& (Math.abs(xbox_drive.getX(Hand.kRight)) < kNoReact)) {
-			my_arcade_drive.arcadeDrive(-xbox_drive.getY(Hand.kLeft), 0.0); // Drive forward/backward
+			my_arcade_drive.arcadeDrive(-1 * xbox_drive.getY(Hand.kLeft), 0.0); // Drive forward/backward
 		} else if ((Math.abs(xbox_drive.getY(Hand.kLeft)) < kNoReact)
 				&& (Math.abs(xbox_drive.getX(Hand.kRight)) > kNoReact)) {
 			my_arcade_drive.arcadeDrive(0.0, xbox_drive.getX(Hand.kRight)); // Turn right/left
 		} else {
-			my_arcade_drive.arcadeDrive(-xbox_drive.getY(Hand.kLeft), xbox_drive.getX(Hand.kRight)); // Free drive
+			my_arcade_drive.arcadeDrive(-1 * xbox_drive.getY(Hand.kLeft), xbox_drive.getX(Hand.kRight)); // Free drive
 		}
 
 		//Arm
@@ -408,46 +260,11 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void testInit() {
-		gameData = DriverStation.getInstance().getGameSpecificMessage();
-		location = DriverStation.getInstance().getLocation();
-		gyro.reset();
-		DriveEncoder.reset();
-		status = 0;
-		changer = 0;
+
 	}
 
 	@Override
 	public void testPeriodic() {
-
-		//Phase1,2
-		if (DriveEncoder.getDistance() < 3000 && gyro.getAngle() < 90) {
-			status = 1;
-		} else if (DriveEncoder.getDistance() >= 3000 && gyro.getAngle() < 90) {
-			status = 2;
-		} else {
-			status = 0;
-			;
-		}
-		switch (status) {
-		case 1:
-			gyro_PID.disable();
-			drive_PID.setSetpoint(3000);
-			drive_PID.enable();
-			break;
-		case 2:
-			drive_PID.disable();
-			gyro_PID.setSetpoint(90);
-			gyro_PID.enable();
-			break;
-		case 3:
-			drive_PID.disable();
-			gyro_PID.enable();
-			gyro_PID.setSetpoint(90);
-		default:
-			drive_PID.disable();
-			gyro_PID.disable();
-			break;
-		}
 
 	}
 
@@ -458,17 +275,10 @@ public class Robot extends IterativeRobot {
 		}
 	}
 
-	private class gyroPidOutput implements PIDOutput {
-		@Override
-		public void pidWrite(double output) {
-			my_arcade_drive.arcadeDrive(0, output);
-		}
-	}
-
 	private class drivePidOutput implements PIDOutput {
 		@Override
 		public void pidWrite(double output) {
-			my_arcade_drive.arcadeDrive(output, 0.0);
+			my_arcade_drive.arcadeDrive(0, output);
 		}
 	}
 
