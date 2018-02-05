@@ -1,17 +1,14 @@
 package org.usfirst.frc.team6909.robot;
 
-import edu.wpi.first.wpilibj.ADXL362;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
-import edu.wpi.first.wpilibj.GyroBase;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
-import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Spark;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.Timer;
@@ -19,7 +16,6 @@ import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.Ultrasonic.Unit;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer.Range;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -39,13 +35,10 @@ public class Robot extends IterativeRobot {
 	private static final int kLiftMotorPort = 4;
 	private static final int kLiftEncoderChannelAPort = 0; //Digital
 	private static final int kLiftEncoderChannelBPort = 1; //Digital
-	private static final int kRelayPort = 0; //Relay
 	private static final int kRightArmPort = 5;
 	private static final int kLeftArmPort = 6;
 	private static final int kLeftEyePingPort = 2; //Digital
 	private static final int kLeftEyeEchoPort = 3;
-	private static final int kRightEyePingPort = 4;
-	private static final int kRightEyeEchoPort = 5;
 	private static final int kDriveEncodeerChannelAPort = 6;
 	private static final int kDriveEncoderChannelBPort = 7;
 
@@ -60,7 +53,7 @@ public class Robot extends IterativeRobot {
 	private static final double armsHeightOfItselfMM = 100;
 	private static final double stringLengthMM = 1400;
 	private static final double stringLengthLossMM = 50;
-	private static final double kDriveEncoderMMPerPulse = 77 * Math.PI;
+	private static final double kDriveEncoderMMPerPulse = 7.7 * Math.PI / 10.71;
 
 	// 不感帯の大きさ
 	private static final double kNoReact = 0.1;
@@ -72,20 +65,6 @@ public class Robot extends IterativeRobot {
 	private static final int kScaleMiddle = 1700;
 	private static final int kScaleHigh = 1900;
 	private static final int kClimb = 2200;
-
-	//オート処理
-	//距離
-	private static final int kSwitchDis = 36600;
-	//Gyro関係
-	private PIDController Gyro_Pid;
-	private ADXRS450_Gyro gyrodeta;
-	private static final int kAngle = 30;
-	private static final double kkP = 0.01;
-	private static final double kkI = 0.01;
-	private static final double kkD = 0.01;
-	//加速度
-	private ADXL362 accel;
-	private Range meter;
 
 	// PID値
 	private static final double kP = 0.01;
@@ -105,7 +84,6 @@ public class Robot extends IterativeRobot {
 	// リフト用の宣言
 	private Spark lift;
 	private Encoder_withF liftEncoder;
-	private Relay touch_floor;
 	private PIDController lift_pidController;
 
 	// アーム用の宣言
@@ -115,10 +93,8 @@ public class Robot extends IterativeRobot {
 
 	//距離センサーの宣言
 	private Ultrasonic leftEye;
-	private Ultrasonic rightEye;
 
 	//ジャイロセンサーの宣言
-	private GyroBase GyroBase;
 	private ADXRS450_Gyro gyro;
 
 	// Xboxコントローラの宣言
@@ -133,8 +109,8 @@ public class Robot extends IterativeRobot {
 	private int location;
 	private int status;
 	private int changer;
-	private double DriveDistance1 = 36660;
-	private double DriveDistance2 = 38660;
+	private double DriveDistance1 = -36660;
+	private double DriveDistance2 = -38660;
 	private double DistanceFromSwitch = 100;
 	private double Angle1 = 90;
 	private double Angle2 = -30;
@@ -170,10 +146,7 @@ public class Robot extends IterativeRobot {
 		leftArm = new PWMTalonSRX(kLeftArmPort);
 		my_arms = new SpeedControllerGroup(leftArm, rightArm);
 
-		touch_floor = new Relay(kRelayPort);
-
 		leftEye = new Ultrasonic(kLeftEyePingPort, kLeftEyeEchoPort, Unit.kMillimeters);
-		rightEye = new Ultrasonic(kRightEyePingPort, kRightEyeEchoPort, Unit.kMillimeters);
 
 		xbox_drive = new XboxController(kXbox1Port);
 		xbox_lift = new XboxController(kXbox2Port);
@@ -185,7 +158,6 @@ public class Robot extends IterativeRobot {
 		CameraServer.getInstance().startAutomaticCapture();
 		CameraServer.getInstance().getVideo();
 
-		gyrodeta = new ADXRS450_Gyro();
 		//accel = new ADXL362(Range.k16G);
 
 		DriveEncoder = new Encoder(kDriveEncodeerChannelAPort, kDriveEncoderChannelBPort);
@@ -211,7 +183,7 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 		if (gameData.charAt(0) == 'L' && location == 1) {
 			//Phase1,2
-			if (DriveEncoder.getDistance() < DriveDistance1 && gyro.getAngle() < Angle1) {
+			if (DriveEncoder.getDistance() > DriveDistance1 && gyro.getAngle() < Angle1) {
 				status = 1;
 			} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() < Angle1) {
 				status = 2;
@@ -292,9 +264,9 @@ public class Robot extends IterativeRobot {
 
 		if (gameData.charAt(0) == 'R' && location == 3) {
 			//Phase1,2
-			if (DriveEncoder.getDistance() < DriveDistance1 && gyro.getAngle() > Angle6) {
+			if (DriveEncoder.getDistance() > DriveDistance1 && gyro.getAngle() > Angle6) {
 				status = 1;
-			} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() > Angle1) {
+			} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() > Angle6) {
 				status = 3;
 			} else {
 				changer = 1;
@@ -430,15 +402,22 @@ public class Robot extends IterativeRobot {
 	public void testPeriodic() {
 
 		//Phase1,2
-		if (DriveEncoder.getDistance() < DriveDistance1 && gyro.getAngle() < Angle1) {
+		if (DriveEncoder.getDistance() > -3000 && gyro.getAngle() < 90 && changer == 0) {
 			status = 1;
-		} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() < Angle1) {
-			status = 2;
-		} else {
-			status = 4;
-			;
 		}
-
+		if (DriveEncoder.getDistance() <= -3000 && gyro.getAngle() < 90 && changer == 0) {
+			status = 2;
+		}
+		if (DriveEncoder.getDistance() <= -3000 && gyro.getAngle() > 90 && changer == 0) {
+			DriveEncoder.reset();
+			changer = 1;
+		}
+		if (DriveEncoder.getDistance() > -300 && changer == 1) {
+			status = 1;
+		}
+		if (DriveEncoder.getDistance() <= -30 && changer == 1) {
+			status = 4;
+		}
 		//入力
 		switch (status) {
 		case 1:
