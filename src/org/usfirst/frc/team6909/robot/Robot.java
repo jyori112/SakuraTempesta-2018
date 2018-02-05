@@ -78,7 +78,6 @@ public class Robot extends IterativeRobot {
 	private static final int kSwitchDis = 36600;
 	//Gyro関係
 	private PIDController Gyro_Pid;
-	private gyro_source gyro_source;
 	private ADXRS450_Gyro gyrodeta;
 	private static final int kAngle = 30;
 	private static final double kkP = 0.01;
@@ -182,7 +181,6 @@ public class Robot extends IterativeRobot {
 		//accel = new ADXL362(Accelerometer.Range.k16G);
 
 		timer = new Timer();
-		gyro_source = new gyro_source();
 		//カメラ起動
 		CameraServer.getInstance().startAutomaticCapture();
 		CameraServer.getInstance().getVideo();
@@ -452,6 +450,7 @@ public class Robot extends IterativeRobot {
 		case 3:
 			my_arcade_drive.arcadeDrive(0.0, -0.5);
 		default:
+			my_arcade_drive.arcadeDrive(0.0, 0.0);
 			break;
 		}
 	}
@@ -463,11 +462,4 @@ public class Robot extends IterativeRobot {
 		}
 	}
 
-	/*private class GyroPidOutput implements PIDOutput {
-		@Override
-		public void pidWrite(double output) {
-			my_arcade_drive.arcadeDrive(0, output);
-	
-		}
-	}**/
 }
