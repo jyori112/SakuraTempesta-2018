@@ -34,10 +34,12 @@ public class Drive {
 	private static final double kNoReact = 0.1;
 	//操作するコントローラ
 	private XboxController xbox_drive;
+	//左Y軸の値を格納
+	double xfb;
+	//右X軸の値を格納
+	double xlr;
 
-	//Init
 	Drive(XboxController xbox_drive) {
-
 		this.xbox_drive = xbox_drive;
 		leftFront = new Spark(kLeftFrontPort);
 		leftRear = new Spark(kLeftRearPort);
@@ -50,23 +52,31 @@ public class Drive {
 		DriveRightEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
 		DriveLeftEncoder = new Encoder(kDriveRightEncoderChannelAPort, kDriveRightEncoderChannelBPort);
 		DriveLeftEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
+	}
+
+	void runPIDControl() {
 
 	}
 
-	void teleop_control() {
+	void stopPIDControl() {
 
-		if ((Math.abs(xbox_drive.getY(Hand.kLeft)) < kNoReact)
-				&& (Math.abs(xbox_drive.getX(Hand.kRight)) < kNoReact)) {
-			my_arcade_drive.arcadeDrive(0.0, 0.0); // Stay
-		} else if ((Math.abs(xbox_drive.getY(Hand.kLeft)) > kNoReact)
-				&& (Math.abs(xbox_drive.getX(Hand.kRight)) < kNoReact)) {
-			my_arcade_drive.arcadeDrive(-xbox_drive.getY(Hand.kLeft), 0.0); // Drive forward/backward
-		} else if ((Math.abs(xbox_drive.getY(Hand.kLeft)) < kNoReact)
-				&& (Math.abs(xbox_drive.getX(Hand.kRight)) > kNoReact)) {
-			my_arcade_drive.arcadeDrive(0.0, xbox_drive.getX(Hand.kRight)); // Turn right/left
-		} else {
-			my_arcade_drive.arcadeDrive(-xbox_drive.getY(Hand.kLeft), xbox_drive.getX(Hand.kRight)); // Free drive
+	}
+
+	void handControl() {
+		xfb = xbox_drive.getY(Hand.kLeft);
+		xlr = xbox_drive.getX(Hand.kRight);
+
+		my_arcade_drive.arcadeDrive(outputCalc(kNoReact, xfb), outputCalc(kNoReact, xlr));
+	}
+
+	double outputCalc(double kNoReact, double input) {
+		if (input > kNoReact) {
+			//不感帯の正の端でy=0、x=1.0でy=1.0となる一次関数によって出力を計算
+			return 1 / (1 - kNoReact) * input - kNoReact / (1 - kNoReact);
+		}else if (input < -kNoReact){
+			//不感帯の負の端でy=0、x=-1.0でy=-1.0となる一次関数によって出力を計算
+			return 1 / (1 - kNoReact) * input + kNoReact / (1 - kNoReact);
+		}else {
+			return 0.0;
 		}
-
-	}
-}
+	}}

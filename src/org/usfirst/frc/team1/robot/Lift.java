@@ -18,12 +18,6 @@ public class Lift {
 	private static final double kArmsHeightOfItselfMM = 100;
 	private static final double kStringLengthMM = 1400;
 	private static final double kStringLengthLossMM = 50;
-	//目標高さ
-	private static final int kSwitchMiddle = 500;
-	private static final int kSwitchHigh = 700;
-	private static final int kScaleMiddle = 1700;
-	private static final int kScaleHigh = 1900;
-	private static final int kClimb = 2200;
 	//モーター
 	private Spark lift;
 	//PID
@@ -35,7 +29,8 @@ public class Lift {
 	private static final double kNoReact = 0.1;
 	//操作するコントローラ
 	private XboxController xbox_ope;
-
+	//右Y軸の値を格納
+	double x;
 
 	Lift(XboxController xbox_ope) {
 		this.xbox_ope = xbox_ope;
@@ -47,39 +42,29 @@ public class Lift {
 		lift_pidController = new PIDController(kLift_P, kLift_I, kLift_D, liftEncoder, lift);
 	}
 
-	void teleop_control() {
+	void runPIDControl(double setPoint) {
+		lift_pidController.setSetpoint(setPoint);
+		lift_pidController.enable();
+	}
 
-		if (xbox_ope.getAButton() && xbox_ope.getBumper(Hand.kLeft)) {
-			// Lift up/down the arm SWITCH MIDDLE
-			lift_pidController.setSetpoint(kSwitchMiddle);
-			lift_pidController.enable();
-		} else if (xbox_ope.getAButton() && xbox_ope.getBumper(Hand.kRight)) {
-			// Lift up/down the arm SWITCH HIGH
-			lift_pidController.setSetpoint(kSwitchHigh);
-			lift_pidController.enable();
-		} else if (xbox_ope.getBButton() && xbox_ope.getBumper(Hand.kLeft)) {
-			// Lift up/down the arm SCALE MIDDLE
-			lift_pidController.setSetpoint(kScaleMiddle);
-			lift_pidController.enable();
-		} else if (xbox_ope.getBButton() && xbox_ope.getBumper(Hand.kRight)) {
-			// Lift up/down the arm SCALE HIGH
-			lift_pidController.setSetpoint(kScaleHigh);
-			lift_pidController.enable();
-		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 0) {
-			// Lift up the arm CLIMB High;
-			lift_pidController.setSetpoint(kClimb);
-			lift_pidController.enable();
-		} else if (xbox_ope.getBumper(Hand.kRight) && xbox_ope.getBumper(Hand.kLeft)) {
-			// 降下
-			lift_pidController.setSetpoint(kArmsOriginalHeightFromGround);
-			lift_pidController.enable();
-		} else if (Math.abs(xbox_ope.getY(Hand.kLeft)) < kNoReact) {
-			// 手動操作
-			lift_pidController.disable();
-			lift.set(xbox_ope.getY(Hand.kLeft));
-		} else {
-			lift_pidController.disable();
+	void stopPIDControl() {
+		lift_pidController.disable();
+	}
+
+	void handControl() {
+		x = xbox_ope.getY(Hand.kRight);
+		lift.set(outputCalc(kNoReact, x));
+	}
+
+	double outputCalc(double kNoReact, double input) {
+		if (input > kNoReact) {
+			//不感帯の正の端でy=0、x=1.0でy=1.0となる一次関数によって出力を計算
+			return 1 / (1 - kNoReact) * input - kNoReact / (1 - kNoReact);
+		}else if (input < -kNoReact){
+			//不感帯の負の端でy=0、x=-1.0でy=-1.0となる一次関数によって出力を計算
+			return 1 / (1 - kNoReact) * input + kNoReact / (1 - kNoReact);
+		}else {
+			return 0.0;
 		}
-
 	}
 }

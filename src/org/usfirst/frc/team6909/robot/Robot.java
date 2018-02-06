@@ -204,7 +204,7 @@ public class Robot extends IterativeRobot {
 			//Phase1,2
 			if (DriveEncoder.getDistance() < DriveDistance1 && gyro.getAngle() < Angle1) {
 				status = 1;
-			} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() < Angle1) {
+			} else if (DriveEncoder.getDistance() >= DriveDistance1 && gyro.getAngle() < Angle1) {
 				status = 2;
 			} else {
 				changer = 1;

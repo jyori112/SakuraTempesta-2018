@@ -17,6 +17,9 @@ public class Arm {
 	private SpeedControllerGroup my_arms;
 	//操作するコントローラ
 	private XboxController xbox_ope;
+	//Triggerの入力を格納
+	double xr;
+	double xl;
 
 	Arm(XboxController xbox_ope) {
 		this.xbox_ope = xbox_ope;
@@ -25,13 +28,23 @@ public class Arm {
 		my_arms = new SpeedControllerGroup(leftArm, rightArm);
 	}
 
-	void teleop_control() {
-		if ((xbox_ope.getTriggerAxis(Hand.kLeft) > kNoReact) && (xbox_ope.getTriggerAxis(Hand.kRight) < kNoReact)) {
-			my_arms.set(-xbox_ope.getTriggerAxis(Hand.kLeft)); // Get Cube
-		} else if ((xbox_ope.getTriggerAxis(Hand.kLeft) > kNoReact)	&& (xbox_ope.getTriggerAxis(Hand.kRight) < kNoReact)) {
-			my_arms.set(xbox_ope.getTriggerAxis(Hand.kRight)); // Shoot Cube
-		} else {
-			my_arms.set(0.0); // Stay
+	void handControl() {
+		xr = xbox_ope.getTriggerAxis(Hand.kRight);
+		xl = xbox_ope.getTriggerAxis(Hand.kLeft);
+
+		rightArm.set(outputCalc(kNoReact, xr));
+		leftArm.set(outputCalc(kNoReact, xl));
+	}
+
+	double outputCalc(double kNoReact, double input) {
+		if (input > kNoReact) {
+			//不感帯の正の端でy=0、x=1.0でy=1.0となる一次関数によって出力を計算
+			return 1 / (1 - kNoReact) * input - kNoReact / (1 - kNoReact);
+		}else if (input < -kNoReact){
+			//不感帯の負の端でy=0、x=-1.0でy=-1.0となる一次関数によって出力を計算
+			return 1 / (1 - kNoReact) * input + kNoReact / (1 - kNoReact);
+		}else {
+			return 0.0;
 		}
 	}
 }
