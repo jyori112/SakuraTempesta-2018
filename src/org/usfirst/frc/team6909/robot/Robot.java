@@ -33,14 +33,14 @@ public class Robot extends IterativeRobot {
 	private static final int kRightFrontPort = 2;
 	private static final int kRightRearPort = 3;
 	private static final int kLiftMotorPort = 4;
-	private static final int kLiftEncoderChannelAPort = 0; //Digital
-	private static final int kLiftEncoderChannelBPort = 1; //Digital
+	private static final int kLiftEncoderChannelAPort = 8; //Digital
+	private static final int kLiftEncoderChannelBPort = 9; //Digital
 	private static final int kRightArmPort = 5;
 	private static final int kLeftArmPort = 6;
-	private static final int kLeftEyePingPort = 2; //Digital
-	private static final int kLeftEyeEchoPort = 3;
-	private static final int kDriveEncodeerChannelAPort = 6;
-	private static final int kDriveEncoderChannelBPort = 7;
+	private static final int kLeftEyePingPort = 4; //Digital
+	private static final int kLeftEyeEchoPort = 7;
+	private static final int kDriveEncodeerChannelAPort = 2;
+	private static final int kDriveEncoderChannelBPort = 3;
 
 	// Xboxコントローラのポート(PC)
 	private static final int kXbox1Port = 1;
@@ -79,7 +79,8 @@ public class Robot extends IterativeRobot {
 	private SpeedControllerGroup leftMotors;
 	private SpeedControllerGroup rightMotors;
 	private DifferentialDrive my_arcade_drive;
-	private Encoder DriveEncoder;
+	private Encoder DriveEncoder1;
+	private Encoder DriveEncoder2;
 
 	// リフト用の宣言
 	private Spark lift;
@@ -109,6 +110,9 @@ public class Robot extends IterativeRobot {
 	private int location;
 	private int status;
 	private int changer;
+	private int count;
+	private double general0;
+	private double general1;
 	private double DriveDistance1 = -36660;
 	private double DriveDistance2 = -38660;
 	private double DistanceFromSwitch = 100;
@@ -160,8 +164,10 @@ public class Robot extends IterativeRobot {
 
 		//accel = new ADXL362(Range.k16G);
 
-		DriveEncoder = new Encoder(kDriveEncodeerChannelAPort, kDriveEncoderChannelBPort);
-		DriveEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
+		DriveEncoder1 = new Encoder(kDriveEncodeerChannelAPort, kDriveEncoderChannelBPort);
+		DriveEncoder1.setDistancePerPulse(kDriveEncoderMMPerPulse);
+		DriveEncoder2 = new Encoder(0, 1);
+		DriveEncoder2.setDistancePerPulse(kDriveEncoderMMPerPulse);
 
 	}
 
@@ -171,21 +177,18 @@ public class Robot extends IterativeRobot {
 		location = DriverStation.getInstance().getLocation();
 		lift_pidController = new PIDController(kP, kI, kD, liftEncoder, new LiftPidOutput());
 		gyro.reset();
-		DriveEncoder.reset();
+		DriveEncoder1.reset();
 		status = 0;
 		changer = 0;
-		timer = new Timer();
-		timer.reset();
-		timer.start();
 	}
 
 	@Override
 	public void autonomousPeriodic() {
 		if (gameData.charAt(0) == 'L' && location == 1) {
 			//Phase1,2
-			if (DriveEncoder.getDistance() > DriveDistance1 && gyro.getAngle() < Angle1) {
+			if (DriveEncoder1.getDistance() > DriveDistance1 && gyro.getAngle() < Angle1) {
 				status = 1;
-			} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() < Angle1) {
+			} else if (DriveEncoder1.getDistance() <= DriveDistance1 && gyro.getAngle() < Angle1) {
 				status = 2;
 			} else {
 				changer = 1;
@@ -212,10 +215,10 @@ public class Robot extends IterativeRobot {
 			} else {
 				changer = 1;
 			}
-			if (changer == 1 && DriveEncoder.getDistance() < DriveDistance2) {
+			if (changer == 1 && DriveEncoder1.getDistance() < DriveDistance2) {
 				status = 1;
 			}
-			if (DriveEncoder.getDistance() >= DriveDistance2) {
+			if (DriveEncoder1.getDistance() >= DriveDistance2) {
 				changer = 2;
 			}
 			if (changer == 2 && gyro.getAngle() < Angle3) {
@@ -240,10 +243,10 @@ public class Robot extends IterativeRobot {
 			} else {
 				changer = 1;
 			}
-			if (changer == 1 && DriveEncoder.getDistance() < DriveDistance2) {
+			if (changer == 1 && DriveEncoder1.getDistance() < DriveDistance2) {
 				status = 1;
 			}
-			if (DriveEncoder.getDistance() >= DriveDistance2) {
+			if (DriveEncoder1.getDistance() >= DriveDistance2) {
 				changer = 2;
 			}
 			if (changer == 2 && gyro.getAngle() > Angle5) {
@@ -264,9 +267,9 @@ public class Robot extends IterativeRobot {
 
 		if (gameData.charAt(0) == 'R' && location == 3) {
 			//Phase1,2
-			if (DriveEncoder.getDistance() > DriveDistance1 && gyro.getAngle() > Angle6) {
+			if (DriveEncoder1.getDistance() > DriveDistance1 && gyro.getAngle() > Angle6) {
 				status = 1;
-			} else if (DriveEncoder.getDistance() <= DriveDistance1 && gyro.getAngle() > Angle6) {
+			} else if (DriveEncoder1.getDistance() <= DriveDistance1 && gyro.getAngle() > Angle6) {
 				status = 3;
 			} else {
 				changer = 1;
@@ -393,30 +396,63 @@ public class Robot extends IterativeRobot {
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		location = DriverStation.getInstance().getLocation();
 		gyro.reset();
-		DriveEncoder.reset();
+		DriveEncoder1.reset();
+		DriveEncoder2.reset();
 		status = 0;
 		changer = 0;
+		count = 0;
+		general0 = 0;
+		general1 = 0;
 	}
 
 	@Override
 	public void testPeriodic() {
 
-		//Phase1,2
-		if (DriveEncoder.getDistance() > -3000 && gyro.getAngle() < 90 && changer == 0) {
+		/**if ((DriveEncoder1.getDistance() - general0) > 10 && (DriveEncoder2.getDistance() - general0) > 10) {
+			count++;
+			general0 = DriveEncoder1.getDistance();
+			general1 = DriveEncoder2.getDistance();
+		}**/
+		/**if (DriveEncoder.getDistance() > -2500) {
 			status = 1;
 		}
-		if (DriveEncoder.getDistance() <= -3000 && gyro.getAngle() < 90 && changer == 0) {
-			status = 2;
-		}
-		if (DriveEncoder.getDistance() <= -3000 && gyro.getAngle() > 90 && changer == 0) {
+		if (DriveEncoder.getDistance() <= -2500) {
 			DriveEncoder.reset();
 			changer = 1;
+		}**/
+
+		/**if (DriveEncoder.getDistance() < 2500) {
+			status = 4;
 		}
-		if (DriveEncoder.getDistance() > -300 && changer == 1) {
+		if (DriveEncoder.getDistance() >= 2500) {
+			status = 0;
+		}**/
+
+		//Phase1,2
+		if (DriveEncoder1.getDistance() < 2400 && changer == 0) {
 			status = 1;
 		}
-		if (DriveEncoder.getDistance() <= -30 && changer == 1) {
-			status = 4;
+		if (DriveEncoder1.getDistance() >= 2400 && changer == 0) {
+			changer = 1;
+			status = 5;
+		}
+		if (gyro.getAngle() > -80 && changer == 1) {
+			status = 3;
+		}
+		if (gyro.getAngle() <= -80 && changer == 1) {
+			status = 5;
+			DriveEncoder1.reset();
+			DriveEncoder2.reset();
+			general0 = 0;
+			general1 = 0;
+			count = 0;
+			changer = 3;
+		}
+		if (DriveEncoder1.getDistance() < 300 && changer == 3) {
+			status = 1;
+		}
+		if (DriveEncoder1.getDistance() >= 300 && changer == 3) {
+			status = 6;
 		}
 		//入力
 		switch (status) {
@@ -428,8 +464,16 @@ public class Robot extends IterativeRobot {
 			break;
 		case 3:
 			my_arcade_drive.arcadeDrive(0.0, -0.5);
+			break;
+		case 4:
+			my_arcade_drive.arcadeDrive(-0.8, 0.0);
+			break;
+		case 5:
+			my_arcade_drive.arcadeDrive(0, 0);
+			Timer.delay(5);
+			break;
 		default:
-			my_arcade_drive.arcadeDrive(0.0, 0.0);
+			my_arcade_drive.arcadeDrive(0, 0.0);
 			break;
 		}
 	}
