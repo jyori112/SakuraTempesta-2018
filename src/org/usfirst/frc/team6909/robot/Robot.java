@@ -408,72 +408,83 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void testPeriodic() {
 
-		/**if ((DriveEncoder1.getDistance() - general0) > 10 && (DriveEncoder2.getDistance() - general0) > 10) {
+		if (Math.abs(DriveEncoder1.getDistance() - general0) > 10
+				&& Math.abs(DriveEncoder2.getDistance() - general0) > 10) {
 			count++;
 			general0 = DriveEncoder1.getDistance();
 			general1 = DriveEncoder2.getDistance();
-		}**/
-		/**if (DriveEncoder.getDistance() > -2500) {
+		}
+		if (count < 250 && changer == 0) {
 			status = 1;
 		}
-		if (DriveEncoder.getDistance() <= -2500) {
-			DriveEncoder.reset();
-			changer = 1;
-		}**/
-
-		/**if (DriveEncoder.getDistance() < 2500) {
-			status = 4;
-		}
-		if (DriveEncoder.getDistance() >= 2500) {
-			status = 0;
-		}**/
-
-		//Phase1,2
-		if (DriveEncoder1.getDistance() < 2400 && changer == 0) {
-			status = 1;
-		}
-		if (DriveEncoder1.getDistance() >= 2400 && changer == 0) {
-			changer = 1;
+		if (count >= 250 && count < 280 & changer == 0) {
 			status = 5;
 		}
-		if (gyro.getAngle() > -80 && changer == 1) {
+		if (count >= 280 && count < 300 && changer == 0) {
+			status = 9;
+		}
+		if (count <= 300 && changer == 0) {
+			status = 11;
+		}
+		if (gyro.getAngle() < 60 && changer == 1) {
 			status = 3;
 		}
-		if (gyro.getAngle() <= -80 && changer == 1) {
-			status = 5;
+		if (gyro.getAngle() >= 60 && gyro.getAngle() < 90 && changer == 1) {
+			status = 7;
+		}
+		if (gyro.getAngle() >= 90 && changer == 1) {
+			status = 11;
 			DriveEncoder1.reset();
 			DriveEncoder2.reset();
 			general0 = 0;
 			general1 = 0;
 			count = 0;
-			changer = 3;
 		}
-		if (DriveEncoder1.getDistance() < 300 && changer == 3) {
+		if (count < 30 && changer == 2) {
+			status = 9;
+		}
+		if (count >= 30 && changer == 2) {
 			status = 1;
 		}
-		if (DriveEncoder1.getDistance() >= 300 && changer == 3) {
-			status = 6;
-		}
-		//入力
+
 		switch (status) {
 		case 1:
-			my_arcade_drive.arcadeDrive(0.8, 0.0);
+			my_arcade_drive.arcadeDrive(1, 0.0);
 			break;
 		case 2:
-			my_arcade_drive.arcadeDrive(0.0, 0.5);
+			my_arcade_drive.arcadeDrive(-1, 0.0);
 			break;
 		case 3:
-			my_arcade_drive.arcadeDrive(0.0, -0.5);
+			my_arcade_drive.arcadeDrive(0, 0.8);
 			break;
 		case 4:
-			my_arcade_drive.arcadeDrive(-0.8, 0.0);
+			my_arcade_drive.arcadeDrive(0, 0. - 0.8);
 			break;
 		case 5:
-			my_arcade_drive.arcadeDrive(0, 0);
-			Timer.delay(5);
+			my_arcade_drive.arcadeDrive(0.7, 0.0);
+			break;
+		case 6:
+			my_arcade_drive.arcadeDrive(-0.7, 0.0);
+			break;
+		case 7:
+			my_arcade_drive.arcadeDrive(0, 0.5);
+			break;
+		case 8:
+			my_arcade_drive.arcadeDrive(0, -0.5);
+			break;
+		case 9:
+			my_arcade_drive.arcadeDrive(0.5, 0.0);
+			break;
+		case 10:
+			my_arcade_drive.arcadeDrive(-0.5, 0.0);
+			break;
+		case 11:
+			my_arcade_drive.arcadeDrive(0.0, 0.0);
+			Timer.delay(5.0);
+			changer++;
 			break;
 		default:
-			my_arcade_drive.arcadeDrive(0, 0.0);
+			my_arcade_drive.arcadeDrive(0.0, 0.0);
 			break;
 		}
 	}
