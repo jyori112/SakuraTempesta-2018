@@ -16,35 +16,39 @@ public class Arm {
 	private PWMTalonSRX leftArm;
 	private SpeedControllerGroup my_arms;
 	//操作するコントローラ
-	private XboxController xbox_ope;
+	static XboxController xbox_ope;
 	//Triggerの入力を格納
 	double xr;
 	double xl;
 
 	Arm(XboxController xbox_ope) {
-		this.xbox_ope = xbox_ope;
+		Arm.xbox_ope = xbox_ope;
 		rightArm = new PWMTalonSRX(kRightArmPort);
 		leftArm = new PWMTalonSRX(kLeftArmPort);
+		leftArm.setInverted(true);
 		my_arms = new SpeedControllerGroup(leftArm, rightArm);
 	}
 
 	void handControl() {
 		xr = xbox_ope.getTriggerAxis(Hand.kRight);
 		xl = xbox_ope.getTriggerAxis(Hand.kLeft);
-
-		rightArm.set(outputCalc(kNoReact, xr));
-		leftArm.set(outputCalc(kNoReact, xl));
-	}
-
-	double outputCalc(double kNoReact, double input) {
-		if (input > kNoReact) {
-			//不感帯の正の端でy=0、x=1.0でy=1.0となる一次関数によって出力を計算
-			return 1 / (1 - kNoReact) * input - kNoReact / (1 - kNoReact);
-		}else if (input < -kNoReact){
-			//不感帯の負の端でy=0、x=-1.0でy=-1.0となる一次関数によって出力を計算
-			return 1 / (1 - kNoReact) * input + kNoReact / (1 - kNoReact);
-		}else {
-			return 0.0;
+		if (Arm.xbox_ope.getTriggerAxis(Hand.kRight) > kNoReact && Arm.xbox_ope.getTriggerAxis(Hand.kLeft) < kNoReact) {
+			my_arms.set(Util.outputCalc(kNoReact, xr));
+			/*入力に等しい出力が欲しいときはこちら
+			my_arms.set(xr);
+			*/
+		} else if (Arm.xbox_ope.getTriggerAxis(Hand.kLeft) > kNoReact && Arm.xbox_ope.getTriggerAxis(Hand.kRight ) < kNoReact) {
+			my_arms.set(Util.outputCalc(kNoReact, -xl));
+			/*入力に等しい出力が欲しい場合はこちら
+			my_arms.set(-xl);
+			*/
+		} else {
+			my_arms.set(0.0);
 		}
 	}
+
+	void teleopPeriodic() {
+		handControl();
+	}
+
 }

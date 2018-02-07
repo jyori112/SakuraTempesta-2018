@@ -47,12 +47,13 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopPeriodic() {
-		drive.handControl();
-		lift.handControl();
-		arm.handControl();
+		drive.teleopPeriodic();
+		lift.teleopPeriodic();
+		arm.teleopPeriodic();
 	}
 
 	@Override
 	public void testPeriodic() {
+
 	}
 }
