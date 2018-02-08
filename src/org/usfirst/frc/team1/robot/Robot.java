@@ -1,5 +1,6 @@
 package org.usfirst.frc.team1.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -21,6 +22,8 @@ public class Robot extends IterativeRobot {
 
 	Autonomous Auto;
 
+	AutoMove AutoMove;
+
 	@Override
 
 	public void robotInit() {
@@ -35,21 +38,22 @@ public class Robot extends IterativeRobot {
 
 		lift = new Lift(xbox_ope);
 
-		Auto = new Autonomous(3, 3);
+		AutoMove = new AutoMove(3, 3, 3);
 
 	}
 
 	@Override
 
 	public void autonomousInit() {
-		Auto.changerSet(0);
+		Auto = new Autonomous(DriverStation.getInstance().getGameSpecificMessage(),
+				DriverStation.getInstance().getLocation());
+		Auto.changerSet();
 	}
 
 	@Override
 
 	public void autonomousPeriodic() {
-		Auto.changer0(1, 3000, 5);
-		Auto.changer1(10, 90, 5);
+		Auto.move();
 	}
 
 	@Override
