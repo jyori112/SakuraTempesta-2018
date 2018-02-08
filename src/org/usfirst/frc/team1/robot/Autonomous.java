@@ -1,44 +1,28 @@
 package org.usfirst.frc.team1.robot;
 
-import edu.wpi.first.wpilibj.Timer;
-
 public class Autonomous {
-	Drive drive;
+	AutoMove AutoMove;
 
-	public int changer;
+	public String gamedata;
 
-	Autonomous(double percentage1, double percentage2) {
-		drive.SpeedTolerance(percentage1);
-		drive.RotationTolerance(percentage2);
+	public int location;
+
+	Autonomous(String gamedata0, int location0) {
+		gamedata0 = gamedata;
+		location0 = location;
 	}
 
-	void changerSet(int next) {
-		changer = next;
-	}
-
-	void changer0(int next, double setpoint, double seconds) {
-		if (changer == 0) {
-			if (drive.isEnabledSpeed() == false) {
-				drive.runSpeedPID(setpoint);
-			}
-			if (drive.onSpeedTarget()) {
-				drive.stopSpeedPID();
-				Timer.delay(seconds);
-				changer = next;
-			}
+	void changerSet() {
+		if (gamedata == "L" && location == 1) {
+			AutoMove.changerSet(1);
 		}
 	}
 
-	void changer1(int next, double setpoint, double seconds) {
-		if (changer == 1) {
-			if (drive.isEnabledRotation() == false) {
-				drive.runRotationPID(setpoint);
-			}
-			if (drive.onRotationTarget()) {
-				drive.stopRotationPID();
-				Timer.delay(seconds);
-				changer = next;
-			}
+	void move() {
+		if (gamedata == "L" && location == 1) {
+			AutoMove.changer0(1, 3000, 5);
+			AutoMove.changer1(2, 90, 5);
 		}
 	}
+
 }

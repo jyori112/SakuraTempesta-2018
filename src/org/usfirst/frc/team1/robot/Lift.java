@@ -101,6 +101,26 @@ public class Lift {
 
 	}
 
+	void setLiftTolerance(double percentage) {
+		lift_pidController.setPercentTolerance(percentage);
+	}
+
+	boolean onTarget() {
+		if (lift_pidController.onTarget()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	boolean isEnabled() {
+		if (lift_pidController.isEnabled()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	void handControl() {
 
 		x = xbox_ope.getY(Hand.kRight);

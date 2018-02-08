@@ -49,6 +49,7 @@ public class Robot extends IterativeRobot {
 
 	public void autonomousPeriodic() {
 		Auto.changer0(1, 3000, 5);
+		Auto.changer1(10, 90, 5);
 	}
 
 	@Override
