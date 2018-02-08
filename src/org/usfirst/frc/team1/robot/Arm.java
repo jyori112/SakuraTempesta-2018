@@ -12,9 +12,9 @@ public class Arm {
 	//不感帯大きさ
 	private static final double kNoReact = 0.1;
 	//モーター
-	private PWMTalonSRX rightArm;
-	private PWMTalonSRX leftArm;
-	private SpeedControllerGroup my_arms;
+	public PWMTalonSRX rightArm;
+	public PWMTalonSRX leftArm;
+	public SpeedControllerGroup my_arms;
 	//操作するコントローラ
 	static XboxController xbox_ope;
 	//Triggerの入力を格納

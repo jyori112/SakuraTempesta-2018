@@ -22,13 +22,13 @@ public class Drive {
 	private static final int kDriveRightEncoderChannelAPort = 8;
 	private static final int kDriveRightEncoderChannelBPort = 9;
 	private static final double kDriveEncoderMMPerPulse = 77 * Math.PI;
-	private Encoder driveLeftEncoder;
-	private Encoder driveRightEncoder;
+	public Encoder driveLeftEncoder;
+ 	public Encoder driveRightEncoder;
 	//Gyro関連
-	static ADXRS450_Gyro gyro;
+	public ADXRS450_Gyro gyro;
 	//PID
-	PIDController driveSpeed_pidController;
-	PIDController driveRotation_pidController;
+ 	public PIDController driveSpeed_pidController;
+	public PIDController driveRotation_pidController;
 	static final double kDriveSpeed_P = 0.01; //調整中
 	static final double kDriveSpeed_I = 0.00;
 	static final double kDriveSpeed_D = 0.00;
@@ -40,10 +40,10 @@ public class Drive {
 	private Spark leftRear;
 	private Spark rightFront;
 	private Spark rightRear;
-	private SpeedControllerGroup leftMotors;
-	private SpeedControllerGroup rightMotors;
+	public SpeedControllerGroup leftMotors;
+	public SpeedControllerGroup rightMotors;
 	//ドライブ本体
-	private DifferentialDrive my_arcade_drive;
+	public DifferentialDrive my_arcade_drive;
 	//不感帯
 	static final double kNoReact = 0.1;
 	//操作するコントローラ

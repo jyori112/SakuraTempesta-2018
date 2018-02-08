@@ -7,6 +7,7 @@
 
 package org.usfirst.frc.team1.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -21,6 +22,10 @@ public class Robot extends IterativeRobot {
 	Arm arm;
 	Drive drive;
 	Lift lift;
+	AutonomousChooser autonomousChooser;
+
+	String gameData;
+	int location;
 
 	@Override
 	public void robotInit() {
@@ -31,6 +36,9 @@ public class Robot extends IterativeRobot {
 		arm = new Arm(xbox_ope);
 		lift = new Lift(xbox_ope);
 
+		gameData = DriverStation.getInstance().getGameSpecificMessage();
+		location = DriverStation.getInstance().getLocation();
+		autonomousChooser = new AutonomousChooser(gameData, location, drive, lift, arm);
 	}
 
 	@Override
@@ -39,6 +47,7 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void autonomousPeriodic() {
+		autonomousChooser.autonomousPeriodic();
 	}
 
 	@Override

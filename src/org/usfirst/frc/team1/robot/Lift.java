@@ -27,7 +27,7 @@ public class Lift {
 	//モーター
 	private Spark lift;
 	//PID
-	private PIDController lift_pidController;
+	public PIDController lift_pidController;
 	static final double kLift_P = 0.01; //調整中
 	static final double kLift_I = 0.00; //基本0とする
 	static final double kLift_D = 0.00; //基本0とする
