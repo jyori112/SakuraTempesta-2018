@@ -16,44 +16,44 @@ public class AutonomousChooser {
 	String forward = "forward";
 	String rotate = "rotate";
 	String up = "up";
-	String push = "push";
+	String shoot = "shoot";
 	String end = "end";
 	int cnt_forward;
 	int cnt_rotate;
 	int cnt_up;
-	int cnt_push;
+	int cnt_shoot;
 
 	//Turnのために壁から少し移動
 	static final int kForwardBitToTurn = 50;
 	//全速力Scale
 	static final int kForwardZeroToScale = 7000; //値は仮
-	static final int kTurnRightToScaleToPush = 90;
-	static final int kTurnLeftToScaleToPush = -90;
+	static final int kTurnRightToScaleToShoot = 90;
+	static final int kTurnLeftToScaleToShoot = -90;
 	//回り込みScale
 	static final int kTurnRightToOuterSwitchAngle = 55;
 	static final int kTurnLeftToOuterSwitchAngle = -55;
 	static final int kForwardZeroToOuterSwitch = 3000;
 	static final int kTurnRightToScaleAngle = 90;
 	static final int kTurnLeftToScaleAngle = -90;
-	static final int kForwardOuterToScaleAndPush = 4000;
+	static final int kForwardOuterToScaleAndShoot = 4000;
 	//全力Switch
 	static final int kTurnRightToInerSwitchAngle = 45;
 	static final int kTurnLeftToInnerSwitchAngle = -45;
 	static final int kForwardZeroToInnerSwitch = 2000;
-	static final int kTurnRightToSwitchToPush = 135;
-	static final int kTurnLeftToSwitchToPush = -135;
+	static final int kTurnRightToSwitchToShoot = 135;
+	static final int kTurnLeftToSwitchToShoot = -135;
 	//戻ってきてSwitch
 	static final int kForwardZeroToOverSwitch = 5000;
 	static final int kTurnRightToReturnToSwitchAngle = 150;
 	static final int kTurnLeftToReturnToSwitchAngle = -150;
-	static final int kForwardReturnToSwitchAndPush = 2000;
+	static final int kForwardReturnToSwitchAndShoot = 2000;
 	//通過して待機
 	static final int kForwardZeroToMiddleOfField = 6000;
 	static final int kTurnJustRight = 90;
 	static final int kTurnJustLeft = -90;
 	static final int kForwardToMiddle = 1000;
-	//armのpushパワー
-	static final double kPushPower = 0.5;
+	//armのshootパワー
+	static final double kShootPower = 0.5;
 	//PID許容範囲%
 	static int DriveSpeedTolerance = 3;
 	static int DriveRotationTolerane = 3;
@@ -72,7 +72,7 @@ public class AutonomousChooser {
 		cnt_forward = 1;
 		cnt_rotate = 1;
 		cnt_up = 1;
-		cnt_push = 1;
+		cnt_shoot = 1;
 	}
 
 	void autonomousInit() {
@@ -87,17 +87,17 @@ public class AutonomousChooser {
 			Start(forward);
 			DriveForward(rotate, kForwardZeroToOverSwitch, 50);
 			DriveRotate(forward, kTurnRightToReturnToSwitchAngle, 50);
-			DriveForward(up, kForwardReturnToSwitchAndPush, 50);
-			LiftUp(push, Lift.kSwitchHigh, 50);
-			ArmPush(end, kPushPower, 50);
+			DriveForward(up, kForwardReturnToSwitchAndShoot, 50);
+			LiftUp(shoot, Lift.kSwitchHigh, 50);
+			ArmShoot(end, kShootPower, 50);
 			End();
 		}else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
 			// 全速力Scale
 			Start(forward);
 			DriveForward(rotate, kForwardZeroToScale, 50);
-			DriveRotate(forward,  kTurnRightToScaleToPush, 50);
-			LiftUp(push, Lift.kScaleHigh, 50);
-			ArmPush(end, kPushPower, 50);
+			DriveRotate(forward,  kTurnRightToScaleToShoot, 50);
+			LiftUp(shoot, Lift.kScaleHigh, 50);
+			ArmShoot(end, kShootPower, 50);
 			End();
 		}else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
 			// フィールド中心へ
@@ -118,25 +118,25 @@ public class AutonomousChooser {
 			// フィールド中心へ
 			Start(forward);
 			DriveForward(rotate, kForwardZeroToMiddleOfField, 50);
-			DriveRotate(forward, kTurnJustRight, 50);
+			DriveRotate(forward, kTurnJustLeft, 50);
 			DriveForward(end, kForwardToMiddle, 50);
 			End();
 		}else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
 			// 全速力Scale
 			Start(forward);
 			DriveForward(rotate, kForwardZeroToScale, 50);
-			DriveRotate(forward,  kTurnRightToScaleToPush, 50);
-			LiftUp(push, Lift.kScaleHigh, 50);
-			ArmPush(end, kPushPower, 50);
+			DriveRotate(forward,  kTurnLeftToScaleToShoot, 50);
+			LiftUp(shoot, Lift.kScaleHigh, 50);
+			ArmShoot(end, kShootPower, 50);
 			End();
 		}else if (location == 3 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
 			// 戻ってきてSwitch
 			Start(forward);
 			DriveForward(rotate, kForwardZeroToOverSwitch, 50);
-			DriveRotate(forward, kTurnRightToReturnToSwitchAngle, 50);
-			DriveForward(up, kForwardReturnToSwitchAndPush, 50);
-			LiftUp(push, Lift.kSwitchHigh, 50);
-			ArmPush(end, kPushPower, 50);
+			DriveRotate(forward, kTurnLeftToReturnToSwitchAngle, 50);
+			DriveForward(up, kForwardReturnToSwitchAndShoot, 50);
+			LiftUp(shoot, Lift.kSwitchHigh, 50);
+			ArmShoot(end, kShootPower, 50);
 			End();
 		}else if (location == 3 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
 			// 全速力Scale or 戻っってきてSwitch
@@ -203,8 +203,8 @@ public class AutonomousChooser {
 		}
 	}
 
-	void ArmPush(String next, double setpoint, double delayms) {
-		if (status == "push") {
+	void ArmShoot(String next, double setpoint, double delayms) {
+		if (status == "shoot") {
 			timer.reset();
 			timer.start();
 			 if (timer.get() < 1) {
@@ -212,7 +212,7 @@ public class AutonomousChooser {
 			 }else {
 				 Timer.delay(delayms);
 				 status = next;
-				 cnt_push++;
+				 cnt_shoot++;
 			 }
 		}
 	}
