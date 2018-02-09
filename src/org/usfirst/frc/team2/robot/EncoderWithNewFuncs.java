@@ -1,4 +1,4 @@
-package org.usfirst.frc.team1.robot;
+package org.usfirst.frc.team2.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
 
