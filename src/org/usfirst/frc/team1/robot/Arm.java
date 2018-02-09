@@ -49,6 +49,18 @@ public class Arm {
 
 	}
 
+	void ArmStartGetting() {
+		my_arms.set(1.0);
+	}
+
+	void ArmStartOuting() {
+		my_arms.set(-1.0);
+	}
+
+	void ArmStop() {
+		my_arms.set(0);
+	}
+
 	void handControl() {
 
 		xr = xbox_ope.getTriggerAxis(Hand.kRight);

@@ -7,6 +7,8 @@ public class AutoMove {
 
 	Lift lift;
 
+	Arm Arm;
+
 	public int changer;
 
 	AutoMove(double percentage1, double percentage2, double percentage3) {
@@ -57,6 +59,11 @@ public class AutoMove {
 			}
 		}
 	}
-	boolean
+
+	void changer3() {
+		if (changer == 3) {
+			Arm.ArmStartOuting();
+		}
+	}
 
 }
