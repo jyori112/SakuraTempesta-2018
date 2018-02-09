@@ -21,7 +21,7 @@ public class Drive {
 	private static final int kDriveLeftEncoderChannelBPort = 7;
 	private static final int kDriveRightEncoderChannelAPort = 8;
 	private static final int kDriveRightEncoderChannelBPort = 9;
-	private static final double kDriveEncoderMMPerPulse = 77 * Math.PI;
+	private static final double kDriveEncoderMMPerPulse = 7.7 * Math.PI / 10.71;
 	public Encoder driveLeftEncoder;
  	public Encoder driveRightEncoder;
 	//Gyro関連
@@ -29,10 +29,10 @@ public class Drive {
 	//PID
  	public PIDController driveSpeed_pidController;
 	public PIDController driveRotation_pidController;
-	static final double kDriveSpeed_P = 0.01; //調整中
+	static final double kDriveSpeed_P = 0.5; //調整中
 	static final double kDriveSpeed_I = 0.00;
 	static final double kDriveSpeed_D = 0.00;
-	static final double kDriveRotation_P = 0.01;
+	static final double kDriveRotation_P = 0.5;
 	static final double kDriveRotation_I = 0.00;
 	static final double kDriveRotation_D = 0.00;
 	//モーター
@@ -98,7 +98,7 @@ public class Drive {
 		xfb = xbox_drive.getY(Hand.kLeft);
 		xlr = xbox_drive.getX(Hand.kRight);
 
-		my_arcade_drive.arcadeDrive(Util.outputCalc(kNoReact, xfb), Util.outputCalc(kNoReact, xlr));
+		my_arcade_drive.arcadeDrive(Util.outputCalc(kNoReact, -xfb), Util.outputCalc(kNoReact, xlr));
 		/* 入力に等しい出力が欲しいならこちら。
 		my_arcade_drive.arcadeDrive(xfb, xlr);
 		*/

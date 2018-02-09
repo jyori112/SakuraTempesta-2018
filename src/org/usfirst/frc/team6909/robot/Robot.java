@@ -10,6 +10,7 @@ package org.usfirst.frc.team6909.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class Robot extends IterativeRobot {
@@ -38,7 +39,9 @@ public class Robot extends IterativeRobot {
 
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		location = DriverStation.getInstance().getLocation();
+
 		autonomousChooser = new AutonomousChooser(gameData, location, drive, lift, arm);
+
 	}
 
 	@Override
@@ -48,6 +51,13 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousPeriodic() {
 		autonomousChooser.autonomousPeriodic();
+		SmartDashboard.putBoolean("speedPID", drive.driveSpeed_pidController.isEnabled());
+		SmartDashboard.putBoolean("rotatePID", drive.driveRotation_pidController.isEnabled());
+		SmartDashboard.putBoolean("locationOK?", drive.driveSpeed_pidController.onTarget());
+		SmartDashboard.putBoolean("angleOK?", drive.driveRotation_pidController.onTarget());
+		SmartDashboard.putNumber("Gyro", drive.gyro.getAngle());
+		SmartDashboard.putNumber("Right Encoder", drive.driveRightEncoder.getDistance());
+		SmartDashboard.putNumber("Left Encoder", drive.driveLeftEncoder.getDistance());
 	}
 
 	@Override
@@ -59,6 +69,10 @@ public class Robot extends IterativeRobot {
 		drive.teleopPeriodic();
 		lift.teleopPeriodic();
 		arm.teleopPeriodic();
+
+		SmartDashboard.putNumber("Gyro", drive.gyro.getAngle());
+		SmartDashboard.putNumber("Right Encoder", drive.driveRightEncoder.getDistance());
+		SmartDashboard.putNumber("Left Encoder", drive.driveLeftEncoder.getDistance());
 	}
 
 	@Override

@@ -15,7 +15,7 @@ public class AutonomousChooser {
 	int phase;
 
 	//Turnのために壁から少し移動
-	static final int kForwardBitToTurn = 50;
+	static final int kForwardBitToTurn = 500;
 	//全速力Scale
 	static final int kForwardZeroToScale = 7000; //値は仮
 	static final int kTurnRightToScaleToShoot = 90;
@@ -24,15 +24,15 @@ public class AutonomousChooser {
 	static final int kTurnRightToOuterSwitchAngle = 55;
 	static final int kTurnLeftToOuterSwitchAngle = -55;
 	static final int kForwardZeroToOuterSwitch = 3000;
-	static final int kTurnRightToScaleAngle = 90;
-	static final int kTurnLeftToScaleAngle = -90;
+	static final int kTurnRightToScaleAngle = 45;
+	static final int kTurnLeftToScaleAngle = -45;
 	static final int kForwardOuterToScaleAndShoot = 4000;
 	//全力Switch
 	static final int kTurnRightToInnerSwitchAngle = 45;
 	static final int kTurnLeftToInnerSwitchAngle = -45;
 	static final int kForwardZeroToInnerSwitch = 2000;
-	static final int kTurnRightToSwitchToShoot = 135;
-	static final int kTurnLeftToSwitchToShoot = -135;
+	static final int kTurnRightToSwitchToShoot = 90;
+	static final int kTurnLeftToSwitchToShoot = -90;
 	//戻ってきてSwitch
 	static final int kForwardZeroToOverSwitch = 5000;
 	static final int kTurnRightToReturnToSwitchAngle = 150;
@@ -43,12 +43,13 @@ public class AutonomousChooser {
 	static final int kTurnJustRight = 90;
 	static final int kTurnJustLeft = -90;
 	static final int kForwardToMiddle = 1000;
+
 	//armのshootパワー
 	static final double kShootPower = 0.5;
 	//PID許容範囲%
-	static int DriveSpeedTolerance = 3;
-	static int DriveRotationTolerane = 3;
-	static int LiftTolerance = 3;
+	static double DriveSpeedTolerance = 1.0;
+	static double DriveRotationTolerane = 1.0;
+	static double LiftTolerance = 1.0;
 
 	AutonomousChooser(String gameData, int location, Drive drive, Lift lift, Arm arm) {
 		this.gameData = gameData;
@@ -63,6 +64,10 @@ public class AutonomousChooser {
 		drive.driveSpeed_pidController.setEnabled(false);
 		drive.driveRotation_pidController.setEnabled(false);
 		lift.lift_pidController.setEnabled(false);
+
+		drive.driveSpeed_pidController.setPercentTolerance(DriveSpeedTolerance);
+		drive.driveRotation_pidController.setPercentTolerance(DriveRotationTolerane);
+		lift.lift_pidController.setPercentTolerance(LiftTolerance);
 	}
 
 	void autonomousInit() {
@@ -77,13 +82,13 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardZeroToScale, 50);
+				DriveForward(kForwardZeroToScale, 0.5);
 				break;
 			case 2:
-				DriveRotateAndLiftUp(kTurnRightToScaleToShoot, Lift.kScaleHigh, 50);
+				DriveRotateAndLiftUp(kTurnRightToScaleToShoot, Lift.kScaleHigh, 0.5);
 				break;
 			case 3:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 4:
 				End();
@@ -96,16 +101,16 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardZeroToOverSwitch, 50);
+				DriveForward(kForwardZeroToOverSwitch, 0.5);
 				break;
 			case 2:
-				DriveRotate(kTurnRightToReturnToSwitchAngle, 50);
+				DriveRotate(kTurnRightToReturnToSwitchAngle, 0.5);
 				break;
 			case 3:
-				DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 50);
+				DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
 				break;
 			case 4:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 5:
 				End();
@@ -118,13 +123,13 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardZeroToScale, 50);
+				DriveForward(kForwardZeroToScale, 0.5);
 				break;
 			case 2:
-				DriveRotateAndLiftUp(kTurnRightToScaleToShoot, Lift.kScaleHigh, 50);
+				DriveRotateAndLiftUp(kTurnRightToScaleToShoot, Lift.kScaleHigh, 0.5);
 				break;
 			case 3:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 4:
 				End();
@@ -137,13 +142,13 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardZeroToMiddleOfField, 50);
+				DriveForward(kForwardZeroToMiddleOfField, 0.5);
 				break;
 			case 2:
-				DriveRotate(kTurnJustRight, 50);
+				DriveRotate(kTurnJustRight, 0.5);
 				break;
 			case 3:
-				DriveForward(kForwardToMiddle, 50);
+				DriveForward(kForwardToMiddle, 0.5);
 				break;
 			case 4:
 				End();
@@ -156,19 +161,19 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardBitToTurn, 50);
+				DriveForward(kForwardBitToTurn, 0.5);
 				break;
 			case 2:
-				DriveRotate(kTurnLeftToInnerSwitchAngle, 50);
+				DriveRotate(kTurnLeftToInnerSwitchAngle, 0.5);
 				break;
 			case 3:
-				DriveForward(kForwardZeroToInnerSwitch, 50);
+				DriveForward(kForwardZeroToInnerSwitch, 0.5);
 				break;
 			case 4:
-				DriveRotateAndLiftUp(kTurnRightToSwitchToShoot, Lift.kSwitchHigh, 50);
+				DriveRotateAndLiftUp(kTurnRightToSwitchToShoot, Lift.kSwitchHigh, 0.5);
 				break;
 			case 5:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 6:
 				End();
@@ -181,19 +186,19 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardBitToTurn, 50);
+				DriveForward(kForwardBitToTurn, 0.5);
 				break;
 			case 2:
-				DriveRotate(kTurnLeftToInnerSwitchAngle, 50);
+				DriveRotate(kTurnLeftToInnerSwitchAngle, 0.5);
 				break;
 			case 3:
-				DriveForward(kForwardZeroToInnerSwitch, 50);
+				DriveForward(kForwardZeroToInnerSwitch, 0.5);
 				break;
 			case 4:
-				DriveRotateAndLiftUp(kTurnRightToSwitchToShoot, Lift.kSwitchHigh, 50);
+				DriveRotateAndLiftUp(kTurnRightToSwitchToShoot, Lift.kSwitchHigh, 0.5);
 				break;
 			case 5:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 6:
 				End();
@@ -206,19 +211,19 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardBitToTurn, 50);
+				DriveForward(kForwardBitToTurn, 0.5);
 				break;
 			case 2:
-				DriveRotate(kTurnRightToInnerSwitchAngle, 50);
+				DriveRotate(kTurnRightToInnerSwitchAngle, 0.5);
 				break;
 			case 3:
-				DriveForward(kForwardZeroToInnerSwitch, 50);
+				DriveForward(kForwardZeroToInnerSwitch, 0.5);
 				break;
 			case 4:
-				DriveRotateAndLiftUp(kTurnLeftToSwitchToShoot, Lift.kSwitchHigh, 50);
+				DriveRotateAndLiftUp(kTurnLeftToSwitchToShoot, Lift.kSwitchHigh, 0.5);
 				break;
 			case 5:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 6:
 				End();
@@ -231,19 +236,19 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardBitToTurn, 50);
+				DriveForward(kForwardBitToTurn, 0.5);
 				break;
 			case 2:
-				DriveRotate(kTurnRightToInnerSwitchAngle, 50);
+				DriveRotate(kTurnRightToInnerSwitchAngle, 0.5);
 				break;
 			case 3:
-				DriveForward(kForwardZeroToInnerSwitch, 50);
+				DriveForward(kForwardZeroToInnerSwitch, 0.5);
 				break;
 			case 4:
-				DriveRotateAndLiftUp(kTurnLeftToSwitchToShoot, Lift.kSwitchHigh, 50);
+				DriveRotateAndLiftUp(kTurnLeftToSwitchToShoot, Lift.kSwitchHigh, 0.5);
 				break;
 			case 5:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 6:
 				End();
@@ -257,13 +262,13 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardZeroToMiddleOfField, 50);
+				DriveForward(kForwardZeroToMiddleOfField, 0.5);
 				break;
 			case 2:
-				DriveRotate(kTurnJustLeft, 50);
+				DriveRotate(kTurnJustLeft, 0.5);
 				break;
 			case 3:
-				DriveForward(kForwardToMiddle, 50);
+				DriveForward(kForwardToMiddle, 0.5);
 				break;
 			case 4:
 				End();
@@ -276,13 +281,13 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardZeroToScale, 50);
+				DriveForward(kForwardZeroToScale, 0.5);
 				break;
 			case 2:
-				DriveRotateAndLiftUp(kTurnLeftToScaleToShoot, Lift.kScaleHigh, 50);
+				DriveRotateAndLiftUp(kTurnLeftToScaleToShoot, Lift.kScaleHigh, 0.5);
 				break;
 			case 3:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 4:
 				End();
@@ -295,16 +300,16 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardZeroToOverSwitch, 50);
+				DriveForward(kForwardZeroToOverSwitch, 0.5);
 				break;
 			case 2:
-				DriveRotate(kTurnLeftToReturnToSwitchAngle, 50);
+				DriveRotate(kTurnLeftToReturnToSwitchAngle, 0.5);
 				break;
 			case 3:
-				DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 50);
+				DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
 				break;
 			case 4:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 5:
 				End();
@@ -317,13 +322,13 @@ public class AutonomousChooser {
 				Start();
 				break;
 			case 1:
-				DriveForward(kForwardZeroToScale, 50);
+				DriveForward(kForwardZeroToScale, 0.5);
 				break;
 			case 2:
-				DriveRotateAndLiftUp(kTurnLeftToScaleToShoot, Lift.kScaleHigh, 50);
+				DriveRotateAndLiftUp(kTurnLeftToScaleToShoot, Lift.kScaleHigh, 0.5);
 				break;
 			case 3:
-				ArmShoot(kShootPower, 50);
+				ArmShoot(kShootPower, 0.5);
 				break;
 			case 4:
 				End();
@@ -338,22 +343,30 @@ public class AutonomousChooser {
 		}
 	}
 
-	void DriveForward(double setpoint, double delayseconds) {
+	void DriveForward(double setpoint, double delaysec) {
 		if (drive.driveSpeed_pidController.isEnabled() == false) {
-				drive.driveRightEncoder.reset();
-				drive.runSpeedPID(setpoint);
+			//エンコーダーreset
+			drive.driveRightEncoder.reset();
+			//PID開始
+			drive.driveSpeed_pidController.setInputRange(0, setpoint);
+			drive.runSpeedPID(setpoint);
 		}
 
 		if (drive.driveSpeed_pidController.onTarget()) {
 			drive.stopSpeedPID();
+			Timer.delay(delaysec);
 			phase++;
-			Timer.delay(delayseconds);
 		}
 
 	}
 
-	void DriveForwardAndLiftUp(double driveSetpoint, double liftSetpoint, double delayms) {
+	void DriveForwardAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
 		if (drive.driveSpeed_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
+			//エンコーダーreset
+			drive.driveRightEncoder.reset();
+			//PID開始
+			drive.driveSpeed_pidController.setInputRange(0, driveSetpoint);
+			lift.lift_pidController.setInputRange(0, liftSetpoint);
 			drive.runSpeedPID(driveSetpoint);
 			lift.runPID(liftSetpoint);
 		}
@@ -362,24 +375,29 @@ public class AutonomousChooser {
 			drive.stopSpeedPID();
 			lift.stopPID();
 			phase++;
-			Timer.delay(delayms);
+			Timer.delay(delaysec);
 		}
 	}
 
-	void DriveRotate(double setpoint, double delayms) {
+	void DriveRotate(double setpoint, double delaysec) {
 		if (drive.driveRotation_pidController.isEnabled() == false) {
+			//PID開始
+			drive.driveRotation_pidController.setInputRange(0, setpoint);
 			drive.runRotationPID(setpoint);
 		}
 
 		if (drive.driveRotation_pidController.onTarget()) {
 			drive.stopRotationPID();
+			Timer.delay(delaysec);
 			phase++;
-			Timer.delay(delayms);
 		}
 	}
 
-	void DriveRotateAndLiftUp(double driveSetpoint, double liftSetpoint, double delayms) {
+	void DriveRotateAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
 		if (drive.driveRotation_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
+			//PID開始
+			drive.driveRotation_pidController.setInputRange(0, driveSetpoint);
+			lift.lift_pidController.setInputRange(0, liftSetpoint); //要再思考
 			drive.runRotationPID(driveSetpoint);
 			lift.runPID(liftSetpoint);
 		}
@@ -388,30 +406,32 @@ public class AutonomousChooser {
 			drive.stopRotationPID();
 			lift.stopPID();
 			phase++;
-			Timer.delay(delayms);
+			Timer.delay(delaysec);
 		}
 	}
 
-	void LiftUp(double setpoint, double delayms) {
+	void LiftUp(double setpoint, double delaysec) {
 		if (lift.lift_pidController.isEnabled() == false) {
+			//PID開始
+			lift.lift_pidController.setInputRange(0, setpoint); //要再思考
 			lift.runPID(setpoint);
 		}
 
 		if (lift.lift_pidController.onTarget()) {
 			lift.stopPID();
 			phase++;
-			Timer.delay(delayms);
+			Timer.delay(delaysec);
 		}
 	}
 
-	void ArmShoot(double setpoint, double delayms) {
+	void ArmShoot(double setpoint, double delaysec) {
 		timer.reset();
 		timer.start();
 		if (timer.get() < 1) {
 			 arm.my_arms.set(setpoint);
 		}else {
 			phase++;
-			Timer.delay(delayms);
+			Timer.delay(delaysec);
 		 }
 	}
 
