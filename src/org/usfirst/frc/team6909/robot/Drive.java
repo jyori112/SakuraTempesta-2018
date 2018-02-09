@@ -1,5 +1,12 @@
 package org.usfirst.frc.team6909.robot;
 
+/* ToDo
+ *
+ * 今のところなし
+ *
+ *
+ */
+
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -29,6 +36,8 @@ public class Drive {
 	//PID
  	public PIDController driveSpeed_pidController;
 	public PIDController driveRotation_pidController;
+	static final double DriveSpeedTolerance = 1.0;
+	static final double DriveRotationTolerane = 1.0;
 	static final double kDriveSpeed_P = 0.5; //調整中
 	static final double kDriveSpeed_I = 0.00;
 	static final double kDriveSpeed_D = 0.00;
@@ -46,15 +55,16 @@ public class Drive {
 	public DifferentialDrive my_arcade_drive;
 	//不感帯
 	static final double kNoReact = 0.1;
+
 	//操作するコントローラ
-	static XboxController xbox_drive;
+	public XboxController xbox_drive;
 	//左Y軸の値を格納
 	private double xfb;
 	//右X軸の値を格納
 	private double xlr;
 
 	Drive(XboxController xbox_drive) {
-		Drive.xbox_drive = xbox_drive;
+		this.xbox_drive = xbox_drive;
 		leftFront = new Spark(kLeftFrontPort);
 		leftRear = new Spark(kLeftRearPort);
 		rightFront = new Spark(kRightFrontPort);
@@ -65,18 +75,28 @@ public class Drive {
 
 		driveRightEncoder = new Encoder(kDriveLeftEncoderChannelAPort, kDriveLeftEncoderChannelBPort);
 		driveRightEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
-		driveLeftEncoder = new Encoder(kDriveRightEncoderChannelAPort, kDriveRightEncoderChannelBPort);
+		driveLeftEncoder = new Encoder(kDriveRightEncoderChannelAPort, kDriveRightEncoderChannelBPort, true);
 		driveLeftEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
-		driveSpeed_pidController = new PIDController(kDriveSpeed_P, kDriveSpeed_I, kDriveSpeed_D, driveRightEncoder, new DriveSpeedPIDOutput(this.my_arcade_drive));
 		driveRightEncoder.reset();
 		driveLeftEncoder.reset();
 
+		driveSpeed_pidController = new PIDController(kDriveSpeed_P, kDriveSpeed_I, kDriveSpeed_D, driveRightEncoder, new DriveSpeedPIDOutput(this.my_arcade_drive));
+		driveSpeed_pidController.setEnabled(false);
+		driveSpeed_pidController.setPercentTolerance(DriveSpeedTolerance);
+
+
+
 		gyro = new  ADXRS450_Gyro();
-		driveRotation_pidController = new PIDController(kDriveRotation_P, kDriveRotation_I, kDriveRotation_D, gyro, new DriveRotationPIDOutput(this.my_arcade_drive));
 		gyro.reset(); //Init時にreset **変更の可能性あり**
+
+		driveRotation_pidController = new PIDController(kDriveRotation_P, kDriveRotation_I, kDriveRotation_D, gyro, new DriveRotationPIDOutput(this.my_arcade_drive));
+		driveRotation_pidController.setEnabled(false);
+		driveRotation_pidController.setPercentTolerance(DriveRotationTolerane);
+
 	}
 
 	void runRotationPID(double setpoint) {
+		driveRotation_pidController.setInputRange(0, setpoint);
 		driveRotation_pidController.setSetpoint(setpoint);
 		driveRotation_pidController.enable();
 	}
@@ -86,6 +106,7 @@ public class Drive {
 	}
 
 	void runSpeedPID(double setpoint) {
+		driveSpeed_pidController.setInputRange(0, setpoint);
 		driveSpeed_pidController.setSetpoint(setpoint);
 		driveSpeed_pidController.enable();
 	}

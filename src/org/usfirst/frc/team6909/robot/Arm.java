@@ -1,5 +1,12 @@
 package org.usfirst.frc.team6909.robot;
 
+/* ToDo
+ *
+ * 今のとこなし
+ *
+ *
+ */
+
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
@@ -16,13 +23,13 @@ public class Arm {
 	public PWMTalonSRX leftArm;
 	public SpeedControllerGroup my_arms;
 	//操作するコントローラ
-	static XboxController xbox_ope;
+public XboxController xbox_ope;
 	//Triggerの入力を格納
 	double xr;
 	double xl;
 
 	Arm(XboxController xbox_ope) {
-		Arm.xbox_ope = xbox_ope;
+		this.xbox_ope = xbox_ope;
 		rightArm = new PWMTalonSRX(kRightArmPort);
 		leftArm = new PWMTalonSRX(kLeftArmPort);
 		leftArm.setInverted(true);
@@ -32,12 +39,12 @@ public class Arm {
 	void handControl() {
 		xr = xbox_ope.getTriggerAxis(Hand.kRight);
 		xl = xbox_ope.getTriggerAxis(Hand.kLeft);
-		if (Arm.xbox_ope.getTriggerAxis(Hand.kRight) > kNoReact && Arm.xbox_ope.getTriggerAxis(Hand.kLeft) < kNoReact) {
+		if (this.xbox_ope.getTriggerAxis(Hand.kRight) > kNoReact && this.xbox_ope.getTriggerAxis(Hand.kLeft) < kNoReact) {
 			my_arms.set(Util.outputCalc(kNoReact, xr));
 			/*入力に等しい出力が欲しいときはこちら
 			my_arms.set(xr);
 			*/
-		} else if (Arm.xbox_ope.getTriggerAxis(Hand.kLeft) > kNoReact && Arm.xbox_ope.getTriggerAxis(Hand.kRight ) < kNoReact) {
+		} else if (this.xbox_ope.getTriggerAxis(Hand.kLeft) > kNoReact && this.xbox_ope.getTriggerAxis(Hand.kRight ) < kNoReact) {
 			my_arms.set(Util.outputCalc(kNoReact, -xl));
 			/*入力に等しい出力が欲しい場合はこちら
 			my_arms.set(-xl);

@@ -1,5 +1,12 @@
 package org.usfirst.frc.team6909.robot;
 
+/* ToDo
+ * ・距離および角度等の定数の値調整
+ * ・liftのPID試行
+ *
+ *
+ */
+
 import edu.wpi.first.wpilibj.Timer;
 
 public class AutonomousChooser {
@@ -61,13 +68,6 @@ public class AutonomousChooser {
 		timer = new Timer();
 
 		phase = 0;
-		drive.driveSpeed_pidController.setEnabled(false);
-		drive.driveRotation_pidController.setEnabled(false);
-		lift.lift_pidController.setEnabled(false);
-
-		drive.driveSpeed_pidController.setPercentTolerance(DriveSpeedTolerance);
-		drive.driveRotation_pidController.setPercentTolerance(DriveRotationTolerane);
-		lift.lift_pidController.setPercentTolerance(LiftTolerance);
 	}
 
 	void autonomousInit() {
@@ -348,7 +348,6 @@ public class AutonomousChooser {
 			//エンコーダーreset
 			drive.driveRightEncoder.reset();
 			//PID開始
-			drive.driveSpeed_pidController.setInputRange(0, setpoint);
 			drive.runSpeedPID(setpoint);
 		}
 
@@ -365,8 +364,6 @@ public class AutonomousChooser {
 			//エンコーダーreset
 			drive.driveRightEncoder.reset();
 			//PID開始
-			drive.driveSpeed_pidController.setInputRange(0, driveSetpoint);
-			lift.lift_pidController.setInputRange(0, liftSetpoint);
 			drive.runSpeedPID(driveSetpoint);
 			lift.runPID(liftSetpoint);
 		}
@@ -382,7 +379,6 @@ public class AutonomousChooser {
 	void DriveRotate(double setpoint, double delaysec) {
 		if (drive.driveRotation_pidController.isEnabled() == false) {
 			//PID開始
-			drive.driveRotation_pidController.setInputRange(0, setpoint);
 			drive.runRotationPID(setpoint);
 		}
 
@@ -396,8 +392,6 @@ public class AutonomousChooser {
 	void DriveRotateAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
 		if (drive.driveRotation_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
 			//PID開始
-			drive.driveRotation_pidController.setInputRange(0, driveSetpoint);
-			lift.lift_pidController.setInputRange(0, liftSetpoint); //要再思考
 			drive.runRotationPID(driveSetpoint);
 			lift.runPID(liftSetpoint);
 		}
@@ -413,7 +407,6 @@ public class AutonomousChooser {
 	void LiftUp(double setpoint, double delaysec) {
 		if (lift.lift_pidController.isEnabled() == false) {
 			//PID開始
-			lift.lift_pidController.setInputRange(0, setpoint); //要再思考
 			lift.runPID(setpoint);
 		}
 

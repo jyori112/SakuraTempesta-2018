@@ -1,5 +1,12 @@
 package org.usfirst.frc.team6909.robot;
 
+/* ToDo
+ * ・エンコーダー関連の定数調整
+ * ・PID目標高さの定数調整
+ * ・setInputRange()が意図通りに使えているか確認
+ *
+ */
+
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Spark;
@@ -11,7 +18,7 @@ public class Lift {
 	static final int kLiftEncoderChannelAPort = 0; //Digital
 	static final int kLiftEncoderChannelBPort = 1; //Digital
     //エンコーダ関連
-	private EncoderWithNewFuncs liftEncoder;
+	public EncoderWithNewFuncs liftEncoder;
 	static final int kLiftEncoderMMPerPulse = 2; //[mm / pulse]
 	static final double kArmsOriginalHeightFromGround = 200;
 	static final double kSecondndColumnLengthMM = 1350;
@@ -28,28 +35,35 @@ public class Lift {
 	private Spark lift;
 	//PID
 	public PIDController lift_pidController;
+	static final double LiftTolerance = 1.0;
 	static final double kLift_P = 0.01; //調整中
 	static final double kLift_I = 0.00; //基本0とする
 	static final double kLift_D = 0.00; //基本0とする
 	//不感帯
 	static final double kNoReact = 0.1;
+
 	//操作するコントローラ
-	static XboxController xbox_ope;
+	public XboxController xbox_ope;
 	//右Y軸の値を格納
 	private double x;
 
 	Lift(XboxController xbox_ope) {
-		Lift.xbox_ope = xbox_ope;
+		this.xbox_ope = xbox_ope;
 		lift = new Spark(kLiftMotorPort);
+
 		liftEncoder = new EncoderWithNewFuncs(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort,
 				kArmsOriginalHeightFromGround, kSecondndColumnLengthMM, kArmsHeightOfItselfMM, kStringLengthMM,
 				kStringLengthLossMM);
 		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
+
 		lift_pidController = new PIDController(kLift_P, kLift_I, kLift_D, liftEncoder, lift);
+		lift_pidController.setEnabled(false);
+		lift_pidController.setPercentTolerance(LiftTolerance);
 	}
 
-	void runPID(double setPoint) {
-		lift_pidController.setSetpoint(setPoint);
+	void runPID(double setpoint) {
+		lift_pidController.setInputRange(0, setpoint); //要再思考
+		lift_pidController.setSetpoint(setpoint);
 		lift_pidController.enable();
 	}
 
@@ -79,7 +93,7 @@ public class Lift {
 		} else if (xbox_ope.getBButton() && xbox_ope.getBumper(Hand.kRight)) {
 			// Lift up/down the arm SCALE HIGH
 			runPID(kScaleHigh);
-		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 0) {
+		} else if (xbox_ope.getBButton() && 350 < xbox_ope.getPOV() && xbox_ope.getPOV() < 10) {
 			// Lift up the arm CLIMB High;
 			runPID(kClimb);
 		} else if (xbox_ope.getBumper(Hand.kRight) && xbox_ope.getBumper(Hand.kLeft)) {
