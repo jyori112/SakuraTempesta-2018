@@ -12,16 +12,7 @@ public class AutonomousChooser {
 	String gameData;
 	int location;
 
-	String status;
-	String forward = "forward";
-	String rotate = "rotate";
-	String up = "up";
-	String shoot = "shoot";
-	String end = "end";
-	int cnt_forward;
-	int cnt_rotate;
-	int cnt_up;
-	int cnt_shoot;
+	int phase;
 
 	//Turnのために壁から少し移動
 	static final int kForwardBitToTurn = 50;
@@ -68,11 +59,10 @@ public class AutonomousChooser {
 
 		timer = new Timer();
 
-		status = null;
-		cnt_forward = 1;
-		cnt_rotate = 1;
-		cnt_up = 1;
-		cnt_shoot = 1;
+		phase = 0;
+		drive.driveSpeed_pidController.setEnabled(false);
+		drive.driveRotation_pidController.setEnabled(false);
+		lift.lift_pidController.setEnabled(false);
 	}
 
 	void autonomousInit() {
@@ -82,188 +72,351 @@ public class AutonomousChooser {
 	void autonomousPeriodic() {
 		if (location == 1 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
 			// (左)全速力Scale (*第二候補 (左)戻ってきてSwitch)
-			Start(forward);
-			DriveForward(rotate, kForwardZeroToScale, 50);
-			DriveRotate(forward,  kTurnRightToScaleToShoot, 50);
-			LiftUp(shoot, Lift.kScaleHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardZeroToScale, 50);
+				break;
+			case 2:
+				DriveRotateAndLiftUp(kTurnRightToScaleToShoot, Lift.kScaleHigh, 50);
+				break;
+			case 3:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 4:
+				End();
+				break;
+			}
 		}else if (location == 1 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
 			// (左)戻ってきてSwitch
-			Start(forward);
-			DriveForward(rotate, kForwardZeroToOverSwitch, 50);
-			DriveRotate(forward, kTurnRightToReturnToSwitchAngle, 50);
-			DriveForward(up, kForwardReturnToSwitchAndShoot, 50);
-			LiftUp(shoot, Lift.kSwitchHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardZeroToOverSwitch, 50);
+				break;
+			case 2:
+				DriveRotate(kTurnRightToReturnToSwitchAngle, 50);
+				break;
+			case 3:
+				DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 50);
+				break;
+			case 4:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 5:
+				End();
+				break;
+			}
 		}else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
 			// (左)全速力Scale
-			Start(forward);
-			DriveForward(rotate, kForwardZeroToScale, 50);
-			DriveRotate(forward,  kTurnRightToScaleToShoot, 50);
-			LiftUp(shoot, Lift.kScaleHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardZeroToScale, 50);
+				break;
+			case 2:
+				DriveRotateAndLiftUp(kTurnRightToScaleToShoot, Lift.kScaleHigh, 50);
+				break;
+			case 3:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 4:
+				End();
+				break;
+			}
 		}else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
 			// (左)フィールド中心へ
-			Start(forward);
-			DriveForward(rotate, kForwardZeroToMiddleOfField, 50);
-			DriveRotate(forward, kTurnJustRight, 50);
-			DriveForward(end, kForwardToMiddle, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardZeroToMiddleOfField, 50);
+				break;
+			case 2:
+				DriveRotate(kTurnJustRight, 50);
+				break;
+			case 3:
+				DriveForward(kForwardToMiddle, 50);
+				break;
+			case 4:
+				End();
+				break;
+			}
 		}else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
 			// (左)全力Switch (*第二候補 (左)回り込みScale)
-			Start(forward);
-			DriveForward(rotate, kForwardBitToTurn, 50);
-			DriveRotate(forward, kTurnLeftToInnerSwitchAngle, 50);
-			DriveForward(rotate, kForwardZeroToInnerSwitch, 50);
-			DriveRotate(up, kTurnRightToSwitchToShoot, 50);
-			LiftUp(shoot, Lift.kScaleHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardBitToTurn, 50);
+				break;
+			case 2:
+				DriveRotate(kTurnLeftToInnerSwitchAngle, 50);
+				break;
+			case 3:
+				DriveForward(kForwardZeroToInnerSwitch, 50);
+				break;
+			case 4:
+				DriveRotateAndLiftUp(kTurnRightToSwitchToShoot, Lift.kSwitchHigh, 50);
+				break;
+			case 5:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 6:
+				End();
+				break;
+			}
 		}else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
 			// (左)全力Switch (*第二候補 (右)回り込みScale)
-			Start(forward);
-			DriveForward(rotate, kForwardBitToTurn, 50);
-			DriveRotate(forward, kTurnLeftToInnerSwitchAngle, 50);
-			DriveForward(rotate, kForwardZeroToInnerSwitch, 50);
-			DriveRotate(up, kTurnRightToSwitchToShoot, 50);
-			LiftUp(shoot, Lift.kScaleHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardBitToTurn, 50);
+				break;
+			case 2:
+				DriveRotate(kTurnLeftToInnerSwitchAngle, 50);
+				break;
+			case 3:
+				DriveForward(kForwardZeroToInnerSwitch, 50);
+				break;
+			case 4:
+				DriveRotateAndLiftUp(kTurnRightToSwitchToShoot, Lift.kSwitchHigh, 50);
+				break;
+			case 5:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 6:
+				End();
+				break;
+			}
 		}else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
 			// (右)全力Switch (*第二候補 (左)回り込みScale)
-			Start(forward);
-			DriveForward(rotate, kForwardBitToTurn, 50);
-			DriveRotate(forward, kTurnRightToInnerSwitchAngle, 50);
-			DriveForward(rotate, kForwardZeroToInnerSwitch, 50);
-			DriveRotate(up, kTurnLeftToSwitchToShoot, 50);
-			LiftUp(shoot, Lift.kScaleHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardBitToTurn, 50);
+				break;
+			case 2:
+				DriveRotate(kTurnRightToInnerSwitchAngle, 50);
+				break;
+			case 3:
+				DriveForward(kForwardZeroToInnerSwitch, 50);
+				break;
+			case 4:
+				DriveRotateAndLiftUp(kTurnLeftToSwitchToShoot, Lift.kSwitchHigh, 50);
+				break;
+			case 5:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 6:
+				End();
+				break;
+			}
 		}else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
 			// (右)全力Switch (*第二候補 (右)回り込みScale)
-			Start(forward);
-			DriveForward(rotate, kForwardBitToTurn, 50);
-			DriveRotate(forward, kTurnRightToInnerSwitchAngle, 50);
-			DriveForward(rotate, kForwardZeroToInnerSwitch, 50);
-			DriveRotate(up, kTurnLeftToSwitchToShoot, 50);
-			LiftUp(shoot, Lift.kScaleHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardBitToTurn, 50);
+				break;
+			case 2:
+				DriveRotate(kTurnRightToInnerSwitchAngle, 50);
+				break;
+			case 3:
+				DriveForward(kForwardZeroToInnerSwitch, 50);
+				break;
+			case 4:
+				DriveRotateAndLiftUp(kTurnLeftToSwitchToShoot, Lift.kSwitchHigh, 50);
+				break;
+			case 5:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 6:
+				End();
+				break;
+			}
+
 		}else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
 			// (右)フィールド中心へ
-			Start(forward);
-			DriveForward(rotate, kForwardZeroToMiddleOfField, 50);
-			DriveRotate(forward, kTurnJustLeft, 50);
-			DriveForward(end, kForwardToMiddle, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardZeroToMiddleOfField, 50);
+				break;
+			case 2:
+				DriveRotate(kTurnJustLeft, 50);
+				break;
+			case 3:
+				DriveForward(kForwardToMiddle, 50);
+				break;
+			case 4:
+				End();
+				break;
+			}
 		}else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
 			// (右)全速力Scale
-			Start(forward);
-			DriveForward(rotate, kForwardZeroToScale, 50);
-			DriveRotate(forward,  kTurnLeftToScaleToShoot, 50);
-			LiftUp(shoot, Lift.kScaleHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardZeroToScale, 50);
+				break;
+			case 2:
+				DriveRotateAndLiftUp(kTurnLeftToScaleToShoot, Lift.kScaleHigh, 50);
+				break;
+			case 3:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 4:
+				End();
+				break;
+			}
 		}else if (location == 3 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
 			// (右)戻ってきてSwitch
-			Start(forward);
-			DriveForward(rotate, kForwardZeroToOverSwitch, 50);
-			DriveRotate(forward, kTurnLeftToReturnToSwitchAngle, 50);
-			DriveForward(up, kForwardReturnToSwitchAndShoot, 50);
-			LiftUp(shoot, Lift.kSwitchHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardZeroToOverSwitch, 50);
+				break;
+			case 2:
+				DriveRotate(kTurnLeftToReturnToSwitchAngle, 50);
+				break;
+			case 3:
+				DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 50);
+				break;
+			case 4:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 5:
+				End();
+				break;
+			}
 		}else if (location == 3 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
 			// (右)全速力Scale (*第二候補 (右)戻ってきてSwitch)
-			Start(forward);
-			DriveForward(rotate, kForwardZeroToScale, 50);
-			DriveRotate(forward,  kTurnLeftToScaleToShoot, 50);
-			LiftUp(shoot, Lift.kScaleHigh, 50);
-			ArmShoot(end, kShootPower, 50);
-			End();
-		}
-	}
-
-	void Start(String next) {
-		if(status == null) {
-			status = next;
-		}
-	}
-
-	void DriveForward(String next, double setpoint, double delayms) {
-		if (status == "forward") {
-			if (drive.driveSpeed_pidController.isEnabled() == false) {
-				if (cnt_forward == 1) {
-					drive.driveRightEncoder.reset();
-					drive.runSpeedPID(setpoint);
-				}else if (cnt_forward == 2) {
-					drive.driveRightEncoder.reset();
-					drive.runSpeedPID(setpoint);
-				}else if (cnt_forward == 3) {
-					drive.driveRightEncoder.reset();
-					drive.runSpeedPID(setpoint);
-				}
-			}else if (drive.driveSpeed_pidController.onTarget()) {
-				drive.stopSpeedPID();
-				Timer.delay(delayms);
-				status = next;
-				cnt_forward++;
+			switch (phase) {
+			case 0:
+				Start();
+				break;
+			case 1:
+				DriveForward(kForwardZeroToScale, 50);
+				break;
+			case 2:
+				DriveRotateAndLiftUp(kTurnLeftToScaleToShoot, Lift.kScaleHigh, 50);
+				break;
+			case 3:
+				ArmShoot(kShootPower, 50);
+				break;
+			case 4:
+				End();
+				break;
 			}
 		}
 	}
 
-	void DriveRotate(String next, double setpoint, double delayms) {
-		if (status == "rotate") {
-			if (drive.driveRotation_pidController.isEnabled() == false) {
-				if (cnt_rotate == 1) {
-					drive.runRotationPID(setpoint);
-				}else if (cnt_rotate == 2) {
-					drive.runRotationPID(setpoint);
-				}else if (cnt_rotate == 3) {
-					drive.runRotationPID(setpoint);
-				}
-			}else if (drive.driveRotation_pidController.onTarget()) {
-				drive.stopRotationPID();
-				Timer.delay(delayms);
-				status = next;
-				cnt_rotate++;
-			}
+	void Start() {
+		if(phase == 0) {
+			phase = 1;
 		}
 	}
 
-	void LiftUp(String next, double setpoint, double delayms) {
-		if (status == "up") {
-			if (lift.lift_pidController.isEnabled() == false) {
-				lift.runPID(setpoint);
-			}else if (lift.lift_pidController.onTarget()) {
-				lift.stopPID();
-				Timer.delay(delayms);
-				status = next;
-				cnt_up++;
-			}
+	void DriveForward(double setpoint, double delayms) {
+		if (drive.driveSpeed_pidController.isEnabled() == false) {
+				drive.driveRightEncoder.reset();
+				drive.runSpeedPID(setpoint);
+		}
+
+		if (drive.driveSpeed_pidController.onTarget()) {
+			drive.stopSpeedPID();
+			phase++;
+			Timer.delay(delayms);
+		}
+
+	}
+
+	void DriveForwardAndLiftUp(double driveSetpoint, double liftSetpoint, double delayms) {
+		if (drive.driveSpeed_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
+			drive.runSpeedPID(driveSetpoint);
+			lift.runPID(liftSetpoint);
+		}
+
+		if (drive.driveSpeed_pidController.onTarget() && lift.lift_pidController.onTarget()) {
+			drive.stopSpeedPID();
+			lift.stopPID();
+			phase++;
+			Timer.delay(delayms);
 		}
 	}
 
-	void ArmShoot(String next, double setpoint, double delayms) {
-		if (status == "shoot") {
-			timer.reset();
-			timer.start();
-			 if (timer.get() < 1) {
-				 arm.my_arms.set(setpoint);
-			 }else {
-				 Timer.delay(delayms);
-				 status = next;
-				 cnt_shoot++;
-			 }
+	void DriveRotate(double setpoint, double delayms) {
+		if (drive.driveRotation_pidController.isEnabled() == false) {
+			drive.runRotationPID(setpoint);
+		}
+
+		if (drive.driveRotation_pidController.onTarget()) {
+			drive.stopRotationPID();
+			phase++;
+			Timer.delay(delayms);
 		}
 	}
+
+	void DriveRotateAndLiftUp(double driveSetpoint, double liftSetpoint, double delayms) {
+		if (drive.driveRotation_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
+			drive.runRotationPID(driveSetpoint);
+			lift.runPID(liftSetpoint);
+		}
+
+		if (drive.driveRotation_pidController.onTarget() && lift.lift_pidController.onTarget()) {
+			drive.stopRotationPID();
+			lift.stopPID();
+			phase++;
+			Timer.delay(delayms);
+		}
+	}
+
+	void LiftUp(double setpoint, double delayms) {
+		if (lift.lift_pidController.isEnabled() == false) {
+			lift.runPID(setpoint);
+		}
+
+		if (lift.lift_pidController.onTarget()) {
+			lift.stopPID();
+			phase++;
+			Timer.delay(delayms);
+		}
+	}
+
+	void ArmShoot(double setpoint, double delayms) {
+		timer.reset();
+		timer.start();
+		if (timer.get() < 1) {
+			 arm.my_arms.set(setpoint);
+		}else {
+			phase++;
+			Timer.delay(delayms);
+		 }
+	}
+
 
 	void End() {
-		if (status == "end") {
-			//Do nothing
-		}
+		//Do nothing;
 	}
 }
