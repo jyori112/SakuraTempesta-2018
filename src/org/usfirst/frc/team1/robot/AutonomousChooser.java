@@ -338,7 +338,7 @@ public class AutonomousChooser {
 		}
 	}
 
-	void DriveForward(double setpoint, double delayms) {
+	void DriveForward(double setpoint, double delayseconds) {
 		if (drive.driveSpeed_pidController.isEnabled() == false) {
 				drive.driveRightEncoder.reset();
 				drive.runSpeedPID(setpoint);
@@ -347,7 +347,7 @@ public class AutonomousChooser {
 		if (drive.driveSpeed_pidController.onTarget()) {
 			drive.stopSpeedPID();
 			phase++;
-			Timer.delay(delayms);
+			Timer.delay(delayseconds);
 		}
 
 	}
