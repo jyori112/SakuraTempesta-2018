@@ -9,7 +9,7 @@ package org.usfirst.frc.team6909.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.XboxController;
 
 public class Lift {
@@ -32,7 +32,7 @@ public class Lift {
 	static final int kScaleHigh = 1900;
 	static final int kClimb = 2200;
 	//モーター
-	private Spark lift;
+	private PWMTalonSRX lift;
 	//PID
 	public PIDController lift_pidController;
 	static final double LiftTolerance = 1.0; //許容範囲
@@ -49,7 +49,7 @@ public class Lift {
 
 	Lift(XboxController xbox_ope) {
 		this.xbox_ope = xbox_ope;
-		lift = new Spark(kLiftMotorPort);
+		lift = new PWMTalonSRX(kLiftMotorPort);
 
 		liftEncoder = new EncoderWithNewFuncs(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort,
 				kArmsOriginalHeightFromGround, kSecondndColumnLengthMM, kArmsHeightOfItselfMM, kStringLengthMM,
