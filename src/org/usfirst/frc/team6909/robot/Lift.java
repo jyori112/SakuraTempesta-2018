@@ -1,5 +1,7 @@
 package org.usfirst.frc.team6909.robot;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+
 /* ToDo
  * ・エンコーダー関連の定数調整
  * ・PID目標高さの定数調整
@@ -9,7 +11,7 @@ package org.usfirst.frc.team6909.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.Spark;
+import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.XboxController;
 
 public class Lift {
@@ -17,7 +19,9 @@ public class Lift {
 	static final int kLiftMotorPort = 4;
 	static final int kLiftEncoderChannelAPort = 0; //Digital
 	static final int kLiftEncoderChannelBPort = 1; //Digital
-    //エンコーダ関連
+	static final int kLiftMaxTouchChannel = 2;
+	static final int kLiftMinTouchChannel = 3;
+	//エンコーダ関連
 	public EncoderWithNewFuncs liftEncoder;
 	static final int kLiftEncoderMMPerPulse = 2; //[mm / pulse]
 	static final double kArmsOriginalHeightFromGround = 200;
@@ -32,7 +36,7 @@ public class Lift {
 	static final int kScaleHigh = 1900;
 	static final int kClimb = 2200;
 	//モーター
-	private Spark lift;
+	private PWMTalonSRX lift;
 	//PID
 	public PIDController lift_pidController;
 	static final double LiftTolerance = 1.0;
@@ -46,10 +50,13 @@ public class Lift {
 	public XboxController xbox_ope;
 	//右Y軸の値を格納
 	private double x;
+	//タッチセンサーの宣言
+	private DigitalInput MaxTouch;
+	private DigitalInput MinTouch;
 
 	Lift(XboxController xbox_ope) {
 		this.xbox_ope = xbox_ope;
-		lift = new Spark(kLiftMotorPort);
+		lift = new PWMTalonSRX(kLiftMotorPort);
 
 		liftEncoder = new EncoderWithNewFuncs(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort,
 				kArmsOriginalHeightFromGround, kSecondndColumnLengthMM, kArmsHeightOfItselfMM, kStringLengthMM,
@@ -59,10 +66,17 @@ public class Lift {
 		lift_pidController = new PIDController(kLift_P, kLift_I, kLift_D, liftEncoder, lift);
 		lift_pidController.setEnabled(false);
 		lift_pidController.setPercentTolerance(LiftTolerance);
+		MaxTouch = new DigitalInput(kLiftMaxTouchChannel);
+		MinTouch = new DigitalInput(kLiftMinTouchChannel);
+		liftEncoder.setMaxPeriod(kClimb);
 	}
 
-	void runPID(double setpoint) {
-		lift_pidController.setInputRange(0, setpoint); //要再思考
+	void runPID(double setpoint) {//要再考
+		if (liftEncoder.getDistance() < setpoint) {
+			lift_pidController.setInputRange(liftEncoder.getDistance(), setpoint);
+		} else {
+			lift_pidController.setInputRange(setpoint, liftEncoder.getDistance());
+		}
 		lift_pidController.setSetpoint(setpoint);
 		lift_pidController.enable();
 	}
@@ -73,7 +87,6 @@ public class Lift {
 
 	void handControl() {
 		x = xbox_ope.getY(Hand.kRight);
-
 		lift.set(Util.outputCalc(kNoReact, x));
 		/*入力に等しい出力が欲しいならこちら
 		lift.set(x);
@@ -81,6 +94,7 @@ public class Lift {
 	}
 
 	void teleopPeriodic() {
+
 		if (xbox_ope.getAButton() && xbox_ope.getBumper(Hand.kLeft)) {
 			// Lift up/down the arm SWITCH MIDDLE
 			runPID(kSwitchMiddle);
@@ -95,10 +109,21 @@ public class Lift {
 			runPID(kScaleHigh);
 		} else if (xbox_ope.getBButton() && 350 < xbox_ope.getPOV() && xbox_ope.getPOV() < 10) {
 			// Lift up the arm CLIMB High;
-			runPID(kClimb);
+			stopPID();
+			if (MaxTouch.get() == false) {
+				lift.set(1.0);
+			} else {
+				lift.set(0);
+				liftEncoder.reset();
+			}
 		} else if (xbox_ope.getBumper(Hand.kRight) && xbox_ope.getBumper(Hand.kLeft)) {
 			// 降下
-			runPID(kArmsOriginalHeightFromGround);
+			stopPID();
+			if (MinTouch.get() == false) {
+				lift.set(-1.0);
+			} else {
+				lift.set(0);
+			}
 		} else {
 			// 手動操作
 			stopPID();
