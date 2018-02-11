@@ -36,12 +36,12 @@ public class Drive {
 	//PID
  	public PIDController driveSpeed_pidController;
 	public PIDController driveRotation_pidController;
-	static final double DriveSpeedTolerance = 1.0;
-	static final double DriveRotationTolerane = 1.0;
+	static final double DriveSpeedTolerance = 1.0; //許容範囲
+	static final double DriveRotationTolerane = 1.0; //許容範囲
 	static final double kDriveSpeed_P = 0.5; //調整中
 	static final double kDriveSpeed_I = 0.00;
 	static final double kDriveSpeed_D = 0.00;
-	static final double kDriveRotation_P = 0.5;
+	static final double kDriveRotation_P = 0.5; //調整中
 	static final double kDriveRotation_I = 0.00;
 	static final double kDriveRotation_D = 0.00;
 	//モーター

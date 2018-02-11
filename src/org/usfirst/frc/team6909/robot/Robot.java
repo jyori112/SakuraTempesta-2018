@@ -40,12 +40,22 @@ public class Robot extends IterativeRobot {
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		location = DriverStation.getInstance().getLocation();
 
-		autonomousChooser = new AutonomousChooser(gameData, location, drive, lift, arm);
+		autonomousChooser = new AutonomousChooser(gameData, location, xbox_drive, xbox_ope, drive, lift, arm);
 
 	}
 
 	@Override
+	public void disabledInit() {
+
+	}
+	@Override
+	public void disabledPeriodic() {
+		autonomousChooser.chooseAutonomusMode();
+	}
+
+	@Override
 	public void autonomousInit() {
+
 	}
 
 	@Override

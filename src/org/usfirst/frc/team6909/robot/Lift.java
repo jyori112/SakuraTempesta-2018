@@ -19,14 +19,14 @@ public class Lift {
 	static final int kLiftEncoderChannelBPort = 1; //Digital
     //エンコーダ関連
 	public EncoderWithNewFuncs liftEncoder;
-	static final int kLiftEncoderMMPerPulse = 2; //[mm / pulse]
+	static final int kLiftEncoderMMPerPulse = 2; //要調整
 	static final double kArmsOriginalHeightFromGround = 200;
 	static final double kSecondndColumnLengthMM = 1350;
 	static final double kArmsHeightOfItselfMM = 100;
 	static final double kStringLengthMM = 1400;
 	static final double kStringLengthLossMM = 50;
 	//PID目標高さ
-	static final int kSwitchMiddle = 500;
+	static final int kSwitchMiddle = 500; //要調整
 	static final int kSwitchHigh = 700;
 	static final int kScaleMiddle = 1700;
 	static final int kScaleHigh = 1900;
@@ -35,7 +35,7 @@ public class Lift {
 	private Spark lift;
 	//PID
 	public PIDController lift_pidController;
-	static final double LiftTolerance = 1.0;
+	static final double LiftTolerance = 1.0; //許容範囲
 	static final double kLift_P = 0.01; //調整中
 	static final double kLift_I = 0.00; //基本0とする
 	static final double kLift_D = 0.00; //基本0とする
