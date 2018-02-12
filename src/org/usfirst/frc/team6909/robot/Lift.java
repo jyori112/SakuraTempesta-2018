@@ -39,7 +39,7 @@ public class Lift {
 	private PWMTalonSRX lift;
 	//PID
 	public PIDController lift_pidController;
-	static final double LiftTolerance = 1.0;
+	static final double LiftTolerance = 30;
 	static final double kLift_P = 0.5; //調整中
 	static final double kLift_I = 0.00; //基本0とする
 	static final double kLift_D = 0.1; //基本0とする
@@ -71,15 +71,14 @@ public class Lift {
 
 		lift_pidController = new PIDController(kLift_P, kLift_I, kLift_D, liftEncoder, lift);
 		lift_pidController.setEnabled(false);
-		lift_pidController.setPercentTolerance(LiftTolerance);
+		lift_pidController.setAbsoluteTolerance(LiftTolerance);
 		MaxTouch = new DigitalInput(kLiftMaxTouchChannel);
 		MinTouch = new DigitalInput(kLiftMinTouchChannel);
-		liftEncoder.setMaxPeriod(kClimb);
 		lift_pidController.setOutputRange(kgravity, kMaxOutput);
+		lift_pidController.setInputRange(0, kClimb);//InputRangeを最大値で固定
 	}
 
 	void runPID(double setpoint) {//要再考
-		lift_pidController.setInputRange(0, kClimb);//InputRangeを最大値で固定
 		lift_pidController.setSetpoint(setpoint);
 		lift_pidController.enable();
 	}
