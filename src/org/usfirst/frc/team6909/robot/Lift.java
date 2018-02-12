@@ -23,7 +23,7 @@ public class Lift {
 	static final int kLiftMinTouchChannel = 3;
 	//エンコーダ関連
 	public EncoderWithNewFuncs liftEncoder;
-	static final int kLiftEncoderMMPerPulse = 2; //[mm / pulse]
+	static final double kLiftEncoderMMPerPulse = 50.4 * Math.PI / 12.75; //[mm / pulse] だめだったら45.8に変更」
 	static final double kArmsOriginalHeightFromGround = 200;
 	static final double kSecondndColumnLengthMM = 1350;
 	static final double kArmsHeightOfItselfMM = 100;
@@ -90,7 +90,7 @@ public class Lift {
 
 	void handControl() {//要再試行
 		x = xbox_ope.getY(Hand.kRight);
-		runPID((lift_pidController.getSetpoint() + 10 * x));
+		runPID((lift_pidController.getSetpoint() + x));
 	}
 
 	void teleopPeriodic() {
