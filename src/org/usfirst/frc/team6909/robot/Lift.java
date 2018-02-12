@@ -40,9 +40,9 @@ public class Lift {
 	//PID
 	public PIDController lift_pidController;
 	static final double LiftTolerance = 1.0;
-	static final double kLift_P = 0.01; //調整中
+	static final double kLift_P = 0.5; //調整中
 	static final double kLift_I = 0.00; //基本0とする
-	static final double kLift_D = 0.00; //基本0とする
+	static final double kLift_D = 0.1; //基本0とする
 	//不感帯
 	static final double kNoReact = 0.1;
 
@@ -88,7 +88,7 @@ public class Lift {
 		lift_pidController.disable();
 	}
 
-	void handControl() {
+	void handControl() {//要再試行
 		x = xbox_ope.getY(Hand.kRight);
 		runPID((lift_pidController.getSetpoint() + 10 * x));
 	}
