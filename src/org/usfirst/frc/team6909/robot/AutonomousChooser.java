@@ -89,7 +89,7 @@ public class AutonomousChooser {
 				SmartDashboard.putNumber("AutonomousMode", autonomousChooser);
 				isAutonomousModeChosen = true;
 			}else if (xbox_ope.getAButton() && xbox_ope.getXButton()) {
-				autonomousChooser = 0; //第一候補を選択
+				autonomousChooser = 1; //第一候補を選択
 				SmartDashboard.putNumber("AutonomousMode", autonomousChooser);
 				isAutonomousModeChosen = true;
 			}else if (xbox_ope.getAButton() && xbox_ope.getYButton()) {

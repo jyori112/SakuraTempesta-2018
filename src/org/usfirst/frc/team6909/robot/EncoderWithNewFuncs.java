@@ -4,8 +4,9 @@ import edu.wpi.first.wpilibj.Encoder;
 
 public class EncoderWithNewFuncs extends Encoder {
 
-	private double aOHFG;
-	private double sCL;
+	private double aOHFE1;
+	private double E2OHFG;
+	private double E2L;
 	private double aHoI;
 	private double strL;
 	private double strLLoss;
@@ -14,14 +15,15 @@ public class EncoderWithNewFuncs extends Encoder {
 	private double armsCurrentHeightFromGround;
 	private double armsCurrentSpeed;
 
-	public EncoderWithNewFuncs(final int channelA, final int channelB, final double armsOriginalHeightFromGround, final double secondndColumnLengthMM, final double armsHeightOfItselfMM, final double stringLengthMM,  final double stringLengthLossMM){
+	public EncoderWithNewFuncs(final int channelA, final int channelB, final double armsOriginalHeightFromE1, final double E2OriginalHeightFromGround,final double E2LengthMM, final double armsHeightOfItselfMM, final double stringLengthMM,  final double stringLengthLossMM){
 		super(channelA, channelB);
-		this.aOHFG = armsOriginalHeightFromGround;
-		this.sCL = secondndColumnLengthMM;
+		this.aOHFE1 = armsOriginalHeightFromE1;
+		this.E2OHFG = E2OriginalHeightFromGround;
+		this.E2L = E2LengthMM;
 		this.aHoI = armsHeightOfItselfMM;
 		this.strL = stringLengthMM;
 		this.strLLoss = stringLengthLossMM;
-		this.Const = aOHFG + sCL + strLLoss - strL - aHoI;
+		this.Const = aOHFE1 + E2OHFG + E2L + strLLoss - strL - aHoI;
 	}
 	public double getArmsHeight(){
 		armsCurrentHeightFromGround = (2 * this.getDistance()) + Const;
