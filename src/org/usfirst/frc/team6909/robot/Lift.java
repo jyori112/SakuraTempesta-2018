@@ -54,6 +54,12 @@ public class Lift {
 	private DigitalInput MaxTouch;
 	private DigitalInput MinTouch;
 
+	//重力のオフセット
+	static final double kgravity = 0.7;
+
+	//出力マックス値
+	static final double kMaxOutput = 0.9;
+
 	Lift(XboxController xbox_ope) {
 		this.xbox_ope = xbox_ope;
 		lift = new PWMTalonSRX(kLiftMotorPort);
@@ -69,14 +75,11 @@ public class Lift {
 		MaxTouch = new DigitalInput(kLiftMaxTouchChannel);
 		MinTouch = new DigitalInput(kLiftMinTouchChannel);
 		liftEncoder.setMaxPeriod(kClimb);
+		lift_pidController.setOutputRange(kgravity, kMaxOutput);
 	}
 
 	void runPID(double setpoint) {//要再考
-		if (liftEncoder.getDistance() < setpoint) {
-			lift_pidController.setInputRange(liftEncoder.getDistance(), setpoint);
-		} else {
-			lift_pidController.setInputRange(setpoint, liftEncoder.getDistance());
-		}
+		lift_pidController.setInputRange(0, kClimb);//InputRangeを最大値で固定
 		lift_pidController.setSetpoint(setpoint);
 		lift_pidController.enable();
 	}
@@ -87,10 +90,7 @@ public class Lift {
 
 	void handControl() {
 		x = xbox_ope.getY(Hand.kRight);
-		lift.set(Util.outputCalc(kNoReact, x));
-		/*入力に等しい出力が欲しいならこちら
-		lift.set(x);
-		*/
+		runPID((lift_pidController.getSetpoint() + 10 * x));
 	}
 
 	void teleopPeriodic() {
@@ -109,24 +109,14 @@ public class Lift {
 			runPID(kScaleHigh);
 		} else if (xbox_ope.getBButton() && 350 < xbox_ope.getPOV() && xbox_ope.getPOV() < 10) {
 			// Lift up the arm CLIMB High;
-			stopPID();
-			if (MaxTouch.get() == false) {
-				lift.set(1.0);
-			} else {
-				lift.set(0);
-				liftEncoder.reset();
-			}
+			runPID(kClimb);
 		} else if (xbox_ope.getBumper(Hand.kRight) && xbox_ope.getBumper(Hand.kLeft)) {
 			// 降下
-			stopPID();
-			if (MinTouch.get() == false) {
-				lift.set(-1.0);
-			} else {
-				lift.set(0);
+			runPID(kArmsOriginalHeightFromGround);
+			if (MinTouch.get()) {
+				stopPID();
 			}
 		} else {
-			// 手動操作
-			stopPID();
 			handControl();
 		}
 	}
