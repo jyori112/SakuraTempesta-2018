@@ -87,7 +87,7 @@ public class Drive {
 
 
 		gyro = new  ADXRS450_Gyro();
-		gyro.reset(); //Init時にreset **変更の可能性あり**
+		gyro.reset();
 
 		driveRotation_pidController = new PIDController(kDriveRotation_P, kDriveRotation_I, kDriveRotation_D, gyro, new DriveRotationPIDOutput(this.my_arcade_drive));
 		driveRotation_pidController.setEnabled(false);

@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Encoder;
 
 public class EncoderWithNewFuncs extends Encoder {
 
-	private double aOHFE1;
+	private double cOHFE1;
 	private double E2OHFG;
 	private double E2L;
 	private double aHoI;
@@ -15,18 +15,18 @@ public class EncoderWithNewFuncs extends Encoder {
 	private double armsCurrentHeightFromGround;
 	private double armsCurrentSpeed;
 
-	public EncoderWithNewFuncs(int channelA, int channelB, boolean reverseDirection, double armsOriginalHeightFromE1, double E2OriginalHeightFromGround, double E2LengthMM, double armsHeightOfItselfMM, double stringLengthMM,  double stringLengthLossMM){
+	public EncoderWithNewFuncs(int channelA, int channelB, boolean reverseDirection, double cubeOriginalHeightFromE1, double E2OriginalHeightFromGround, double E2LengthMM, double armsHeightOfItselfMM, double stringLengthMM,  double stringLengthLossMM){
 		super(channelA, channelB, reverseDirection);
-		this.aOHFE1 = armsOriginalHeightFromE1;
+		this. cOHFE1 = cubeOriginalHeightFromE1;
 		this.E2OHFG = E2OriginalHeightFromGround;
 		this.E2L = E2LengthMM;
 		this.aHoI = armsHeightOfItselfMM;
 		this.strL = stringLengthMM;
 		this.strLLoss = stringLengthLossMM;
-		this.Const = aOHFE1 + E2OHFG + E2L + strLLoss - strL - aHoI;
+		this.Const = cOHFE1 + E2OHFG + E2L + strLLoss - strL - aHoI;
 	}
-	public double getArmsHeight(){
-		armsCurrentHeightFromGround = (2 * this.getDistance()) + Const;
+	public double getArmsHeight(){ //Cubeの底面の高さを表す
+		armsCurrentHeightFromGround = (2 * this.getDistance()) + Const; //mmで出力
 		return armsCurrentHeightFromGround;
 	}
 

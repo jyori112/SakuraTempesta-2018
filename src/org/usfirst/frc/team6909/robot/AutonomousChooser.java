@@ -9,7 +9,6 @@ package org.usfirst.frc.team6909.robot;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AutonomousChooser {
 
@@ -86,15 +85,12 @@ public class AutonomousChooser {
 		if (isAutonomousModeChosen == false) {
 			if (xbox_ope.getAButton() && xbox_ope.getBackButton()) {
 				autonomousChooser = 0; //何もしないMode
-				SmartDashboard.putNumber("AutonomousMode", autonomousChooser);
 				isAutonomousModeChosen = true;
 			}else if (xbox_ope.getAButton() && xbox_ope.getXButton()) {
 				autonomousChooser = 1; //第一候補を選択
-				SmartDashboard.putNumber("AutonomousMode", autonomousChooser);
 				isAutonomousModeChosen = true;
 			}else if (xbox_ope.getAButton() && xbox_ope.getYButton()) {
 				autonomousChooser = 2; //第二候補を選択
-				SmartDashboard.putNumber("AutonomousMode", autonomousChooser);
 				isAutonomousModeChosen = true;
 			}
 		}
@@ -108,7 +104,9 @@ public class AutonomousChooser {
 	}
 
 	void autonomousPeriodic() {
-	/*	if (isAutonomousDone == false) {
+		/* 未完成なので問題のないところ以外をコメントアウトしてもらいたい
+		 * あと進む距離(not 角度)はかなり長いので、上に定義した定数[mm]を3とか2で暫定的に割ったほうがいい
+		if (isAutonomousDone == false) {
 			if (autonomousChooser == 0){
 				//End autonomous
 				End();
@@ -494,7 +492,9 @@ public class AutonomousChooser {
 				isAutonomousModeChosen = true;
 			}
 		}
+		 */
 	}
+
 	void Start() {
 		if(phase == 0) {
 			phase = 1;
@@ -514,7 +514,7 @@ public class AutonomousChooser {
 			Timer.delay(delaysec);
 			phase++;
 		}
-	*/
+
 	}
 
 	void DriveForwardAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {

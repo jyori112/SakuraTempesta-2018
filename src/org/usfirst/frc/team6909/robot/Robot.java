@@ -25,6 +25,7 @@ public class Robot extends IterativeRobot {
 	Drive drive;
 	Lift lift;
 	AutonomousChooser autonomousChooser;
+	//PowerDistributionPanel pdp;
 
 	String gameData;
 	int location;
@@ -46,6 +47,8 @@ public class Robot extends IterativeRobot {
 
 		autonomousChooser = new AutonomousChooser(gameData, location, xbox_drive, xbox_ope, drive, lift, arm);
 
+		//pdp = new PowerDistributionPanel();
+
 	}
 
 	@Override
@@ -55,12 +58,16 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void disabledPeriodic() {
 		autonomousChooser.chooseAutonomusMode();
+		SmartDashboard.putBoolean("IsAutonomousModeChosen?", autonomousChooser.isAutonomousModeChosen);
+		SmartDashboard.putNumber("SelectedAutonomousMode", autonomousChooser.autonomousChooser);
+		SmartDashboard.putBoolean("IsAutonomousDone?", autonomousChooser.isAutonomousDone);
 	}
 
 	@Override
 	public void autonomousInit() {
 
 	}
+
 
 	@Override
 	public void autonomousPeriodic() {
@@ -74,6 +81,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Left Encoder", drive.driveLeftEncoder.getDistance());
 	}
 
+
 	@Override
 	public void teleopInit() {
 	}
@@ -84,9 +92,27 @@ public class Robot extends IterativeRobot {
 		lift.teleopPeriodic();
 		arm.teleopPeriodic();
 
+		/*
+		SmartDashboard.putNumber("PDP Supply Voltage", pdp.getVoltage());
+		SmartDashboard.putNumber("PDP Temperature", pdp.getTemperature());
+		SmartDashboard.putNumber("PDP Total Current", pdp.getTotalCurrent());
+		SmartDashboard.putNumber("PDP Total Energy", pdp.getTotalEnergy());
+		SmartDashboard.putNumber("PDP Total Power", pdp.getTotalPower());
+		SmartDashboard.putNumber("Right Arm Current", pdp.getCurrent(4));
+		SmartDashboard.putNumber("Left Arm Current", pdp.getCurrent(1));
+		SmartDashboard.putNumber("Right1 Drive Current", pdp.getCurrent(14));
+		SmartDashboard.putNumber("Right2 Drive Current", pdp.getCurrent(13));
+		SmartDashboard.putNumber("Left1 Drive Current", pdp.getCurrent(12));
+		SmartDashboard.putNumber("Left2 Drive Current", pdp.getCurrent(0));
+		SmartDashboard.putNumber("Lift Current", pdp.getCurrent(15));
+		*/
+
+		SmartDashboard.putNumber("Lift Encoder", lift.liftEncoder.getDistance());
+		SmartDashboard.putNumber("Estimated arm height", lift.liftEncoder.getArmsHeight());
 		SmartDashboard.putNumber("Gyro", drive.gyro.getAngle());
 		SmartDashboard.putNumber("Right Encoder", drive.driveRightEncoder.getDistance());
 		SmartDashboard.putNumber("Left Encoder", drive.driveLeftEncoder.getDistance());
+
 	}
 
 	@Override
