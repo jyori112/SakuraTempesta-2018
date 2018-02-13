@@ -7,6 +7,7 @@
 
 package org.usfirst.frc.team6909.robot;
 
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -36,6 +37,9 @@ public class Robot extends IterativeRobot {
 		drive = new Drive(xbox_drive);
 		arm = new Arm(xbox_ope);
 		lift = new Lift(xbox_ope);
+
+		CameraServer.getInstance().startAutomaticCapture(); //カメラ起動
+		CameraServer.getInstance().getVideo();
 
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		location = DriverStation.getInstance().getLocation();

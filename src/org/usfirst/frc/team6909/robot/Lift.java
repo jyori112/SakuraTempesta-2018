@@ -11,8 +11,10 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Lift {
 	//Port
@@ -31,23 +33,23 @@ public class Lift {
 	static final double kStringLengthMM = 1107;
 	static final double kStringLengthLossMM = 47;
 	//PID目標高さ
-	static final int kSwitchMiddle = 500; //要調整
-	static final int kSwitchHigh = 700;
+	static final int kSwitchMiddle = 240; //要調整
+	static final int kSwitchHigh = 400;
 	static final int kScaleMiddle = 1610;
 	static final int kScaleHigh = 1910;
 	static final int kMaxArmHeight = 2100;
 	//モーター
-	private PWMTalonSRX lift;
+	public PWMTalonSRX lift;
 	//Limit Switch
-	public DigitalInput liftUpperLimitSwitch;
+	public DigitalInput liftUpperLimitSwitch; //falseでつながってる
 	public DigitalInput liftBottomLimitSwitch;
 	//PID
 	public PIDController lift_pidController;
 	static final double LiftTolerance = 1.0; //許容範囲
-	static final double kLift_P = 0.01; //調整中
+	static final double kLift_P = 0.5; //調整中
 	static final double kLift_I = 0.00; //基本0とする
 	static final double kLift_D = 0.00; //基本0とする
-	static final double kOutputResistingGravity = 0.3; //要調整
+	static final double kOutputResistingGravity = 0.34; //要調整
 	//不感帯
 	static final double kNoReact = 0.1;
 
@@ -59,9 +61,11 @@ public class Lift {
 	Lift(XboxController xbox_ope) {
 		this.xbox_ope = xbox_ope;
 		lift = new PWMTalonSRX(kLiftMotorPort);
-		liftEncoder = new EncoderWithNewFuncs(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort,
+		lift.setInverted(true); //liftモーターは逆転させる
+		liftEncoder = new EncoderWithNewFuncs(kLiftEncoderChannelAPort, kLiftEncoderChannelBPort, true,
 				kArmsOriginalHeightFromE1, kE2OriginalHeightFromGround,kE2LengthMM, kArmsHeightOfItselfMM, kStringLengthMM,
-				kStringLengthLossMM);
+				kStringLengthLossMM); //モーターの逆転に伴ってEncoderも逆転させる必要がある
+
 		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
 		lift_pidController = new PIDController(kLift_P, kLift_I, kLift_D, liftEncoder, lift);
 		lift_pidController.setEnabled(false);
@@ -83,9 +87,9 @@ public class Lift {
 	}
 
 	void handControl() {
-		x = xbox_ope.getY(Hand.kRight);
+		x = xbox_ope.getY(Hand.kLeft);
 
-		lift.set(Util.outputCalc(kNoReact, x));
+		lift.set(Util.outputCalc(kNoReact, x) + kOutputResistingGravity);
 		/*入力に等しい出力が欲しいならこちら
 		lift.set(x);
 		*/
@@ -107,14 +111,14 @@ public class Lift {
 		} else if (xbox_ope.getBButton() && 350 < xbox_ope.getPOV() && xbox_ope.getPOV() < 10) {
 			// Lift up the arm CLIMB High;
 			runPID(kMaxArmHeight);
-			if (liftUpperLimitSwitch.get()) {
+			if (!liftUpperLimitSwitch.get()) {
 				stopPID();
 				lift.set(kOutputResistingGravity);
 			}
 		} else if (xbox_ope.getBumper(Hand.kRight) && xbox_ope.getBumper(Hand.kLeft)) {
 			// 降下
 			runPID(kArmsOriginalHeightFromE1); //Relay使用に変更予定
-			if (liftBottomLimitSwitch.get()) {
+			if (!liftBottomLimitSwitch.get()) {
 				stopPID();
 				liftEncoder.reset();
 			}
@@ -123,6 +127,24 @@ public class Lift {
 			stopPID();
 			handControl();
 		}
+
+		SmartDashboard.putNumber("LiftMotorOutput", lift.get());
+		SmartDashboard.putBoolean("UpperLimitSwitch", liftUpperLimitSwitch.get());
+		SmartDashboard.putBoolean("BottomLimitSwitch", liftBottomLimitSwitch.get());
 	}
 
+}
+
+class LiftPIDOutput implements PIDOutput {
+
+	Lift lift;
+
+	LiftPIDOutput (Lift lift) {
+		this.lift = lift;
+	}
+
+	@Override
+	public void pidWrite(double output) {
+
+	}
 }

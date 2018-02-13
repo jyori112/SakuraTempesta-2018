@@ -15,8 +15,8 @@ public class EncoderWithNewFuncs extends Encoder {
 	private double armsCurrentHeightFromGround;
 	private double armsCurrentSpeed;
 
-	public EncoderWithNewFuncs(final int channelA, final int channelB, final double armsOriginalHeightFromE1, final double E2OriginalHeightFromGround,final double E2LengthMM, final double armsHeightOfItselfMM, final double stringLengthMM,  final double stringLengthLossMM){
-		super(channelA, channelB);
+	public EncoderWithNewFuncs(int channelA, int channelB, boolean reverseDirection, double armsOriginalHeightFromE1, double E2OriginalHeightFromGround, double E2LengthMM, double armsHeightOfItselfMM, double stringLengthMM,  double stringLengthLossMM){
+		super(channelA, channelB, reverseDirection);
 		this.aOHFE1 = armsOriginalHeightFromE1;
 		this.E2OHFG = E2OriginalHeightFromGround;
 		this.E2L = E2LengthMM;

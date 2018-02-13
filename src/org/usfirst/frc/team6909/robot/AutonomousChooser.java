@@ -22,7 +22,7 @@ public class AutonomousChooser {
 	int location;
 
 	int phase;
-	int autonomousChooser; // 0:何もしない 2:第二候補
+	int autonomousChooser; // 0:何もしない 1:第一候補 2:第二候補
 	boolean isAutonomousModeChosen;
 	boolean isAutonomousDone;
 
@@ -108,7 +108,7 @@ public class AutonomousChooser {
 	}
 
 	void autonomousPeriodic() {
-		if (isAutonomousDone == false) {
+	/*	if (isAutonomousDone == false) {
 			if (autonomousChooser == 0){
 				//End autonomous
 				End();
@@ -514,7 +514,7 @@ public class AutonomousChooser {
 			Timer.delay(delaysec);
 			phase++;
 		}
-
+	*/
 	}
 
 	void DriveForwardAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
