@@ -1,8 +1,8 @@
 package org.usfirst.frc.team6909.robot;
 
 /* ToDo
+ *・最低動作出力の確認 → 出力の下限がそこになる新しい関数を用意?
  *
- * 今のところなし
  *
  *
  */
@@ -35,15 +35,17 @@ public class Drive {
 	public ADXRS450_Gyro gyro;
 	//PID
  	public PIDController driveSpeed_pidController;
+ 	public DriveSpeedPIDOutput driveSpeed_pidWrite;
 	public PIDController driveRotation_pidController;
-	static final double DriveSpeedTolerance = 1.0; //許容範囲
-	static final double DriveRotationTolerane = 1.0; //許容範囲
-	static final double kDriveSpeed_P = 0.5; //調整中
+	public DriveRotationPIDOutput driveRotation_pidWrite;
+	static final double DriveSpeedTolerance = 1.0; //未使用
+	static final double DriveRotationTolerane = 1.0; //未使用
+	static final double kDriveSpeed_P = 0.1; //調整中
 	static final double kDriveSpeed_I = 0.00;
 	static final double kDriveSpeed_D = 0.00;
-	static final double kDriveRotation_P = 0.5; //調整中
+	static final double kDriveRotation_P = 0.3; //調整中
 	static final double kDriveRotation_I = 0.00;
-	static final double kDriveRotation_D = 0.00;
+	static final double kDriveRotation_D = 0.03;
 	//モーター
 	private Spark leftFront;
 	private Spark leftRear;
@@ -62,9 +64,12 @@ public class Drive {
 	private double xfb;
 	//右X軸の値を格納
 	private double xlr;
+	//参考にするリフトのエンコーダー
+	EncoderWithNewFuncs liftEncoder;
 
-	Drive(XboxController xbox_drive) {
+	Drive(XboxController xbox_drive, EncoderWithNewFuncs liftEncoder) {
 		this.xbox_drive = xbox_drive;
+		this.liftEncoder = liftEncoder;
 		leftFront = new Spark(kLeftFrontPort);
 		leftRear = new Spark(kLeftRearPort);
 		rightFront = new Spark(kRightFrontPort);
@@ -80,23 +85,28 @@ public class Drive {
 		driveRightEncoder.reset();
 		driveLeftEncoder.reset();
 
-		driveSpeed_pidController = new PIDController(kDriveSpeed_P, kDriveSpeed_I, kDriveSpeed_D, driveRightEncoder, new DriveSpeedPIDOutput(this.my_arcade_drive));
+		driveSpeed_pidWrite = new DriveSpeedPIDOutput(my_arcade_drive);
+		driveSpeed_pidController = new PIDController(kDriveSpeed_P, kDriveSpeed_I, kDriveSpeed_D, driveRightEncoder, driveSpeed_pidWrite);
 		driveSpeed_pidController.setEnabled(false);
-		driveSpeed_pidController.setPercentTolerance(DriveSpeedTolerance);
+		driveSpeed_pidController.setAbsoluteTolerance(50);
+		driveSpeed_pidController.setInputRange(0, 9000);
 
 
 
 		gyro = new  ADXRS450_Gyro();
 		gyro.reset();
 
-		driveRotation_pidController = new PIDController(kDriveRotation_P, kDriveRotation_I, kDriveRotation_D, gyro, new DriveRotationPIDOutput(this.my_arcade_drive));
+		driveRotation_pidWrite = new DriveRotationPIDOutput(my_arcade_drive);
+		driveRotation_pidController = new PIDController(kDriveRotation_P, kDriveRotation_I, kDriveRotation_D, gyro, driveRotation_pidWrite);
 		driveRotation_pidController.setEnabled(false);
-		driveRotation_pidController.setPercentTolerance(DriveRotationTolerane);
+		driveRotation_pidController.setAbsoluteTolerance(1.0); //ちょい厳しいかも *要確認*
+		driveRotation_pidController.setOutputRange(-0.5,0.5);
 
+		driveSpeed_pidWrite.setReferencePIDController(driveRotation_pidController); //RotationのPIDもenableの時はそのoutputで回転もする
+		//driveRotation_pidWrite.setReferencePIDController(driveSpeed_pidController); //SpeedのPIDもenabledの時はそのoutputで前後進もする **こちらは使わないほうがいいかも
 	}
 
 	void runRotationPID(double setpoint) {
-		driveRotation_pidController.setInputRange(0, setpoint);
 		driveRotation_pidController.setSetpoint(setpoint);
 		driveRotation_pidController.enable();
 	}
@@ -106,7 +116,6 @@ public class Drive {
 	}
 
 	void runSpeedPID(double setpoint) {
-		driveSpeed_pidController.setInputRange(0, setpoint);
 		driveSpeed_pidController.setSetpoint(setpoint);
 		driveSpeed_pidController.enable();
 	}
@@ -118,11 +127,29 @@ public class Drive {
 	void handControl() {
 		xfb = xbox_drive.getY(Hand.kLeft);
 		xlr = xbox_drive.getX(Hand.kRight);
+		//yukkuri = xbox_drive.getTriggerAxis(Hand.kRight);
 
-		my_arcade_drive.arcadeDrive(Util.outputCalc(kNoReact, -xfb), Util.outputCalc(kNoReact, xlr));
-		/* 入力に等しい出力が欲しいならこちら。
-		my_arcade_drive.arcadeDrive(xfb, xlr);
-		*/
+		if (liftEncoder.getArmsHeight() >= 200) {
+			if (xfb >= 0.6) {
+				my_arcade_drive.arcadeDrive(-0.6, Util.outputCalc(kNoReact, xlr));
+			}else if(xfb <= -0.6) {
+				my_arcade_drive.arcadeDrive(0.6, Util.outputCalc(kNoReact, xlr));
+			}else {
+				my_arcade_drive.arcadeDrive(Util.outputCalc(kNoReact, -xfb), Util.outputCalc(kNoReact, xlr));
+			}
+		}else{
+			my_arcade_drive.arcadeDrive(Util.outputCalc(kNoReact, -xfb), Util.outputCalc(kNoReact, xlr));
+			/* 入力に等しい出力が欲しいならこちら。
+			my_arcade_drive.arcadeDrive(xfb, xlr);
+			*/
+		}
+	}
+
+	void teleopInit() {
+		driveRightEncoder.reset();
+		driveLeftEncoder.reset();
+		driveSpeed_pidController.disable();
+		driveRotation_pidController.disable();
 	}
 
 	void teleopPeriodic() {
@@ -131,33 +158,54 @@ public class Drive {
 }
 
 class DriveRotationPIDOutput implements PIDOutput {
-
+	//PIDController driveSpeed_pidController;
 	DifferentialDrive my_arcade_drive;
 
 	DriveRotationPIDOutput(DifferentialDrive my_arcade_drive) {
 		this.my_arcade_drive = my_arcade_drive;
 	}
 
+	/*
+	public void setReferencePIDController(PIDController driveSpeed_pidController) {
+		this.driveSpeed_pidController = driveSpeed_pidController;
+	}
+	*/
+
 	@Override
 	public void pidWrite(double output) {
-		//停止してその場で回転する
+		/*
+		if (driveSpeed_pidController.isEnabled()) {
+			my_arcade_drive.arcadeDrive(driveSpeed_pidController.get(), output);
+		} else {
+			//停止してその場で回転する
+			my_arcade_drive.arcadeDrive(0.0, output);
+		}
+		*/
 		my_arcade_drive.arcadeDrive(0.0, output);
 	}
 
 }
 
 class DriveSpeedPIDOutput implements PIDOutput {
-
+	PIDController driveRotation_pidController;
 	DifferentialDrive my_arcade_drive;
 
 	DriveSpeedPIDOutput(DifferentialDrive my_arcade_drive) {
 		this.my_arcade_drive = my_arcade_drive;
 	}
 
-	@Override
-	public void pidWrite(double output) {
-		//直進
-		my_arcade_drive.arcadeDrive(output, 0.0);
+	public void setReferencePIDController(PIDController driveRotation_pidController) {
+		this.driveRotation_pidController = driveRotation_pidController;
 	}
 
+
+	@Override
+	public void pidWrite(double output) {
+		if (driveRotation_pidController.isEnabled()) {
+			my_arcade_drive.arcadeDrive(output, driveRotation_pidController.get());
+		}else {
+			my_arcade_drive.arcadeDrive(output, 0.0);
+		}
+
+	}
 }

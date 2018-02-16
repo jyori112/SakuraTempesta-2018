@@ -23,7 +23,7 @@ public class Arm {
 	public PWMTalonSRX leftArm;
 	public SpeedControllerGroup my_arms;
 	//操作するコントローラ
-public XboxController xbox_ope;
+	public XboxController xbox_ope;
 	//Triggerの入力を格納
 	double xr;
 	double xl;
@@ -37,21 +37,48 @@ public XboxController xbox_ope;
 	}
 
 	void handControl() {
+		/*
 		xr = xbox_ope.getTriggerAxis(Hand.kRight);
 		xl = xbox_ope.getTriggerAxis(Hand.kLeft);
+		*/
+
+		/*
 		if (this.xbox_ope.getTriggerAxis(Hand.kRight) > kNoReact && this.xbox_ope.getTriggerAxis(Hand.kLeft) < kNoReact) {
 			my_arms.set(Util.outputCalc(kNoReact, xr));
 			/*入力に等しい出力が欲しいときはこちら
 			my_arms.set(xr);
 			*/
+		/*
 		} else if (this.xbox_ope.getTriggerAxis(Hand.kLeft) > kNoReact && this.xbox_ope.getTriggerAxis(Hand.kRight ) < kNoReact) {
 			my_arms.set(Util.outputCalc(kNoReact, -xl));
+			/*入力に等しい出力が欲しい場合はこちら
+			my_arms.set(-xl);
+			*/
+			/*
+		} else {
+			my_arms.set(0.0);
+		}
+		*/
+
+		if (xbox_ope.getBumper(Hand.kRight) && !xbox_ope.getBumper(Hand.kLeft)) {
+			my_arms.set(1.0);
+			/*入力に等しい出力が欲しいときはこちら
+			my_arms.set(xr);
+			*/
+		} else if (!xbox_ope.getBumper(Hand.kRight) && xbox_ope.getBumper(Hand.kLeft)) {
+			my_arms.set(-1.0);
 			/*入力に等しい出力が欲しい場合はこちら
 			my_arms.set(-xl);
 			*/
 		} else {
 			my_arms.set(0.0);
 		}
+
+
+	}
+
+	void teleopInit() {
+
 	}
 
 	void teleopPeriodic() {

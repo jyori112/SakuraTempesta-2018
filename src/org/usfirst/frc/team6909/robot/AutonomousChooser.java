@@ -60,10 +60,12 @@ public class AutonomousChooser {
 	static final int kTurnJustLeft = -90;
 	static final int kForwardToMiddle = 1000;
 	//armのshootパワー
-	static final double kShootPower = 0.5;
+	static final double kShootPower = 1.0;
 	//使用するXboxController
 	XboxController xbox_drive;
 	XboxController xbox_ope;
+
+	boolean timerStarted;
 
 	AutonomousChooser(String gameData, int location, XboxController xbox_drive, XboxController xbox_ope,Drive drive, Lift lift, Arm arm) {
 		this.gameData = gameData;
@@ -75,10 +77,11 @@ public class AutonomousChooser {
 		this.arm = arm;
 
 		timer = new Timer();
-
+		timerStarted =false;
 
 		phase = 0;
 		isAutonomousDone = false;
+		autonomousChooser = 999;
 	}
 
 	void chooseAutonomusMode() {
@@ -97,15 +100,21 @@ public class AutonomousChooser {
 
 		if (xbox_ope.getStartButton()) {
 			isAutonomousModeChosen = false; //選択やり直し
+			autonomousChooser = 999;
 		}
 	}
 
 	void autonomousInit() {
+		lift.lift_pidController.setOutputRange(Lift.kOutputResistingGravity, 0.7);
+		drive.driveRightEncoder.reset();
+		drive.driveLeftEncoder.reset();
+		drive.gyro.reset();
+		lift.liftEncoder.reset();
 	}
 
 	void autonomousPeriodic() {
-		/* 未完成なので問題のないところ以外をコメントアウトしてもらいたい
-		 * あと進む距離(not 角度)はかなり長いので、上に定義した定数[mm]を3とか2で暫定的に割ったほうがいい
+		 //未完成なので問題のないところ以外をコメントアウトしてもらいたい
+		 //あと進む距離(not 角度)はかなり長いので、上に定義した定数[mm]を3とか2で暫定的に割ったほうがいい
 		if (isAutonomousDone == false) {
 			if (autonomousChooser == 0){
 				//End autonomous
@@ -120,13 +129,13 @@ public class AutonomousChooser {
 							Start();
 							break;
 						case 1:
-							DriveForwardAndLiftUp(kForwardZeroToScale, Lift.kScaleHigh, 0.5);
+							DriveForward(kForwardZeroToScale, 0.5);
 							break;
 						case 2:
-							DriveRotate(kTurnRightToScale, 0.5);
+							DriveRotateAndLiftUp(kTurnRightToScale, Lift.kScaleHigh, 0.5);
 							break;
 						case 3:
-							DriveForward();
+							DriveForward(kForwardToScaleToShoot, 0.5);
 							break;
 						case 4:
 							ArmShoot(kShootPower, 0.5);
@@ -157,7 +166,8 @@ public class AutonomousChooser {
 							break;
 						}
 					}
-				}else if (location == 1 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
+				}
+				/*else if (location == 1 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
 					if (autonomousChooser == 1) {
 						switch (phase) {// (左)戻ってきてSwitch *第一候補
 						case 0:
@@ -487,12 +497,14 @@ public class AutonomousChooser {
 						}
 					}
 				}
+				*/
 			}else {// 選択なしの時自動的に第一候補が選択される
 				autonomousChooser = 1;
 				isAutonomousModeChosen = true;
 			}
+
 		}
-		 */
+
 	}
 
 	void Start() {
@@ -505,11 +517,21 @@ public class AutonomousChooser {
 		if (drive.driveSpeed_pidController.isEnabled() == false) {
 			//エンコーダーreset
 			drive.driveRightEncoder.reset();
+
 			//PID開始
+			if (lift.liftEncoder.getArmsHeight() >= 200) {
+				drive.driveSpeed_pidController.setOutputRange(-0.5, 0.5);
+			}else {
+				drive.driveSpeed_pidController.setOutputRange(-0.7, 0.7);
+			}
+
+			drive.runRotationPID(0); //直進するためにRotationのPIDも使う
 			drive.runSpeedPID(setpoint);
+
 		}
 
 		if (drive.driveSpeed_pidController.onTarget()) {
+			drive.stopRotationPID();
 			drive.stopSpeedPID();
 			Timer.delay(delaysec);
 			phase++;
@@ -528,7 +550,6 @@ public class AutonomousChooser {
 
 		if (drive.driveSpeed_pidController.onTarget() && lift.lift_pidController.onTarget()) {
 			drive.stopSpeedPID();
-			lift.stopPID();
 			phase++;
 			Timer.delay(delaysec);
 		}
@@ -556,7 +577,6 @@ public class AutonomousChooser {
 
 		if (drive.driveRotation_pidController.onTarget() && lift.lift_pidController.onTarget()) {
 			drive.stopRotationPID();
-			lift.stopPID();
 			phase++;
 			Timer.delay(delaysec);
 		}
@@ -568,22 +588,26 @@ public class AutonomousChooser {
 			lift.runPID(setpoint);
 		}
 
-		if (lift.lift_pidController.onTarget()) {
-			lift.stopPID();
+		if (lift.lift_pidController.onTarget()){
 			phase++;
 			Timer.delay(delaysec);
 		}
 	}
 
 	void ArmShoot(double setpoint, double delaysec) {
-		timer.reset();
-		timer.start();
-		if (timer.get() < 1) {
-			 arm.my_arms.set(setpoint);
+		if (!timerStarted) {
+			timerStarted = true;
+			timer.reset();
+			timer.start();
 		}else {
-			phase++;
-			Timer.delay(delaysec);
-		 }
+			if (timer.get() < 3) {
+				arm.my_arms.set(setpoint);
+			}else {
+				arm.my_arms.set(0.0);
+				phase++;
+				Timer.delay(delaysec);
+			}
+		}
 	}
 
 

@@ -3,9 +3,9 @@ package org.usfirst.frc.team6909.robot;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 /* ToDo
+ * ・最低動作出力の確認 → 出力の下限がそこになる新しい関数を用意?
  *
  *
- * 今のところなし
  *
  */
 
@@ -25,7 +25,7 @@ public class Lift {
     static final int kLiftBottomSwitchPort = 3; //Digital
 	//エンコーダ関連
 	public EncoderWithNewFuncs liftEncoder;
-	static final double kLiftEncoderMMPerPulse = 45.08 * Math.PI / (12.75 * 20); //調整中
+	static final double kLiftEncoderMMPerPulse = 50.08 * Math.PI / (12.75 * 20); //調整中
 	static final double kCubeOriginalHeightFromE1 = -80;
 	static final double kE2OriginalHeightFromGround = 50;
 	static final double kE2LengthMM = 1285;
@@ -45,11 +45,11 @@ public class Lift {
 	public DigitalInput liftBottomSwitch;
 	//PID
 	public PIDController lift_pidController;
-	static final double LiftAbsoluteTolerance = 20; //許容範囲
+	static final double LiftAbsoluteTolerance = 50; //許容範囲
 	static final double kLift_P = 0.01; //調整中
 	static final double kLift_I = 0.00; //基本0とする
-	static final double kLift_D = 0.00; //基本0とする
-	static final double kOutputResistingGravity = 0.34; //調整済み
+	static final double kLift_D = 0.01; //基本0とする
+	static final double kOutputResistingGravity = 0.2; //batteryの充電具合によって変動
 	//不感帯
 	static final double kNoReact = 0.1;
 
@@ -71,36 +71,50 @@ public class Lift {
 		lift_pidController.setEnabled(false);
 		lift_pidController.setAbsoluteTolerance(LiftAbsoluteTolerance);
 		lift_pidController.setInputRange(0, kMaxArmHeight);
+		lift_pidController.setOutputRange(-(0.7-kOutputResistingGravity), 0.5);
 
 		liftHeighestSwitch = new DigitalInput(kLiftHeighestSwitchPort);
 		liftBottomSwitch = new DigitalInput(kLiftBottomSwitchPort);
 	}
 
 	void runPID(double setpoint) {
-		if (lift_pidController.onTarget()) {
-			lift_pidController.setInputRange(kOutputResistingGravity, 0.5);
-		}else{
-			lift_pidController.setOutputRange(-0.5, 0.5);
 			lift_pidController.setSetpoint(setpoint);
 			lift_pidController.enable();
-		}
 	}
 
 	void stopPID() {
-		lift_pidController.disable();
+		lift_pidController.disable(); //この結果自重で落ちていく
 	}
 
 	void handControl() {
-		x = xbox_ope.getY(Hand.kLeft);
+		//x = xbox_ope.getY(Hand.kLeft);
 
-		lift.set( Util.outputCalc(kNoReact, x) / 2.0 - kOutputResistingGravity);
-		/*入力に等しい出力が欲しいならこちら
-		lift.set(x);
-		*/
+		if (xbox_ope.getTriggerAxis(Hand.kRight) > kNoReact && xbox_ope.getTriggerAxis(Hand.kLeft) < kNoReact) {
+			x = - xbox_ope.getTriggerAxis(Hand.kRight);
+		}else if (xbox_ope.getTriggerAxis(Hand.kRight) < kNoReact && xbox_ope.getTriggerAxis(Hand.kLeft) > kNoReact) {
+			x = xbox_ope.getTriggerAxis(Hand.kLeft);
+		}else {
+			x = 0;
+		}
 
+		if (xbox_ope.getStartButton()) {
+			lift.set(Util.outputCalc(kNoReact, x) - kOutputResistingGravity);
+		}else {
+			lift.set( Util.outputCalc(kNoReact, x) / 2.0 - kOutputResistingGravity);
+			/*入力に等しい出力が欲しいならこちら
+			lift.set(x);
+			 */
+		}
+
+		/*
 		if (!liftBottomSwitch.get()) {
 			liftEncoder.reset();
 		}
+		*/
+	}
+
+	void teleopInit() {
+		lift_pidController.setOutputRange(-0.7, 0.7);
 	}
 
 	void teleopPeriodic() {
@@ -153,6 +167,6 @@ class LiftPIDOutput implements PIDOutput {
 
 	@Override
 	public void pidWrite(double output) {
-		lift.set(-output);
+		lift.set(-(output + Lift.kOutputResistingGravity));
 	}
 }

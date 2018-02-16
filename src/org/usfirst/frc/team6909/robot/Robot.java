@@ -35,9 +35,10 @@ public class Robot extends IterativeRobot {
 
 		xbox_drive = new XboxController(kXboxDrivePort);
 		xbox_ope = new XboxController(kXboxOpePort);
-		drive = new Drive(xbox_drive);
-		arm = new Arm(xbox_ope);
-		lift = new Lift(xbox_ope);
+		arm = new Arm(xbox_drive);
+		//lift = new Lift(xbox_ope);
+		lift = new Lift(xbox_drive);
+		drive = new Drive(xbox_drive, lift.liftEncoder);
 
 		CameraServer.getInstance().startAutomaticCapture(); //カメラ起動
 		CameraServer.getInstance().getVideo();
@@ -45,7 +46,7 @@ public class Robot extends IterativeRobot {
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		location = DriverStation.getInstance().getLocation();
 
-		autonomousChooser = new AutonomousChooser(gameData, location, xbox_drive, xbox_ope, drive, lift, arm);
+		autonomousChooser = new AutonomousChooser(gameData, location, xbox_drive, xbox_drive, drive, lift, arm);
 
 		//pdp = new PowerDistributionPanel();
 
@@ -65,13 +66,16 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void autonomousInit() {
-
+		autonomousChooser.autonomousInit();
 	}
 
 
 	@Override
 	public void autonomousPeriodic() {
 		autonomousChooser.autonomousPeriodic();
+		SmartDashboard.putNumber("Current phase", autonomousChooser.phase);
+		SmartDashboard.putNumber("Lift Encoder", lift.liftEncoder.getDistance());
+		SmartDashboard.putNumber("Estimated arm height", lift.liftEncoder.getArmsHeight());
 		SmartDashboard.putBoolean("speedPID", drive.driveSpeed_pidController.isEnabled());
 		SmartDashboard.putBoolean("rotatePID", drive.driveRotation_pidController.isEnabled());
 		SmartDashboard.putBoolean("locationOK?", drive.driveSpeed_pidController.onTarget());
@@ -84,6 +88,9 @@ public class Robot extends IterativeRobot {
 
 	@Override
 	public void teleopInit() {
+		drive.teleopInit();
+		lift.teleopInit();
+		arm.teleopInit();
 	}
 
 	@Override
@@ -91,6 +98,7 @@ public class Robot extends IterativeRobot {
 		drive.teleopPeriodic();
 		lift.teleopPeriodic();
 		arm.teleopPeriodic();
+
 
 		/*
 		SmartDashboard.putNumber("PDP Supply Voltage", pdp.getVoltage());
@@ -107,6 +115,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Lift Current", pdp.getCurrent(15));
 		*/
 
+		SmartDashboard.putNumber("Current Lift PID Setpoint", lift.lift_pidController.getSetpoint());
+		SmartDashboard.putBoolean("Lift PID onTarget?", lift.lift_pidController.onTarget());
+		SmartDashboard.putNumber("Lift Motor Output", lift.lift.get()); //kOutputResisitingGravity測定用
 		SmartDashboard.putNumber("Lift Encoder", lift.liftEncoder.getDistance());
 		SmartDashboard.putNumber("Estimated arm height", lift.liftEncoder.getArmsHeight());
 		SmartDashboard.putNumber("Gyro", drive.gyro.getAngle());
