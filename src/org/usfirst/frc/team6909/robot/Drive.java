@@ -24,28 +24,30 @@ public class Drive {
 	private static final int kRightFrontPort = 2;
 	private static final int kRightRearPort = 3;
 	//エンコーダー関連
-	private static final int kDriveLeftEncoderChannelAPort = 6;
-	private static final int kDriveLeftEncoderChannelBPort = 7;
-	private static final int kDriveRightEncoderChannelAPort = 8;
-	private static final int kDriveRightEncoderChannelBPort = 9;
+	private static final int kDriveRightEncoderChannelAPort = 6;
+	private static final int kDriveRightEncoderChannelBPort = 7;
+	private static final int kDriveLeftEncoderChannelAPort = 8;
+	private static final int kDriveLeftEncoderChannelBPort = 9;
 	private static final double kDriveEncoderMMPerPulse = 7.7 * Math.PI / 10.71;
 	public Encoder driveLeftEncoder;
  	public Encoder driveRightEncoder;
 	//Gyro関連
 	public ADXRS450_Gyro gyro;
 	//PID
- 	public PIDController driveSpeed_pidController;
- 	public DriveSpeedPIDOutput driveSpeed_pidWrite;
+	public PIDController driveRightMotor_pidController;
+	public PIDController driveLeftMotor_pidController;
+ 	//public PIDController driveSpeed_pidController;
+ 	//public DriveSpeedPIDOutput driveSpeed_pidWrite;
 	public PIDController driveRotation_pidController;
 	public DriveRotationPIDOutput driveRotation_pidWrite;
 	static final double DriveSpeedTolerance = 1.0; //未使用
 	static final double DriveRotationTolerane = 1.0; //未使用
-	static final double kDriveSpeed_P = 0.1; //調整中
+	static final double kDriveSpeed_P = 0.01; //調整中
 	static final double kDriveSpeed_I = 0.00;
 	static final double kDriveSpeed_D = 0.00;
-	static final double kDriveRotation_P = 0.3; //調整中
+	static final double kDriveRotation_P = 0.05; //調整中
 	static final double kDriveRotation_I = 0.00;
-	static final double kDriveRotation_D = 0.03;
+	static final double kDriveRotation_D = 0.00;
 	//モーター
 	private Spark leftFront;
 	private Spark leftRear;
@@ -78,19 +80,28 @@ public class Drive {
 		rightMotors = new SpeedControllerGroup(rightFront, rightRear);
 		my_arcade_drive = new DifferentialDrive(leftMotors, rightMotors);
 
-		driveRightEncoder = new Encoder(kDriveLeftEncoderChannelAPort, kDriveLeftEncoderChannelBPort);
+		driveRightEncoder = new Encoder(kDriveLeftEncoderChannelAPort, kDriveLeftEncoderChannelBPort, true);
 		driveRightEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
-		driveLeftEncoder = new Encoder(kDriveRightEncoderChannelAPort, kDriveRightEncoderChannelBPort, true);
+		driveLeftEncoder = new Encoder(kDriveRightEncoderChannelAPort, kDriveRightEncoderChannelBPort, false);
 		driveLeftEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
 		driveRightEncoder.reset();
 		driveLeftEncoder.reset();
 
+		driveRightMotor_pidController = new PIDController(kDriveSpeed_P, kDriveSpeed_I, kDriveSpeed_D, driveRightEncoder, new DriveRightMotorPIDOutput(this.rightMotors));
+		driveLeftMotor_pidController = new PIDController(kDriveSpeed_P, kDriveSpeed_I, kDriveSpeed_D, driveLeftEncoder, new DriveLeftMotorPIDOutput(this.leftMotors));
+		driveRightMotor_pidController.setEnabled(false);
+		driveLeftMotor_pidController.setEnabled(false);
+		driveRightMotor_pidController.setAbsoluteTolerance(100);
+		driveLeftMotor_pidController.setAbsoluteTolerance(100);
+		driveRightMotor_pidController.setOutputRange(-0.5, 0.5);
+		driveLeftMotor_pidController.setOutputRange(-0.5, 0.5);
+		/*
 		driveSpeed_pidWrite = new DriveSpeedPIDOutput(my_arcade_drive);
 		driveSpeed_pidController = new PIDController(kDriveSpeed_P, kDriveSpeed_I, kDriveSpeed_D, driveRightEncoder, driveSpeed_pidWrite);
 		driveSpeed_pidController.setEnabled(false);
 		driveSpeed_pidController.setAbsoluteTolerance(50);
 		driveSpeed_pidController.setInputRange(0, 9000);
-
+		*/
 
 
 		gyro = new  ADXRS450_Gyro();
@@ -99,10 +110,10 @@ public class Drive {
 		driveRotation_pidWrite = new DriveRotationPIDOutput(my_arcade_drive);
 		driveRotation_pidController = new PIDController(kDriveRotation_P, kDriveRotation_I, kDriveRotation_D, gyro, driveRotation_pidWrite);
 		driveRotation_pidController.setEnabled(false);
-		driveRotation_pidController.setAbsoluteTolerance(1.0); //ちょい厳しいかも *要確認*
-		driveRotation_pidController.setOutputRange(-0.5,0.5);
+		driveRotation_pidController.setAbsoluteTolerance(5.0); //ちょい厳しいかも *要確認*
+		//driveRotation_pidController.setOutputRange(-0.5,0.5);
 
-		driveSpeed_pidWrite.setReferencePIDController(driveRotation_pidController); //RotationのPIDもenableの時はそのoutputで回転もする
+		//driveSpeed_pidWrite.setReferencePIDController(driveRotation_pidController); //RotationのPIDもenableの時はそのoutputで回転もする
 		//driveRotation_pidWrite.setReferencePIDController(driveSpeed_pidController); //SpeedのPIDもenabledの時はそのoutputで前後進もする **こちらは使わないほうがいいかも
 	}
 
@@ -116,12 +127,22 @@ public class Drive {
 	}
 
 	void runSpeedPID(double setpoint) {
+		driveRightMotor_pidController.setSetpoint(setpoint);
+		driveLeftMotor_pidController.setSetpoint(setpoint);
+
+		driveRightMotor_pidController.enable();
+		driveLeftMotor_pidController.enable();
+
+		/*
 		driveSpeed_pidController.setSetpoint(setpoint);
 		driveSpeed_pidController.enable();
+		*/
 	}
 
 	void stopSpeedPID() {
+		/*
 		driveSpeed_pidController.disable();
+		*/
 	}
 
 	void handControl() {
@@ -148,7 +169,9 @@ public class Drive {
 	void teleopInit() {
 		driveRightEncoder.reset();
 		driveLeftEncoder.reset();
-		driveSpeed_pidController.disable();
+		driveRightMotor_pidController.disable();
+		driveLeftMotor_pidController.disable();
+		//driveSpeed_pidController.disable();
 		driveRotation_pidController.disable();
 	}
 
@@ -157,8 +180,37 @@ public class Drive {
 	}
 }
 
+class DriveRightMotorPIDOutput implements PIDOutput{
+	SpeedControllerGroup rightMotors;
+
+	DriveRightMotorPIDOutput(SpeedControllerGroup rightMotors){
+		this.rightMotors = rightMotors;
+	}
+
+	@Override
+	public void pidWrite(double output) {
+		rightMotors.set(-1 * output);
+	}
+
+}
+
+class DriveLeftMotorPIDOutput implements PIDOutput{
+	SpeedControllerGroup leftMotors;
+
+	DriveLeftMotorPIDOutput(SpeedControllerGroup leftMotors){
+		this.leftMotors = leftMotors;
+	}
+
+	@Override
+	public void pidWrite(double output) {
+		leftMotors.set(output);
+	}
+
+}
+
 class DriveRotationPIDOutput implements PIDOutput {
 	//PIDController driveSpeed_pidController;
+	//isReferencePIDSet = false;
 	DifferentialDrive my_arcade_drive;
 
 	DriveRotationPIDOutput(DifferentialDrive my_arcade_drive) {
@@ -168,27 +220,38 @@ class DriveRotationPIDOutput implements PIDOutput {
 	/*
 	public void setReferencePIDController(PIDController driveSpeed_pidController) {
 		this.driveSpeed_pidController = driveSpeed_pidController;
+		isReferencePIDSet = true;
 	}
 	*/
 
 	@Override
 	public void pidWrite(double output) {
 		/*
-		if (driveSpeed_pidController.isEnabled()) {
-			my_arcade_drive.arcadeDrive(driveSpeed_pidController.get(), output);
-		} else {
-			//停止してその場で回転する
-			my_arcade_drive.arcadeDrive(0.0, output);
+		if (isReferancePIDSet) {
+			if (driveSpeed_pidController.isEnabled()) {
+				my_arcade_drive.arcadeDrive(driveSpeed_pidController.get(), output);
+			} else {
+				//停止してその場で回転する
+				my_arcade_drive.arcadeDrive(0.0, output);
+			}
 		}
 		*/
+		/*
+		else {
+		*/
 		my_arcade_drive.arcadeDrive(0.0, output);
+		/*
+		}
+		*/
 	}
 
 }
 
+/*
 class DriveSpeedPIDOutput implements PIDOutput {
 	PIDController driveRotation_pidController;
 	DifferentialDrive my_arcade_drive;
+	boolean isReferencePIDSet = false;
 
 	DriveSpeedPIDOutput(DifferentialDrive my_arcade_drive) {
 		this.my_arcade_drive = my_arcade_drive;
@@ -196,16 +259,22 @@ class DriveSpeedPIDOutput implements PIDOutput {
 
 	public void setReferencePIDController(PIDController driveRotation_pidController) {
 		this.driveRotation_pidController = driveRotation_pidController;
+		isReferencePIDSet = true;
 	}
 
 
 	@Override
 	public void pidWrite(double output) {
-		if (driveRotation_pidController.isEnabled()) {
-			my_arcade_drive.arcadeDrive(output, driveRotation_pidController.get());
+		if (isReferencePIDSet) {
+			if (driveRotation_pidController.isEnabled()) {
+				my_arcade_drive.arcadeDrive(output, driveRotation_pidController.get());
+			}else {
+				my_arcade_drive.arcadeDrive(output, 0.0);
+			}
 		}else {
 			my_arcade_drive.arcadeDrive(output, 0.0);
 		}
 
 	}
 }
+*/

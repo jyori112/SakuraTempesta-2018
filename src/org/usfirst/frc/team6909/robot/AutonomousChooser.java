@@ -67,6 +67,9 @@ public class AutonomousChooser {
 
 	boolean timerStarted;
 
+	double kDriveRotationPID_I_ForDriveForward = 0.000;
+	double kDriveRotationPID_D_ForDriveForward = 0.045;
+
 	AutonomousChooser(String gameData, int location, XboxController xbox_drive, XboxController xbox_ope,Drive drive, Lift lift, Arm arm) {
 		this.gameData = gameData;
 		this.location = location;
@@ -105,6 +108,7 @@ public class AutonomousChooser {
 	}
 
 	void autonomousInit() {
+		isAutonomousDone = false;
 		lift.lift_pidController.setOutputRange(Lift.kOutputResistingGravity, 0.7);
 		drive.driveRightEncoder.reset();
 		drive.driveLeftEncoder.reset();
@@ -514,24 +518,16 @@ public class AutonomousChooser {
 	}
 
 	void DriveForward(double setpoint, double delaysec) {
-		if (drive.driveSpeed_pidController.isEnabled() == false) {
+		if (drive.driveRightMotor_pidController.isEnabled() == false && drive.driveLeftMotor_pidController.isEnabled() == false) {
 			//エンコーダーreset
 			drive.driveRightEncoder.reset();
+			drive.driveLeftEncoder.reset();
 
-			//PID開始
-			if (lift.liftEncoder.getArmsHeight() >= 200) {
-				drive.driveSpeed_pidController.setOutputRange(-0.5, 0.5);
-			}else {
-				drive.driveSpeed_pidController.setOutputRange(-0.7, 0.7);
-			}
-
-			drive.runRotationPID(0); //直進するためにRotationのPIDも使う
 			drive.runSpeedPID(setpoint);
 
 		}
 
-		if (drive.driveSpeed_pidController.onTarget()) {
-			drive.stopRotationPID();
+		if (drive.driveRightMotor_pidController.onTarget() && drive.driveLeftMotor_pidController.onTarget()) {
 			drive.stopSpeedPID();
 			Timer.delay(delaysec);
 			phase++;
@@ -540,7 +536,7 @@ public class AutonomousChooser {
 	}
 
 	void DriveForwardAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
-		if (drive.driveSpeed_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
+		if (drive.driveRightMotor_pidController.isEnabled() == false && drive.driveLeftMotor_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
 			//エンコーダーreset
 			drive.driveRightEncoder.reset();
 			//PID開始
@@ -548,7 +544,7 @@ public class AutonomousChooser {
 			lift.runPID(liftSetpoint);
 		}
 
-		if (drive.driveSpeed_pidController.onTarget() && lift.lift_pidController.onTarget()) {
+		if (drive.driveRightMotor_pidController.onTarget() && drive.driveLeftMotor_pidController.onTarget() && lift.lift_pidController.onTarget()) {
 			drive.stopSpeedPID();
 			phase++;
 			Timer.delay(delaysec);

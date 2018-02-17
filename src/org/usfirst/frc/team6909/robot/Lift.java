@@ -21,8 +21,8 @@ public class Lift {
 	static final int kLiftMotorPort = 4;
 	static final int kLiftEncoderChannelAPort = 0; //Digital
 	static final int kLiftEncoderChannelBPort = 1; //Digital
-    static final int kLiftHeighestSwitchPort = 2; //Digital
-    static final int kLiftBottomSwitchPort = 3; //Digital
+    static final int kLiftBottomSwitchPort = 2; //Digital
+    static final int kLiftHeighestSwitchPort = 3; //Digital
 	//エンコーダ関連
 	public EncoderWithNewFuncs liftEncoder;
 	static final double kLiftEncoderMMPerPulse = 50.08 * Math.PI / (12.75 * 20); //調整中
@@ -73,8 +73,8 @@ public class Lift {
 		lift_pidController.setInputRange(0, kMaxArmHeight);
 		lift_pidController.setOutputRange(-(0.7-kOutputResistingGravity), 0.5);
 
-		liftHeighestSwitch = new DigitalInput(kLiftHeighestSwitchPort);
 		liftBottomSwitch = new DigitalInput(kLiftBottomSwitchPort);
+		liftHeighestSwitch = new DigitalInput(kLiftHeighestSwitchPort);
 	}
 
 	void runPID(double setpoint) {
@@ -106,11 +106,12 @@ public class Lift {
 			 */
 		}
 
-		/*
-		if (!liftBottomSwitch.get()) {
+
+		if (!liftBottomSwitch.get() && xbox_ope.getTriggerAxis(Hand.kRight) < kNoReact) {
 			liftEncoder.reset();
+			lift.set(0.0);
 		}
-		*/
+
 	}
 
 	void teleopInit() {
@@ -118,33 +119,33 @@ public class Lift {
 	}
 
 	void teleopPeriodic() {
-		if (xbox_ope.getAButton() && xbox_ope.getBumper(Hand.kLeft)) {
-			// Switchのつり合いの高さまでPIDで持ち上げる
-			runPID(kSwitchMiddle);
-		} else if (xbox_ope.getAButton() && xbox_ope.getBumper(Hand.kRight)) {
-			// Switchの最大の高さまでPID
+		if (xbox_ope.getAButton() &&  350 < xbox_ope.getPOV() && xbox_ope.getPOV() < 10) {
 			runPID(kSwitchHigh);
-		} else if (xbox_ope.getBButton() && xbox_ope.getBumper(Hand.kLeft)) {
+		} else if (xbox_ope.getBButton() && 350 < xbox_ope.getPOV() && xbox_ope.getPOV() < 10) {
 			// Scaleのつり合いまで
 			runPID(kScaleMiddle);
-		} else if (xbox_ope.getBButton() && xbox_ope.getBumper(Hand.kRight)) {
+		} else if (xbox_ope.getBButton() && 170 < xbox_ope.getPOV() && xbox_ope.getPOV() < 190) {
 			// Scaleの高いほう
 			runPID(kScaleHigh);
-		} else if (xbox_ope.getBButton() && 350 < xbox_ope.getPOV() && xbox_ope.getPOV() < 10) {
-			// Climb
+		}
+		/*
+		else if (xbox_ope.getBButton() && xbox_ope.getAButton()) { //handConntrolで代用できる
+		// Climb
 			runPID(kMaxArmHeight);
 			if (!liftHeighestSwitch.get()) {
 				stopPID();
 				lift.set(kOutputResistingGravity);
 			}
-		} else if (xbox_ope.getBumper(Hand.kRight) && xbox_ope.getBumper(Hand.kLeft)) {
+		} else if (xbox_ope.getXButton() && xbox_ope.getYButton()) { //handControlで代用できる
 			// 降下
 			runPID(kCubeOriginalHeightFromE1);
 			if (!liftBottomSwitch.get()) {
 				stopPID();
 				liftEncoder.reset();
 			}
-		} else {
+		}
+		*/
+		 else {
 			// 手動操作
 			stopPID();
 			handControl();

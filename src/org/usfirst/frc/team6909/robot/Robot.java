@@ -19,8 +19,8 @@ public class Robot extends IterativeRobot {
 	int kXboxDrivePort = 0;
 	int kXboxOpePort = 1;
 
-	XboxController xbox_ope;
-	XboxController xbox_drive;
+	XboxController xbox_ope; //現在未使用
+	XboxController xbox_drive; //このコントローラのみで操作するようにしている
 	Arm arm;
 	Drive drive;
 	Lift lift;
@@ -76,9 +76,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Current phase", autonomousChooser.phase);
 		SmartDashboard.putNumber("Lift Encoder", lift.liftEncoder.getDistance());
 		SmartDashboard.putNumber("Estimated arm height", lift.liftEncoder.getArmsHeight());
-		SmartDashboard.putBoolean("speedPID", drive.driveSpeed_pidController.isEnabled());
+		SmartDashboard.putBoolean("speedPID", drive.driveRightMotor_pidController.isEnabled() && drive.driveLeftMotor_pidController.isEnabled());
 		SmartDashboard.putBoolean("rotatePID", drive.driveRotation_pidController.isEnabled());
-		SmartDashboard.putBoolean("locationOK?", drive.driveSpeed_pidController.onTarget());
+		SmartDashboard.putBoolean("locationOK?", drive.driveRightMotor_pidController.onTarget() && drive.driveLeftMotor_pidController.onTarget());
 		SmartDashboard.putBoolean("angleOK?", drive.driveRotation_pidController.onTarget());
 		SmartDashboard.putNumber("Gyro", drive.gyro.getAngle());
 		SmartDashboard.putNumber("Right Encoder", drive.driveRightEncoder.getDistance());
