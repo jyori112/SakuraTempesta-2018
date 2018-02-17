@@ -76,10 +76,10 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Current phase", autonomousChooser.phase);
 		SmartDashboard.putNumber("Lift Encoder", lift.liftEncoder.getDistance());
 		SmartDashboard.putNumber("Estimated arm height", lift.liftEncoder.getArmsHeight());
-		SmartDashboard.putBoolean("speedPID", drive.driveRightMotor_pidController.isEnabled() && drive.driveLeftMotor_pidController.isEnabled());
-		SmartDashboard.putBoolean("rotatePID", drive.driveRotation_pidController.isEnabled());
-		SmartDashboard.putBoolean("locationOK?", drive.driveRightMotor_pidController.onTarget() && drive.driveLeftMotor_pidController.onTarget());
-		SmartDashboard.putBoolean("angleOK?", drive.driveRotation_pidController.onTarget());
+		SmartDashboard.putBoolean("speedPID", drive.straightPID.isEnabled());
+		SmartDashboard.putBoolean("rotatePID", drive.rotatePID.isEnabled());
+		SmartDashboard.putBoolean("locationOK?", drive.straightPID.onTarget());
+		SmartDashboard.putBoolean("angleOK?", drive.rotatePID.onTarget());
 		SmartDashboard.putNumber("Gyro", drive.gyro.getAngle());
 		SmartDashboard.putNumber("Right Encoder", drive.driveRightEncoder.getDistance());
 		SmartDashboard.putNumber("Left Encoder", drive.driveLeftEncoder.getDistance());

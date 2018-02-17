@@ -518,7 +518,7 @@ public class AutonomousChooser {
 	}
 
 	void DriveForward(double setpoint, double delaysec) {
-		if (drive.driveRightMotor_pidController.isEnabled() == false && drive.driveLeftMotor_pidController.isEnabled() == false) {
+		if (drive.straightPID.isEnabled() == false) {
 			//エンコーダーreset
 			drive.driveRightEncoder.reset();
 			drive.driveLeftEncoder.reset();
@@ -527,7 +527,7 @@ public class AutonomousChooser {
 
 		}
 
-		if (drive.driveRightMotor_pidController.onTarget() && drive.driveLeftMotor_pidController.onTarget()) {
+		if (drive.straightPID.onTarget()) {
 			drive.stopSpeedPID();
 			Timer.delay(delaysec);
 			phase++;
@@ -536,7 +536,7 @@ public class AutonomousChooser {
 	}
 
 	void DriveForwardAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
-		if (drive.driveRightMotor_pidController.isEnabled() == false && drive.driveLeftMotor_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
+		if (drive.straightPID.isEnabled() == false  && lift.lift_pidController.isEnabled() == false) {
 			//エンコーダーreset
 			drive.driveRightEncoder.reset();
 			//PID開始
@@ -544,7 +544,7 @@ public class AutonomousChooser {
 			lift.runPID(liftSetpoint);
 		}
 
-		if (drive.driveRightMotor_pidController.onTarget() && drive.driveLeftMotor_pidController.onTarget() && lift.lift_pidController.onTarget()) {
+		if (drive.straightPID.onTarget() && lift.lift_pidController.onTarget()) {
 			drive.stopSpeedPID();
 			phase++;
 			Timer.delay(delaysec);
@@ -552,12 +552,12 @@ public class AutonomousChooser {
 	}
 
 	void DriveRotate(double setpoint, double delaysec) {
-		if (drive.driveRotation_pidController.isEnabled() == false) {
+		if (drive.rotatePID.isEnabled() == false) {
 			//PID開始
 			drive.runRotationPID(setpoint);
 		}
 
-		if (drive.driveRotation_pidController.onTarget()) {
+		if (drive.rotatePID.onTarget()) {
 			drive.stopRotationPID();
 			Timer.delay(delaysec);
 			phase++;
@@ -565,13 +565,13 @@ public class AutonomousChooser {
 	}
 
 	void DriveRotateAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
-		if (drive.driveRotation_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
+		if (drive.rotatePID.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
 			//PID開始
 			drive.runRotationPID(driveSetpoint);
 			lift.runPID(liftSetpoint);
 		}
 
-		if (drive.driveRotation_pidController.onTarget() && lift.lift_pidController.onTarget()) {
+		if (drive.rotatePID.onTarget() && lift.lift_pidController.onTarget()) {
 			drive.stopRotationPID();
 			phase++;
 			Timer.delay(delaysec);
