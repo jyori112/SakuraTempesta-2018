@@ -161,7 +161,7 @@ public class AutonomousChooser {
 							DriveRotate(kTurnRightToReturnToSwitchAngle, 0.5);
 							break;
 						case 3:
-							DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
+							DriveForward2AndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
 							break;
 						case 4:
 							ArmShoot(kShootPower, 0.5);
@@ -185,7 +185,7 @@ public class AutonomousChooser {
 							DriveRotate(kTurnRightToReturnToSwitchAngle, 0.5);
 							break;
 						case 3:
-							DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
+							DriveForward2AndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
 							break;
 						case 4:
 							ArmShoot(kShootPower, 0.5);
@@ -228,7 +228,7 @@ public class AutonomousChooser {
 							DriveRotate(kTurnJustRight, 0.5);
 							break;
 						case 3:
-							DriveForward(kForwardToMiddle, 0.5);
+							DriveForward2(kForwardToMiddle, 0.5);
 							break;
 						case 4:
 							End();
@@ -248,13 +248,13 @@ public class AutonomousChooser {
 							DriveRotate(kTurnLeftToInnerSwitchAngle, 0.5);
 							break;
 						case 3:
-							DriveForwardAndLiftUp(kForwardZeroToLeftInnerSwitch, Lift.kSwitchHigh,0.5);
+							DriveForward2AndLiftUp(kForwardZeroToLeftInnerSwitch, Lift.kSwitchHigh,0.5);
 							break;
 						case 4:
-							DriveRotate(kTurnRightToInnerSwitch, 0.5);
+							DriveRotate2(kTurnRightToInnerSwitch, 0.5);
 							break;
 						case 5:
-							DriveForward(kForwardToLeftShoot, 0.5);
+							DriveForward3(kForwardToLeftShoot, 0.5);
 							break;
 						case 6:
 							ArmShoot(kShootPower, 0.5);
@@ -290,13 +290,13 @@ public class AutonomousChooser {
 							DriveRotate(kTurnLeftToInnerSwitchAngle, 0.5);
 							break;
 						case 3:
-							DriveForwardAndLiftUp(kForwardZeroToLeftInnerSwitch, Lift.kSwitchHigh,0.5);
+							DriveForward2AndLiftUp(kForwardZeroToLeftInnerSwitch, Lift.kSwitchHigh,0.5);
 							break;
 						case 4:
-							DriveRotate(kTurnRightToInnerSwitch, 0.5);
+							DriveRotate2(kTurnRightToInnerSwitch, 0.5);
 							break;
 						case 5:
-							DriveForward(kForwardToLeftShoot, 0.5);
+							DriveForward3(kForwardToLeftShoot, 0.5);
 							break;
 						case 6:
 							ArmShoot(kShootPower, 0.5);
@@ -331,13 +331,13 @@ public class AutonomousChooser {
 							DriveRotate(kTurnRightToInnerSwitchAngle, 0.5);
 							break;
 						case 3:
-							DriveForwardAndLiftUp(kForwardZeroToRightInnerSwitch, Lift.kSwitchHigh,0.5);
+							DriveForward2AndLiftUp(kForwardZeroToRightInnerSwitch, Lift.kSwitchHigh,0.5);
 							break;
 						case 4:
-							DriveRotate(kTurnLeftToInnerSwitch, 0.5);
+							DriveRotate2(kTurnLeftToInnerSwitch, 0.5);
 							break;
 						case 5:
-							DriveForward(kForwardToRightShoot, 0.5);
+							DriveForward3(kForwardToRightShoot, 0.5);
 							break;
 						case 6:
 							ArmShoot(kShootPower, 0.5);
@@ -370,13 +370,13 @@ public class AutonomousChooser {
 							DriveRotate(kTurnRightToInnerSwitchAngle, 0.5);
 							break;
 						case 3:
-							DriveForwardAndLiftUp(kForwardZeroToRightInnerSwitch, Lift.kSwitchHigh,0.5);
+							DriveForward2AndLiftUp(kForwardZeroToRightInnerSwitch, Lift.kSwitchHigh,0.5);
 							break;
 						case 4:
-							DriveRotate(kTurnLeftToInnerSwitch, 0.5);
+							DriveRotate2(kTurnLeftToInnerSwitch, 0.5);
 							break;
 						case 5:
-							DriveForward(kForwardToRightShoot, 0.5);
+							DriveForward3(kForwardToRightShoot, 0.5);
 							break;
 						case 6:
 							ArmShoot(kShootPower, 0.5);
@@ -410,7 +410,7 @@ public class AutonomousChooser {
 							DriveRotate(kTurnJustLeft, 0.5);
 							break;
 						case 3:
-							DriveForward(kForwardToMiddle, 0.5);
+							DriveForward2(kForwardToMiddle, 0.5);
 							break;
 						case 4:
 							End();
@@ -450,7 +450,7 @@ public class AutonomousChooser {
 							DriveRotate(kTurnLeftToReturnToSwitchAngle, 0.5);
 							break;
 						case 3:
-							DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
+							DriveForward2AndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
 							break;
 						case 4:
 							ArmShoot(kShootPower, 0.5);
@@ -491,7 +491,7 @@ public class AutonomousChooser {
 							DriveRotate(kTurnLeftToReturnToSwitchAngle, 0.5);
 							break;
 						case 3:
-							DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
+							DriveForward2AndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
 							break;
 						case 4:
 							ArmShoot(kShootPower, 0.5);
@@ -555,7 +555,25 @@ public class AutonomousChooser {
 
 	}
 
-	void DriveForwardAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
+	void DriveForward3(double setpoint, double delaysec) {
+		if (drive.driveRightMotor_pidController1.isEnabled() == false
+				&& drive.driveLeftMotor_pidController3.isEnabled() == false) {
+			//エンコーダーreset
+			drive.driveRightEncoder.reset();
+			drive.driveLeftEncoder.reset();
+
+			drive.runSpeedPID3(setpoint);
+
+		}
+		if (drive.driveRightMotor_pidController3.onTarget() && drive.driveLeftMotor_pidController3.onTarget()) {
+			drive.stopSpeedPID3();
+			Timer.delay(delaysec);
+			phase++;
+		}
+
+	}
+
+	void DriveForward2AndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
 		if (drive.driveRightMotor_pidController2.isEnabled() == false
 				&& drive.driveLeftMotor_pidController2.isEnabled() == false
 				&& lift.lift_pidController.isEnabled() == false) {
@@ -583,6 +601,19 @@ public class AutonomousChooser {
 
 		if (drive.driveRotation_pidController.onTarget()) {
 			drive.stopRotationPID();
+			Timer.delay(delaysec);
+			phase++;
+		}
+	}
+
+	void DriveRotate2(double setpoint, double delaysec) {
+		if (drive.driveRotation_pidController2.isEnabled() == false) {
+			//PID開始
+			drive.runRotationPID2(setpoint);
+		}
+
+		if (drive.driveRotation_pidController2.onTarget()) {
+			drive.stopRotationPID2();
 			Timer.delay(delaysec);
 			phase++;
 		}
