@@ -2,7 +2,7 @@ package org.usfirst.frc.team6909.robot;
 
 /* ToDo
  *・最低動作出力の確認 → 出力の下限がそこになる新しい関数を用意?
- *
+ *stopMotorの試行
  *
  *
  */
@@ -122,8 +122,8 @@ public class Drive {
 				new DriveLeftMotorPIDOutput(this.leftMotors));
 		driveRightMotor_pidController3.setEnabled(false);
 		driveLeftMotor_pidController3.setEnabled(false);
-		driveRightMotor_pidController3.setAbsoluteTolerance(100);
-		driveLeftMotor_pidController3.setAbsoluteTolerance(100);
+		driveRightMotor_pidController3.setAbsoluteTolerance(50);
+		driveLeftMotor_pidController3.setAbsoluteTolerance(50);
 		driveRightMotor_pidController3.setOutputRange(-0.6, 0.6);
 		driveLeftMotor_pidController3.setOutputRange(-0.6, 0.6);
 		/*
