@@ -70,7 +70,8 @@ public class AutonomousChooser {
 	double kDriveRotationPID_I_ForDriveForward = 0.000;
 	double kDriveRotationPID_D_ForDriveForward = 0.045;
 
-	AutonomousChooser(String gameData, int location, XboxController xbox_drive, XboxController xbox_ope,Drive drive, Lift lift, Arm arm) {
+	AutonomousChooser(String gameData, int location, XboxController xbox_drive, XboxController xbox_ope, Drive drive,
+			Lift lift, Arm arm) {
 		this.gameData = gameData;
 		this.location = location;
 		this.xbox_drive = xbox_drive;
@@ -80,7 +81,7 @@ public class AutonomousChooser {
 		this.arm = arm;
 
 		timer = new Timer();
-		timerStarted =false;
+		timerStarted = false;
 
 		phase = 0;
 		isAutonomousDone = false;
@@ -92,10 +93,10 @@ public class AutonomousChooser {
 			if (xbox_ope.getAButton() && xbox_ope.getBackButton()) {
 				autonomousChooser = 0; //何もしないMode
 				isAutonomousModeChosen = true;
-			}else if (xbox_ope.getAButton() && xbox_ope.getXButton()) {
+			} else if (xbox_ope.getAButton() && xbox_ope.getXButton()) {
 				autonomousChooser = 1; //第一候補を選択
 				isAutonomousModeChosen = true;
-			}else if (xbox_ope.getAButton() && xbox_ope.getYButton()) {
+			} else if (xbox_ope.getAButton() && xbox_ope.getYButton()) {
 				autonomousChooser = 2; //第二候補を選択
 				isAutonomousModeChosen = true;
 			}
@@ -117,15 +118,15 @@ public class AutonomousChooser {
 	}
 
 	void autonomousPeriodic() {
-		 //未完成なので問題のないところ以外をコメントアウトしてもらいたい
-		 //あと進む距離(not 角度)はかなり長いので、上に定義した定数[mm]を3とか2で暫定的に割ったほうがいい
+		//未完成なので問題のないところ以外をコメントアウトしてもらいたい
+		//あと進む距離(not 角度)はかなり長いので、上に定義した定数[mm]を3とか2で暫定的に割ったほうがいい
 		if (isAutonomousDone == false) {
-			if (autonomousChooser == 0){
+			if (autonomousChooser == 0) {
 				//End autonomous
 				End();
 			}
 
-			if (isAutonomousModeChosen == true)  { //選択なしの場合は第一候補が実行される
+			if (isAutonomousModeChosen == true) { //選択なしの場合は第一候補が実行される
 				if (location == 1 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
 					if (autonomousChooser == 1) {// (左)全速力Scale *第一候補
 						switch (phase) {
@@ -139,7 +140,7 @@ public class AutonomousChooser {
 							DriveRotateAndLiftUp(kTurnRightToScale, Lift.kScaleHigh, 0.5);
 							break;
 						case 3:
-							DriveForward(kForwardToScaleToShoot, 0.5);
+							DriveForward2(kForwardToScaleToShoot, 0.5);
 							break;
 						case 4:
 							ArmShoot(kShootPower, 0.5);
@@ -148,7 +149,7 @@ public class AutonomousChooser {
 							End();
 							break;
 						}
-					}else if (autonomousChooser == 2) { // (左)戻ってきてSwitch *第二候補
+					} else if (autonomousChooser == 2) { // (左)戻ってきてSwitch *第二候補
 						switch (phase) {
 						case 0:
 							Start();
@@ -263,18 +264,18 @@ public class AutonomousChooser {
 							break;
 						}
 					}else if (autonomousChooser == 2) {// (左)回り込みScale *第二候補
-
-
-
-
-
-
-
-
-
-
-
-
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 					}
 				}else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
 					if () {// (左)全力Switch *第一候補
@@ -305,17 +306,17 @@ public class AutonomousChooser {
 							break;
 						}
 					}else if () {// (右)回り込みScale *第二候補
-
-
-
-
-
-
-
-
-
-
-
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 					}
 				}else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
 					if (autonomousChooser == 1) {// (右)全力Switch *第一候補
@@ -346,15 +347,15 @@ public class AutonomousChooser {
 							break;
 						}
 					}else if (autonomousChooser == 2) {// (左)回り込みScale *第二候補
-
-
-
-
-
-
-
-
-
+				
+				
+				
+				
+				
+				
+				
+				
+				
 					}
 				}else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
 					if (autonomousChooser == 1) {// (右)全力Switch *第一候補
@@ -385,16 +386,16 @@ public class AutonomousChooser {
 							break;
 						}
 					}else if(autonomousChooser == 2) {// (右)回り込みScale *第二候補
-
-
-
-
-
-
-
-
-
-
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 					}
 				}else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
 					if (autonomousChooser == 1) {// (右)フィールド中心へ *第一候補
@@ -502,7 +503,7 @@ public class AutonomousChooser {
 					}
 				}
 				*/
-			}else {// 選択なしの時自動的に第一候補が選択される
+			} else {// 選択なしの時自動的に第一候補が選択される
 				autonomousChooser = 1;
 				isAutonomousModeChosen = true;
 			}
@@ -512,23 +513,42 @@ public class AutonomousChooser {
 	}
 
 	void Start() {
-		if(phase == 0) {
+		if (phase == 0) {
 			phase = 1;
 		}
 	}
 
 	void DriveForward(double setpoint, double delaysec) {
-		if (drive.driveRightMotor_pidController.isEnabled() == false && drive.driveLeftMotor_pidController.isEnabled() == false) {
+		if (drive.driveRightMotor_pidController1.isEnabled() == false
+				&& drive.driveLeftMotor_pidController1.isEnabled() == false) {
 			//エンコーダーreset
 			drive.driveRightEncoder.reset();
 			drive.driveLeftEncoder.reset();
 
-			drive.runSpeedPID(setpoint);
+			drive.runSpeedPID1(setpoint);
 
 		}
 
-		if (drive.driveRightMotor_pidController.onTarget() && drive.driveLeftMotor_pidController.onTarget()) {
-			drive.stopSpeedPID();
+		if (drive.driveRightMotor_pidController1.onTarget() && drive.driveLeftMotor_pidController1.onTarget()) {
+			drive.stopSpeedPID1();
+			Timer.delay(delaysec);
+			phase++;
+		}
+
+	}
+
+	void DriveForward2(double setpoint, double delaysec) {
+		if (drive.driveRightMotor_pidController2.isEnabled() == false
+				&& drive.driveLeftMotor_pidController2.isEnabled() == false) {
+			//エンコーダーreset
+			drive.driveRightEncoder.reset();
+			drive.driveLeftEncoder.reset();
+			drive.runSpeedPID2(setpoint);
+
+		}
+
+		if (drive.driveRightMotor_pidController2.onTarget() && drive.driveLeftMotor_pidController2.onTarget()) {
+			drive.stopSpeedPID2();
 			Timer.delay(delaysec);
 			phase++;
 		}
@@ -536,16 +556,20 @@ public class AutonomousChooser {
 	}
 
 	void DriveForwardAndLiftUp(double driveSetpoint, double liftSetpoint, double delaysec) {
-		if (drive.driveRightMotor_pidController.isEnabled() == false && drive.driveLeftMotor_pidController.isEnabled() == false && lift.lift_pidController.isEnabled() == false) {
+		if (drive.driveRightMotor_pidController2.isEnabled() == false
+				&& drive.driveLeftMotor_pidController2.isEnabled() == false
+				&& lift.lift_pidController.isEnabled() == false) {
 			//エンコーダーreset
 			drive.driveRightEncoder.reset();
+			drive.driveLeftEncoder.reset();
 			//PID開始
-			drive.runSpeedPID(driveSetpoint);
+			drive.runSpeedPID2(driveSetpoint);
 			lift.runPID(liftSetpoint);
 		}
 
-		if (drive.driveRightMotor_pidController.onTarget() && drive.driveLeftMotor_pidController.onTarget() && lift.lift_pidController.onTarget()) {
-			drive.stopSpeedPID();
+		if (drive.driveRightMotor_pidController2.onTarget() && drive.driveLeftMotor_pidController2.onTarget()
+				&& lift.lift_pidController.onTarget()) {
+			drive.stopSpeedPID2();
 			phase++;
 			Timer.delay(delaysec);
 		}
@@ -584,7 +608,7 @@ public class AutonomousChooser {
 			lift.runPID(setpoint);
 		}
 
-		if (lift.lift_pidController.onTarget()){
+		if (lift.lift_pidController.onTarget()) {
 			phase++;
 			Timer.delay(delaysec);
 		}
@@ -595,17 +619,16 @@ public class AutonomousChooser {
 			timerStarted = true;
 			timer.reset();
 			timer.start();
-		}else {
+		} else {
 			if (timer.get() < 3) {
 				arm.my_arms.set(setpoint);
-			}else {
+			} else {
 				arm.my_arms.set(0.0);
 				phase++;
 				Timer.delay(delaysec);
 			}
 		}
 	}
-
 
 	void End() {
 		isAutonomousDone = true;

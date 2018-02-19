@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-
 public class Robot extends IterativeRobot {
 
 	int kXboxDrivePort = 0;
@@ -56,6 +55,7 @@ public class Robot extends IterativeRobot {
 	public void disabledInit() {
 
 	}
+
 	@Override
 	public void disabledPeriodic() {
 		autonomousChooser.chooseAutonomusMode();
@@ -69,22 +69,16 @@ public class Robot extends IterativeRobot {
 		autonomousChooser.autonomousInit();
 	}
 
-
 	@Override
 	public void autonomousPeriodic() {
 		autonomousChooser.autonomousPeriodic();
 		SmartDashboard.putNumber("Current phase", autonomousChooser.phase);
 		SmartDashboard.putNumber("Lift Encoder", lift.liftEncoder.getDistance());
 		SmartDashboard.putNumber("Estimated arm height", lift.liftEncoder.getArmsHeight());
-		SmartDashboard.putBoolean("speedPID", drive.driveRightMotor_pidController.isEnabled() && drive.driveLeftMotor_pidController.isEnabled());
-		SmartDashboard.putBoolean("rotatePID", drive.driveRotation_pidController.isEnabled());
-		SmartDashboard.putBoolean("locationOK?", drive.driveRightMotor_pidController.onTarget() && drive.driveLeftMotor_pidController.onTarget());
-		SmartDashboard.putBoolean("angleOK?", drive.driveRotation_pidController.onTarget());
 		SmartDashboard.putNumber("Gyro", drive.gyro.getAngle());
 		SmartDashboard.putNumber("Right Encoder", drive.driveRightEncoder.getDistance());
 		SmartDashboard.putNumber("Left Encoder", drive.driveLeftEncoder.getDistance());
 	}
-
 
 	@Override
 	public void teleopInit() {
@@ -98,7 +92,6 @@ public class Robot extends IterativeRobot {
 		drive.teleopPeriodic();
 		lift.teleopPeriodic();
 		arm.teleopPeriodic();
-
 
 		/*
 		SmartDashboard.putNumber("PDP Supply Voltage", pdp.getVoltage());
