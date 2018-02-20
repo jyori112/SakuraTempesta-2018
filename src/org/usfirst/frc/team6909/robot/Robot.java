@@ -66,6 +66,8 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousPeriodic() {
 		autonomousChooser.autonomousPeriodic();
+		SmartDashboard.putNumber("rotate R", drive.rotateR_output);
+		SmartDashboard.putNumber("rotate L", drive.rotateR_output);
 		SmartDashboard.putNumber("right encoder", drive.driveRightEncoder.getDistance());
 		SmartDashboard.putNumber("left encoder", drive.driveLeftEncoder.getDistance());
 		SmartDashboard.putNumber("gyro", drive.gyro.getAngle());
@@ -86,17 +88,18 @@ public class Robot extends IterativeRobot {
 		drive.teleopPeriodic();
 		lift.teleopPeriodic();
 		arm.teleopPeriodic();
+		SmartDashboard.putNumber("gyro", drive.gyro.getAngle());
 
 	}
 
 	@Override
 	public void testInit() {
-		drive.setDrivePIDMode("stop");
+
 	}
 
 	@Override
 	public void testPeriodic() {
-		drive.runStraightPID(10000);
+
 	}
 }
 
