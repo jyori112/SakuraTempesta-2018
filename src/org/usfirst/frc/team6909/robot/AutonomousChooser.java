@@ -27,38 +27,43 @@ public class AutonomousChooser {
 
 	//Turnのために壁から少し移動
 	static final int kForwardBitToTurn = 550; //ロボットの対角線の半分の長さ
-	//全速力Scale
-	static final int kForwardZeroToScale = 8100; //調整中,あのツルツルだとめっちゃdrift
+	//(右)(左)全速力Scale
+	static final int kForwardZeroToScale = 8180; //Done
 	static final int kTurnRightToScale = 90;
 	static final int kTurnLeftToScale = -90;
 	static final int kForwardToScaleToShoot = 1000;
-	//回り込みScale
-	static final int kTurnRightToOuterSwitchAngle = 55; //調整未着手
-	static final int kTurnLeftToOuterSwitchAngle = -55;
-	static final int kForwardZeroToOuterSwitch = 3000;
-	static final int kTurnRightToScaleAngle = 45;
-	static final int kTurnLeftToScaleAngle = -45;
-	static final int kForwardOuterToScaleAndShoot = 4000;
+	//(右)回り込みScale
+	static final int kTurnRightToOuterSwitchAngle = 31; //Done
+	static final int kForwardZeroToRightOuterSwitch = 4365;
+	static final int kTurnLeftToScaleAngle = -14;
+	static final int kForwardOuterToRightScaleAndLift = 3300;
+	static final int kForwardBitToRightScaleAndShoot = 110;
+	//(左)回り込みScale
+	static final int kTurnLeftToOuterSwitchAngle = -47; //Done
+	static final int kForwardZeroToOuterSwitch = 5330;
+	static final int kTurnRightToScaleAngle = 20;
+	static final int kForwardOuterToLeftScaleAndLift = 3500;
+	static final int kForwardBitToLeftScaleAndShoot = 100;
 	//(右)全力Switch
-	static final int kTurnRightToInnerSwitchAngle = 31; //調整中
+	static final int kTurnRightToInnerSwitchAngle = 31; //Done
 	static final int kForwardZeroToRightInnerSwitch = 4365;
 	static final int kTurnLeftToInnerSwitch = -90;
 	static final int kForwardToRightShoot = 900;
 	//(左)全力Switch
-	static final int kTurnLeftToInnerSwitchAngle = -47; //調整中
+	static final int kTurnLeftToInnerSwitchAngle = -47; //Done
 	static final int kForwardZeroToLeftInnerSwitch = 5330;
 	static final int kTurnRightToInnerSwitch = 90;
 	static final int kForwardToLeftShoot = 1300;
-	//戻ってきてSwitch
-	static final int kForwardZeroToOverSwitch = 5000; //調整未着手
-	static final int kTurnRightToReturnToSwitchAngle = 150;
-	static final int kTurnLeftToReturnToSwitchAngle = -150;
-	static final int kForwardReturnToSwitchAndShoot = 2000;
-	//通過して待機
-	static final int kForwardZeroToMiddleOfField = 6000; //調整未着手
+	//(右)(左)戻ってきてSwitch
+	static final int kForwardZeroToOverSwitch = 5730; //Done
+	static final int kTurnRightToReturnToSwitchAngle = 130;
+	static final int kTurnLeftToReturnToSwitchAngle = -130;
+	static final int kForwardReturnToSwitchAndShoot = 1200;
+	//(右)(左)通過して待機
+	static final int kForwardZeroToMiddleOfField = 5800; //Done
 	static final int kTurnJustRight = 90;
 	static final int kTurnJustLeft = -90;
-	static final int kForwardToMiddle = 1000;
+	static final int kForwardToMiddle = 2000;
 	//armのshootパワー
 	static final double kShootPower = 1.0;
 	//使用するXboxController
@@ -116,8 +121,6 @@ public class AutonomousChooser {
 	}
 
 	void autonomousPeriodic() {
-		//未完成なので問題のないところ以外をコメントアウトしてもらいたい
-		//あと進む距離(not 角度)はかなり長いので、上に定義した定数[mm]を3とか2で暫定的に割ったほうがいい
 		if (isAutonomousDone == false) {
 			if (autonomousChooser == 0) {
 				//End autonomous
@@ -128,7 +131,7 @@ public class AutonomousChooser {
 
 			if (isAutonomousModeChosen == true) { //選択なしの場合は第一候補が実行される
 				if (location == 1 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) {// (左)全速力Scale *第一候補
+					if (autonomousChooser == 1) {// (左)全速力Scale *第一候補 <Done>
 						switch (phase) {
 						case 0:
 							Start();
@@ -138,10 +141,9 @@ public class AutonomousChooser {
 							break;
 						case 2:
 							DriveRotateAndLiftUp(kTurnRightToScale, Lift.kScaleHigh, 0.5);
-							//DriveRotate(kTurnRightToScale, 0.3);
 							break;
 						case 3:
-							DriveForward(kForwardToScaleToShoot, 0.5);
+							DriveForward(kForwardToScaleToShoot, 0.3);
 							break;
 						case 4:
 							ArmShoot(kShootPower, 0.3);
@@ -150,8 +152,32 @@ public class AutonomousChooser {
 							End();
 							break;
 						}
-					} else if (autonomousChooser == 2) { // (左)戻ってきてSwitch *第二候補
+					} else if (autonomousChooser == 2) { // (左)戻ってきてSwitch *第二候補 <Done>
 						switch (phase) {
+						case 0:
+							Start();
+							break;
+						case 1:
+							DriveForward(kForwardZeroToOverSwitch, 0.3);
+							break;
+						case 2:
+							DriveRotateAndLiftUp(kTurnRightToReturnToSwitchAngle, Lift.kSwitchHigh, 0.5);
+							break;
+						case 3:
+							DriveForward(kForwardReturnToSwitchAndShoot,0.3);
+							break;
+						case 4:
+							ArmShoot(kShootPower, 0.3);
+							break;
+						case 5:
+							End();
+							break;
+						}
+					}
+
+				} else if (location == 1 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
+					if (autonomousChooser == 1) {
+						switch (phase) {// (左)戻ってきてSwitch *第一候補 <Done>
 						case 0:
 							Start();
 							break;
@@ -162,34 +188,10 @@ public class AutonomousChooser {
 							DriveRotate(kTurnRightToReturnToSwitchAngle, 0.3);
 							break;
 						case 3:
-							DriveForward(kForwardReturnToSwitchAndShoot,0.5);
-							break;
-						case 4:
-							ArmShoot(kShootPower, 0.5);
-							break;
-						case 5:
-							End();
-							break;
-						}
-					}
-
-				} else if (location == 1 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) {
-						switch (phase) {// (左)戻ってきてSwitch *第一候補
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardZeroToOverSwitch, 0.5);
-							break;
-						case 2:
-							DriveRotate(kTurnRightToReturnToSwitchAngle, 0.5);
-							break;
-						case 3:
 							DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
 							break;
 						case 4:
-							ArmShoot(kShootPower, 0.5);
+							ArmShoot(kShootPower, 0.3);
 							break;
 						case 5:
 							End();
@@ -197,281 +199,413 @@ public class AutonomousChooser {
 						}
 					}
 				} else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) {// (左)全速力Scale *第一候補
+					if (autonomousChooser == 1) {// (左)全速力Scale *第一候補 <Done>
 						switch (phase) {
 						case 0:
 							Start();
 							break;
 						case 1:
-							DriveForward(kForwardZeroToScale, 0.5);
+							DriveForward(kForwardZeroToScale, 0.3);
 							break;
 						case 2:
-							DriveRotateAndLiftUp(kTurnRightToScaleAngle, Lift.kScaleHigh, 0.5);
+							DriveRotateAndLiftUp(kTurnRightToScale, Lift.kScaleHigh, 0.5);
 							break;
 						case 3:
-							ArmShoot(kShootPower, 0.5);
+							DriveForward(kForwardToScaleToShoot, 0.3);
 							break;
 						case 4:
-							End();
-							break;
-						}
-					}
-				} else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) {// (左)フィールド中心へ *第一候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardZeroToMiddleOfField, 0.5);
-							break;
-						case 2:
-							DriveRotate(kTurnJustRight, 0.5);
-							break;
-						case 3:
-							DriveForward(kForwardToMiddle, 0.5);
-							break;
-						case 4:
-							End();
-							break;
-						}
-					}
-				} else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) {// (左)全力Switch *第一候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardBitToTurn, 0.3);
-							break;
-						case 2:
-							DriveRotate(kTurnLeftToInnerSwitchAngle, 0.3);
-							break;
-						case 3:
-							DriveForwardAndLiftUp(kForwardZeroToLeftInnerSwitch, Lift.kSwitchHigh, 0.3);
-							break;
-						case 4:
-							DriveRotate(kTurnRightToInnerSwitch, 0.3);
-							break;
-						case 5:
-							DriveForward(kForwardToLeftShoot, 0.3);
-							break;
-						case 6:
 							ArmShoot(kShootPower, 0.3);
 							break;
-						case 7:
+						case 5:
 							End();
 							break;
 						}
-					} else if (autonomousChooser == 2) {// (左)回り込みScale *第二候補
+					} else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
+						if (autonomousChooser == 1) {// (左)フィールド中心へ *第一候補 <Done>
+							switch (phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardZeroToMiddleOfField, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnJustRight, 0.3);
+								break;
+							case 3:
+								DriveForward(kForwardToMiddle, 0.3);
+								break;
+							case 4:
+								End();
+								break;
+							}
+						}
+					} else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
+						if (autonomousChooser == 1) {// (左)全力Switch *第一候補 <Done>
+							switch (phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardBitToTurn, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnLeftToInnerSwitchAngle, 0.3);
+								break;
+							case 3:
+								DriveForward(kForwardZeroToLeftInnerSwitch, 0.3);
+								break;
+							case 4:
+								DriveRotateAndLiftUp(kTurnRightToInnerSwitch, Lift.kSwitchHigh, 0.3);
+								break;
+							case 5:
+								DriveForward(kForwardToLeftShoot, 0.3);
+								break;
+							case 6:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 7:
+								End();
+								break;
+							}
+						} else if (autonomousChooser == 2) {// (左)回り込みScale *第二候補 <Done>
+							switch(phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardBitToTurn, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnLeftToOuterSwitchAngle, 0.3);
+								break;
+							case 3:
+								DriveForward(kForwardZeroToOuterSwitch, 0.3);
+								break;
+							case 4:
+								DriveRotate(kTurnRightToScaleAngle, 0.3);
+								break;
+							case 5:
+								DriveForward(kForwardOuterToLeftScaleAndLift, 0.3);
+								break;
+							case 6:
+								LiftUp(Lift.kScaleHigh, 0.3);
+								break;
+							case 7:
+								DriveForward(kForwardBitToLeftScaleAndShoot, 0.3);
+								break;
+							case 8:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 9:
+								End();
+								break;
+							}
+						} else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
+							if (autonomousChooser == 1) {// (左)全力Switch *第一候補 <Done>
+								switch (phase) {
+								case 0:
+									Start();
+									break;
+								case 1:
+									DriveForward(kForwardBitToTurn, 0.3);
+									break;
+								case 2:
+									DriveRotate(kTurnLeftToInnerSwitchAngle, 0.3);
+									break;
+								case 3:
+									DriveForward(kForwardZeroToLeftInnerSwitch, 0.3);
+									break;
+								case 4:
+									DriveRotateAndLiftUp(kTurnRightToInnerSwitch, Lift.kSwitchHigh, 0.3);
+									break;
+								case 5:
+									DriveForward(kForwardToLeftShoot, 0.3);
+									break;
+								case 6:
+									ArmShoot(kShootPower, 0.3);
+									break;
+								case 7:
+									End();
+									break;
+								}
+							}
+						} else if (autonomousChooser == 2) {// (右)回り込みScale *第二候補 <Done>
+							switch(phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardBitToTurn, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnRightToOuterSwitchAngle, 0.3);
+								break;
+							case 3:
+								DriveForward(kForwardZeroToRightOuterSwitch, 0.3);
+								break;
+							case 4:
+								DriveRotate(kTurnLeftToScaleAngle, 0.3);
+								break;
+							case 5:
+								DriveForward(kForwardOuterToRightScaleAndLift, 0.3);
+								break;
+							case 6:
+								LiftUp(Lift.kScaleHigh, 0.3);
+								break;
+							case 7:
+								DriveForward(kForwardBitToRightScaleAndShoot, 0.3);
+								break;
+							case 8:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 9:
+								End();
+								break;
+							}
+						}
+					} else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
+						if (autonomousChooser == 1) {// (右)全力Switch *第一候補 <Done>
+							switch (phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardBitToTurn, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnRightToInnerSwitchAngle, 0.3);
+								break;
+							case 3:
+								DriveForward(kForwardZeroToRightInnerSwitch, 0.3);
+								break;
+							case 4:
+								DriveRotateAndLiftUp(kTurnLeftToInnerSwitch, Lift.kSwitchHigh, 0.3);
+								break;
+							case 5:
+								DriveForward(kForwardToRightShoot, 0.3);
+								break;
+							case 6:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 7:
+								End();
+								break;
+							}
+						} else if (autonomousChooser == 2) {// (左)回り込みScale *第二候補 <Done>
+							switch(phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardBitToTurn, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnLeftToOuterSwitchAngle, 0.3);
+								break;
+							case 3:
+								DriveForward(kForwardZeroToOuterSwitch, 0.3);
+								break;
+							case 4:
+								DriveRotate(kTurnRightToScaleAngle, 0.3);
+								break;
+							case 5:
+								DriveForward(kForwardOuterToLeftScaleAndLift, 0.3);
+								break;
+							case 6:
+								LiftUp(Lift.kScaleHigh, 0.3);
+								break;
+							case 7:
+								DriveForward(kForwardBitToLeftScaleAndShoot, 0.3);
+								break;
+							case 8:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 9:
+								End();
+								break;
+							}
+						}
+					} else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
+						if (autonomousChooser == 1) {// (右)全力Switch *第一候補 <Done>
+							switch (phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardBitToTurn, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnRightToInnerSwitchAngle, 0.3);
+								break;
+							case 3:
+								DriveForward(kForwardZeroToRightInnerSwitch, 0.3);
+								break;
+							case 4:
+								DriveRotateAndLiftUp(kTurnLeftToInnerSwitch, Lift.kSwitchHigh, 0.3);
+								break;
+							case 5:
+								DriveForward(kForwardToRightShoot, 0.3);
+								break;
+							case 6:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 7:
+								End();
+								break;
+							}
+						} else if (autonomousChooser == 2) {// (右)回り込みScale *第二候補 <Done>
+							switch(phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardBitToTurn, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnRightToOuterSwitchAngle, 0.3);
+								break;
+							case 3:
+								DriveForward(kForwardZeroToRightOuterSwitch, 0.3);
+								break;
+							case 4:
+								DriveRotate(kTurnLeftToScaleAngle, 0.3);
+								break;
+							case 5:
+								DriveForward(kForwardOuterToRightScaleAndLift, 0.3);
+								break;
+							case 6:
+								LiftUp(Lift.kScaleHigh, 0.3);
+								break;
+							case 7:
+								DriveForward(kForwardBitToRightScaleAndShoot, 0.3);
+								break;
+							case 8:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 9:
+								End();
+								break;
+							}
+						}
+					} else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
+						if (autonomousChooser == 1) {// (右)フィールド中心へ *第一候補 <Done>
+							switch (phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardZeroToMiddleOfField, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnJustLeft, 0.3);
+								break;
+							case 3:
+								DriveForward(kForwardToMiddle, 0.3);
+								break;
+							case 4:
+								End();
+								break;
+							}
+						}
+					} else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
+						if (autonomousChooser == 1) {// (右)全速力Scale *第一候補 <Done>
+							switch (phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardZeroToScale, 0.3);
+								break;
+							case 2:
+								DriveRotateAndLiftUp(kTurnLeftToScale, Lift.kScaleHigh, 0.5);
+								break;
+							case 3:
+								DriveForward(kForwardToScaleToShoot, 0.3);
+								break;
+							case 4:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 5:
+								End();
+								break;
+							}
+						}
+					} else if (location == 3 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
+						if (autonomousChooser == 1) {// (右)戻ってきてSwitch *第一候補 <Done>
+							switch (phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardZeroToOverSwitch, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnLeftToReturnToSwitchAngle, 0.3);
+								break;
+							case 3:
+								DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
+								break;
+							case 4:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 5:
+								End();
+								break;
+							}
+						}
+					} else if (location == 3 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
+						if (autonomousChooser == 1) {// (右)全速力Scale *第一候補 <Done>
+							switch (phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardZeroToScale, 0.3);
+								break;
+							case 2:
+								DriveRotateAndLiftUp(kTurnLeftToScale, Lift.kScaleHigh, 0.5);
+								break;
+							case 3:
+								DriveForward(kForwardToScaleToShoot, 0.3);
+								break;
+							case 4:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 5:
+								End();
+								break;
+							}
+						} else if (autonomousChooser == 2) {// (右)戻ってきてSwitch) *第二候補 <Done>
+							switch (phase) {
+							case 0:
+								Start();
+								break;
+							case 1:
+								DriveForward(kForwardZeroToOverSwitch, 0.3);
+								break;
+							case 2:
+								DriveRotate(kTurnLeftToReturnToSwitchAngle, 0.3);
+								break;
+							case 3:
+								DriveForwardAndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
+								break;
+							case 4:
+								ArmShoot(kShootPower, 0.3);
+								break;
+							case 5:
+								End();
+								break;
+							}
+						}
+					}
 
-					}
-				/*} else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) {// (左)全力Switch *第一候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardBitToTurn, 0.5);
-							break;
-						case 2:
-							DriveRotate(kTurnLeftToInnerSwitchAngle, 0.5);
-							break;
-						case 3:
-							DriveForward2AndLiftUp(kForwardZeroToLeftInnerSwitch, Lift.kSwitchHigh, 0.5);
-							break;
-						case 4:
-							DriveRotate2(kTurnRightToInnerSwitch, 0.5);
-							break;
-						case 5:
-							DriveForward3(kForwardToLeftShoot, 0.5);
-							break;
-						case 6:
-							ArmShoot(kShootPower, 0.5);
-							break;
-						case 7:
-							End();
-							break;
-						}
-					} else if (autonomousChooser == 2) {// (右)回り込みScale *第二候補
-
-					}
-				} else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) {// (右)全力Switch *第一候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardBitToTurn, 0.5);
-							break;
-						case 2:
-							DriveRotate(kTurnRightToInnerSwitchAngle, 0.5);
-							break;
-						case 3:
-							DriveForward2AndLiftUp(kForwardZeroToRightInnerSwitch, Lift.kSwitchHigh, 0.5);
-							break;
-						case 4:
-							DriveRotate2(kTurnLeftToInnerSwitch, 0.5);
-							break;
-						case 5:
-							DriveForward3(kForwardToRightShoot, 0.5);
-							break;
-						case 6:
-							ArmShoot(kShootPower, 0.5);
-							break;
-						case 7:
-							End();
-							break;
-						}
-					} else if (autonomousChooser == 2) {// (左)回り込みScale *第二候補
-
-					}
-				} else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) {// (右)全力Switch *第一候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardBitToTurn, 0.5);
-							break;
-						case 2:
-							DriveRotate(kTurnRightToInnerSwitchAngle, 0.5);
-							break;
-						case 3:
-							DriveForward2AndLiftUp(kForwardZeroToRightInnerSwitch, Lift.kSwitchHigh, 0.5);
-							break;
-						case 4:
-							DriveRotate2(kTurnLeftToInnerSwitch, 0.5);
-							break;
-						case 5:
-							DriveForward3(kForwardToRightShoot, 0.5);
-							break;
-						case 6:
-							ArmShoot(kShootPower, 0.5);
-							break;
-						case 7:
-							End();
-							break;
-						}
-					} else if (autonomousChooser == 2) {// (右)回り込みScale *第二候補
-
-					}
-				} else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) {// (右)フィールド中心へ *第一候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardZeroToMiddleOfField, 0.5);
-							break;
-						case 2:
-							DriveRotate(kTurnJustLeft, 0.5);
-							break;
-						case 3:
-							DriveForward2(kForwardToMiddle, 0.5);
-							break;
-						case 4:
-							End();
-							break;
-						}
-					}
-				} else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) {// (右)全速力Scale *第一候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardZeroToScale, 0.5);
-							break;
-						case 2:
-							DriveRotateAndLiftUp(kTurnLeftToScale, Lift.kScaleHigh, 0.5);
-							break;
-						case 3:
-							ArmShoot(kShootPower, 0.5);
-							break;
-						case 4:
-							End();
-							break;
-						}
-					}
-				} else if (location == 3 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) {// (右)戻ってきてSwitch *第一候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardZeroToOverSwitch, 0.5);
-							break;
-						case 2:
-							DriveRotate(kTurnLeftToReturnToSwitchAngle, 0.5);
-							break;
-						case 3:
-							DriveForward2AndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
-							break;
-						case 4:
-							ArmShoot(kShootPower, 0.5);
-							break;
-						case 5:
-							End();
-							break;
-						}
-					}
-				} else if (location == 3 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) {// (右)全速力Scale *第一候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardZeroToScale, 0.5);
-							break;
-						case 2:
-							DriveRotateAndLiftUp(kTurnLeftToScale, Lift.kScaleHigh, 0.5);
-							break;
-						case 3:
-							ArmShoot(kShootPower, 0.5);
-							break;
-						case 4:
-							End();
-							break;
-						}
-					} else if (autonomousChooser == 2) {// (右)戻ってきてSwitch) *第二候補
-						switch (phase) {
-						case 0:
-							Start();
-							break;
-						case 1:
-							DriveForward(kForwardZeroToOverSwitch, 0.5);
-							break;
-						case 2:
-							DriveRotate(kTurnLeftToReturnToSwitchAngle, 0.5);
-							break;
-						case 3:
-							DriveForward2AndLiftUp(kForwardReturnToSwitchAndShoot, Lift.kSwitchHigh, 0.5);
-							break;
-						case 4:
-							ArmShoot(kShootPower, 0.5);
-							break;
-						case 5:
-							End();
-							break;
-						}
-					}
-				*/
+				} else {// 選択なしの時自動的に第一候補が選択される
+					autonomousChooser = 1;
+					isAutonomousModeChosen = true;
 				}
 
-			} else {// 選択なしの時自動的に第一候補が選択される
-				autonomousChooser = 1;
-				isAutonomousModeChosen = true;
 			}
-
 		}
 
 	}
