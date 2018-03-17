@@ -119,12 +119,12 @@ public class Lift {
 	}
 
 	void teleopPeriodic() {
-		if (xbox_ope.getAButton() &&  xbox_ope.getPOV() == 0) {
+		if (xbox_ope.getAButton() &&  xbox_ope.getPOV() == 180) {
 			runPID(kSwitchHigh);
-		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 180) {
+		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 0) {
 			// Scaleのつり合いまで
 			runPID(kScaleMiddle);
-		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 0) {
+		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 180) {
 			// Scaleの高いほう
 			runPID(kScaleHigh);
 		}
@@ -147,7 +147,10 @@ public class Lift {
 		*/
 		 else {
 			// 手動操作
-			stopPID();
+			 stopPID();
+			 if (!liftBottomSwitch.get()) {
+					liftEncoder.reset();
+				}
 			handControl();
 		}
 
