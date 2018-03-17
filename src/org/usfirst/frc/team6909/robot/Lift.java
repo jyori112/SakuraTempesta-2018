@@ -147,10 +147,7 @@ public class Lift {
 		*/
 		 else {
 			// 手動操作
-			 stopPID();
-			 if (!liftBottomSwitch.get()) {
-					liftEncoder.reset();
-				}
+			stopPID();
 			handControl();
 		}
 
