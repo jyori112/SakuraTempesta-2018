@@ -42,18 +42,15 @@ public class Drive {
 	public double rotateL_output;
 	public PIDController rotateR;
 	public double rotateR_output;
-	/*
-	public PIDController rotatePID;
-	public double rotateOutput;
-	*/
+
 	private String drivePIDMode = "stop";
 
-	static final double kStraight_P = 0.012; //調整中 0.025
+	static final double kStraight_P = 0.012; //調整中 0.012
 	static final double kStraight_I = 0.00;
-	static final double kStraight_D = 0.07; //0.035
-	static final double kRotate_P = 0.03; //調整中 003
+	static final double kStraight_D = 0.07; //0.07
+	static final double kRotate_P = 0.035; //調整中 003
 	static final double kRotate_I = 0.002;//0.002
-	static final double kRotate_D = 0.25;//005
+	static final double kRotate_D = 0.25;//025
 	//モーター
 	private Spark leftFront;
 	private Spark leftRear;
@@ -76,7 +73,7 @@ public class Drive {
 	EncoderWithNewFuncs liftEncoder;
 	//Modyfier
 	public final double rightModifier = 1.0;
-	public final double leftModifier = 0.94; //12.0Vの時0.89, 12.6Vの時0.93 12.2-0.94
+	public final double leftModifier = 1.1; //12.0Vの時0.89, 12.6Vの時0.93 12.2-0.94, 12.7 -- 1.1
 
 	Drive(XboxController xbox_drive, EncoderWithNewFuncs liftEncoder) {
 		this.xbox_drive = xbox_drive;
@@ -99,23 +96,20 @@ public class Drive {
 		gyro = new ADXRS450_Gyro();
 		gyro.reset();
 
+
 		straightR = new PIDController(kStraight_P, kStraight_I, kStraight_D, driveRightEncoder, new StraightROutput(this));
 		straightL = new PIDController(kStraight_P, kStraight_I, kStraight_D, driveLeftEncoder, new StraightLOutput(this));
 		rotateR = new PIDController(kRotate_P, kRotate_I,kRotate_D, gyro, new RotateROutput(this));
 		rotateL = new PIDController(kRotate_P, kRotate_I, kRotate_D, gyro, new RotateLOutput(this));
-		//rotatePID = new PIDController(kRotate_P, kRotate_I, kRotate_D, gyro, new rotate_Output(this));
 
 		straightR.setAbsoluteTolerance(100);
 		straightL.setAbsoluteTolerance(100);
-		rotateR.setAbsoluteTolerance(3.0);
-		rotateL.setAbsoluteTolerance(3.0);
+		rotateR.setAbsoluteTolerance(10.0);
+		rotateL.setAbsoluteTolerance(10.0);
 		straightR.setOutputRange(-0.7, 0.7);
 		straightL.setOutputRange(-0.7, 0.7);
 		rotateR.setOutputRange(-0.6, 0.6);
 		rotateL.setOutputRange(-0.6, 0.6);
-		//rotatePID.setOutputRange(-0.6, 0.6);
-		//rotatePID.setAbsoluteTolerance(3.0);
-		//rotatePID.disable();
 		straightR.disable();
 		straightL.disable();
 		rotateR.disable();
@@ -152,11 +146,7 @@ public class Drive {
 	public boolean getRotatePIDOnTarget() {
 		return rotateL.onTarget() && rotateR.onTarget();
 	}
-	/*
-	public boolean getRotatesPIDOnTarget() {
-		return rotatePID.onTarget();
-	}
-	*/
+
 	void excuteOutput() {
 		if(drivePIDMode == "stop") {
 			leftMotors.set(0.0);
@@ -229,10 +219,10 @@ public class Drive {
 		//yukkuri = xbox_drive.getTriggerAxis(Hand.kRight);
 
 		if (liftEncoder.getArmsHeight() >= 200) {
-			if (xfb >= 0.6) {
-				my_arcade_drive.arcadeDrive(-0.6, Util.outputCalc(kNoReact, xlr));
-			} else if (xfb <= -0.6) {
-				my_arcade_drive.arcadeDrive(0.6, Util.outputCalc(kNoReact, xlr));
+			if (xfb >= 0.5) {
+				my_arcade_drive.arcadeDrive(-0.5, Util.outputCalc(kNoReact, xlr));
+			} else if (xfb <= -0.5) {
+				my_arcade_drive.arcadeDrive(0.5, Util.outputCalc(kNoReact, xlr));
 			} else {
 				my_arcade_drive.arcadeDrive(Util.outputCalc(kNoReact, -xfb), Util.outputCalc(kNoReact, xlr));
 			}
@@ -255,6 +245,7 @@ public class Drive {
 	}
 }
 
+
 class StraightROutput implements PIDOutput {
 	Drive drive;
 
@@ -268,6 +259,7 @@ class StraightROutput implements PIDOutput {
 	}
 
 }
+
 
 class StraightLOutput implements PIDOutput {
 	Drive drive;

@@ -119,12 +119,12 @@ public class Lift {
 	}
 
 	void teleopPeriodic() {
-		if (xbox_ope.getAButton() &&  xbox_ope.getPOV() == 180) {
+		if (xbox_ope.getAButton() &&  xbox_ope.getPOV() == 0) {
 			runPID(kSwitchHigh);
-		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 0) {
+		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 180) {
 			// Scaleのつり合いまで
 			runPID(kScaleMiddle);
-		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 180) {
+		} else if (xbox_ope.getBButton() && xbox_ope.getPOV() == 0) {
 			// Scaleの高いほう
 			runPID(kScaleHigh);
 		}

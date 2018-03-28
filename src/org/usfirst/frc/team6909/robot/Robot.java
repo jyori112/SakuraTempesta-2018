@@ -36,10 +36,7 @@ public class Robot extends IterativeRobot {
 		CameraServer.getInstance().startAutomaticCapture(); //カメラ起動
 		CameraServer.getInstance().getVideo();
 
-		gameData = DriverStation.getInstance().getGameSpecificMessage();
-		location = DriverStation.getInstance().getLocation();
-
-		autonomousChooser = new AutonomousChooser(gameData, location, xbox_drive, xbox_drive, drive, lift, arm);
+		autonomousChooser = new AutonomousChooser(xbox_drive, xbox_drive, drive, lift, arm);
 
 	}
 
@@ -51,8 +48,10 @@ public class Robot extends IterativeRobot {
 	public void disabledPeriodic() {
 
 		autonomousChooser.chooseAutonomusMode();
-		SmartDashboard.putBoolean("IsAutonomousModeChosen?", autonomousChooser.isAutonomousModeChosen);
-		SmartDashboard.putNumber("SelectedAutonomousMode", autonomousChooser.autonomousChooser);
+		SmartDashboard.putBoolean("locationChosen?", autonomousChooser.locationChosen);
+		SmartDashboard.putNumber("location", autonomousChooser.location);
+		SmartDashboard.putBoolean("patternChosen?", autonomousChooser.patternChosen);
+		SmartDashboard.putNumber("pattern", autonomousChooser.autonomousChooser);
 		SmartDashboard.putBoolean("IsAutonomousDone?", autonomousChooser.isAutonomousDone);
 
 	}
@@ -60,11 +59,16 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousInit() {
 		autonomousChooser.autonomousInit();
+		gameData = DriverStation.getInstance().getGameSpecificMessage();
+		autonomousChooser.gameData = gameData;
 	}
 
 
 	@Override
 	public void autonomousPeriodic() {
+		gameData = DriverStation.getInstance().getGameSpecificMessage();
+		autonomousChooser.gameData = gameData;
+
 		autonomousChooser.autonomousPeriodic();
 		SmartDashboard.putNumber("rotate R", drive.rotateR_output);
 		SmartDashboard.putNumber("rotate L", drive.rotateR_output);
@@ -81,6 +85,7 @@ public class Robot extends IterativeRobot {
 		drive.teleopInit();
 		lift.teleopInit();
 		arm.teleopInit();
+		
 	}
 
 	@Override
@@ -89,17 +94,54 @@ public class Robot extends IterativeRobot {
 		lift.teleopPeriodic();
 		arm.teleopPeriodic();
 		SmartDashboard.putNumber("gyro", drive.gyro.getAngle());
-
+		SmartDashboard.putNumber("R encoder", drive.driveRightEncoder.getDistance());
+		SmartDashboard.putNumber("L encoder", drive.driveLeftEncoder.getDistance());
+	    
+		/*
+		SmartDashboard.putNumber("phase", phase);
+		switch(phase) {
+		case 0:
+			phase = 1;
+			break;
+		case 1:
+			autonomousChooser.DriveRotate(90, 0.3);
+			break;
+		case 2:
+			autonomousChooser.ArmShoot(1.0, 0.3);
+			break;
+		case 3:
+			phase++;
+			break;
+		}
+		*/
 	}
 
 	@Override
 	public void testInit() {
-
+		lift.lift_pidController.setOutputRange(Lift.kOutputResistingGravity, 0.7);
+		drive.driveRightEncoder.reset();
+		drive.driveLeftEncoder.reset();
+		drive.gyro.reset();
+		lift.liftEncoder.reset();
 	}
 
 	@Override
 	public void testPeriodic() {
-
+		SmartDashboard.putNumber("phase", autonomousChooser.phase);
+		switch(autonomousChooser.phase) {
+		case 0:
+			autonomousChooser.Start();
+			break;
+		case 1:
+			autonomousChooser.DriveRotate(90, 0.3);
+			break;
+		case 2:
+			autonomousChooser.ArmShoot(1.0, 0.3);
+			break;
+		case 3:
+		    autonomousChooser.End();
+			break;
+		}
 	}
 }
 
