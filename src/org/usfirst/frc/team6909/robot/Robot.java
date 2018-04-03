@@ -31,7 +31,6 @@ public class Robot extends IterativeRobot {
 		arm = new Arm(xbox_drive);
 		lift = new Lift(xbox_drive);
 		drive = new Drive(xbox_drive, lift.liftEncoder);
-		//drive2 = new Drive_withRightLeftPID(xbox_drive, lift.liftEncoder);
 
 		CameraServer.getInstance().startAutomaticCapture(); //カメラ起動
 		CameraServer.getInstance().getVideo();

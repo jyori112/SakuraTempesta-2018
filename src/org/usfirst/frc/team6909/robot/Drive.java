@@ -1,12 +1,5 @@
 package org.usfirst.frc.team6909.robot;
 
-/* ToDo
- *・最低動作出力の確認 → 出力の下限がそこになる新しい関数を用意?
- *stopMotorの試行
- *
- *
- */
-
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
@@ -45,12 +38,12 @@ public class Drive {
 
 	private String drivePIDMode = "stop";
 
-	static final double kStraight_P = 0.012; //調整中 0.012
+	static final double kStraight_P = 0.012;
 	static final double kStraight_I = 0.00;
-	static final double kStraight_D = 0.07; //0.07
-	static final double kRotate_P = 0.035; //調整中 003
-	static final double kRotate_I = 0.002;//0.002
-	static final double kRotate_D = 0.25;//025
+	static final double kStraight_D = 0.07;
+	static final double kRotate_P = 0.035;
+	static final double kRotate_I = 0.002;
+	static final double kRotate_D = 0.25;
 	//モーター
 	private Spark leftFront;
 	private Spark leftRear;
@@ -170,8 +163,6 @@ public class Drive {
 			rotateL.setSetpoint(setpoint);
 			rotateR.enable();
 			rotateL.enable();
-			//rotatePID.setSetpoint(setpoint);
-			//rotatePID.enable();
 			excuteOutput();
 		}
 	}

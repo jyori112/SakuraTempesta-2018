@@ -1,12 +1,5 @@
 package org.usfirst.frc.team6909.robot;
 
-/* ToDo
- *
- * 今のとこなし
- *
- *
- */
-
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;

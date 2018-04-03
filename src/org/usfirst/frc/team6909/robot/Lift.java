@@ -1,14 +1,6 @@
 package org.usfirst.frc.team6909.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-
-/* ToDo
- * ・最低動作出力の確認 → 出力の下限がそこになる新しい関数を用意?
- *
- *
- *
- */
-
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
@@ -66,7 +58,7 @@ public class Lift {
 				kCubeOriginalHeightFromE1, kE2OriginalHeightFromGround,kE2LengthMM, kArmsHeightOfItselfMM, kStringLengthMM,
 				kStringLengthLossMM);
 
-		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
+		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse);
 		lift_pidController = new PIDController(kLift_P, kLift_I, kLift_D, liftEncoder, new LiftPIDOutput(lift));
 		lift_pidController.setEnabled(false);
 		lift_pidController.setAbsoluteTolerance(LiftAbsoluteTolerance);
