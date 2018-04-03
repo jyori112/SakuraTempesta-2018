@@ -1,5 +1,9 @@
 package org.usfirst.frc.team6909.robot;
 
+/*
+ *  Lift動作用のモータについたエンコーダのパルスを、Armの地面からの高さ mm に変換する
+ */
+
 import edu.wpi.first.wpilibj.Encoder;
 
 public class EncoderWithNewFuncs extends Encoder {

@@ -1,5 +1,9 @@
 package org.usfirst.frc.team6909.robot;
 
+/*
+ * ロボットはXboxController一つで十分に操作できる。
+ */
+
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;

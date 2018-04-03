@@ -1,5 +1,9 @@
 package org.usfirst.frc.team6909.robot;
 
+/*
+ * Armのモーターが弱いため、最大出力がデフォルトになる。
+ */
+
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;

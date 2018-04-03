@@ -1,12 +1,15 @@
 package org.usfirst.frc.team6909.robot;
 
+/*
+ * PID制御で高速高精度であらかじめ設定された高さにアームを上げることができる。
+ */
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Lift {
 	//Port
@@ -143,9 +146,6 @@ public class Lift {
 			handControl();
 		}
 
-		SmartDashboard.putNumber("LiftMotorOutput", lift.get());
-		SmartDashboard.putBoolean("HeighestSwitch", liftHighestSwitch.get());
-		SmartDashboard.putBoolean("BottomSwitch", liftBottomSwitch.get());
 	}
 
 }
