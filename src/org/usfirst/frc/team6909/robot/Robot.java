@@ -85,7 +85,7 @@ public class Robot extends IterativeRobot {
 		drive.teleopInit();
 		lift.teleopInit();
 		arm.teleopInit();
-		
+
 	}
 
 	@Override
@@ -96,24 +96,6 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("gyro", drive.gyro.getAngle());
 		SmartDashboard.putNumber("R encoder", drive.driveRightEncoder.getDistance());
 		SmartDashboard.putNumber("L encoder", drive.driveLeftEncoder.getDistance());
-	    
-		/*
-		SmartDashboard.putNumber("phase", phase);
-		switch(phase) {
-		case 0:
-			phase = 1;
-			break;
-		case 1:
-			autonomousChooser.DriveRotate(90, 0.3);
-			break;
-		case 2:
-			autonomousChooser.ArmShoot(1.0, 0.3);
-			break;
-		case 3:
-			phase++;
-			break;
-		}
-		*/
 	}
 
 	@Override

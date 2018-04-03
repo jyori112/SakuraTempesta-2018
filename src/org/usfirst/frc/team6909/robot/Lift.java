@@ -25,7 +25,7 @@ public class Lift {
     static final int kLiftHighestSwitchPort = 3; //Digital
 	//エンコーダ関連
 	public EncoderWithNewFuncs liftEncoder;
-	static final double kLiftEncoderMMPerPulse = 50.08 * Math.PI / (12.75 * 20); //調整中
+	static final double kLiftEncoderMMPerPulse = 50.08 * Math.PI / (12.75 * 20);
 	static final double kCubeOriginalHeightFromE1 = -80;
 	static final double kE2OriginalHeightFromGround = 50;
 	static final double kE2LengthMM = 1285;
@@ -33,7 +33,7 @@ public class Lift {
 	static final double kStringLengthMM = 1107;
 	static final double kStringLengthLossMM = 47;
 	//PID目標高さ
-	static final int kSwitchMiddle = 240; //調整中
+	static final int kSwitchMiddle = 240;
 	static final int kSwitchHigh = 400;
 	static final int kScaleMiddle = 1610;
 	static final int kScaleHigh = 1910;
@@ -46,7 +46,7 @@ public class Lift {
 	//PID
 	public PIDController lift_pidController;
 	static final double LiftAbsoluteTolerance = 50; //許容範囲
-	static final double kLift_P = 0.01; //調整中
+	static final double kLift_P = 0.01;
 	static final double kLift_I = 0.00; //基本0とする
 	static final double kLift_D = 0.01; //基本0とする
 	static final double kOutputResistingGravity = 0.2; //batteryの充電具合によって変動
