@@ -1,20 +1,15 @@
 package org.usfirst.frc.team69.robot;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-
-/* ToDo
- * ・最低動作出力の確認 → 出力の下限がそこになる新しい関数を用意?
- *
- *
- *
+/*
+ * PID制御で高速高精度であらかじめ設定された高さにアームを上げることができる。
  */
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.PWMTalonSRX;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Lift {
 	//Port
@@ -25,7 +20,7 @@ public class Lift {
     static final int kLiftHighestSwitchPort = 3; //Digital
 	//エンコーダ関連
 	public EncoderWithNewFuncs liftEncoder;
-	static final double kLiftEncoderMMPerPulse = 50.08 * Math.PI / (12.75 * 20); //調整中
+	static final double kLiftEncoderMMPerPulse = 50.08 * Math.PI / (12.75 * 20);
 	static final double kCubeOriginalHeightFromE1 = -80;
 	static final double kE2OriginalHeightFromGround = 50;
 	static final double kE2LengthMM = 1285;
@@ -33,11 +28,11 @@ public class Lift {
 	static final double kStringLengthMM = 1107;
 	static final double kStringLengthLossMM = 47;
 	//PID目標高さ
-	static final int kSwitchMiddle = 240; //調整中
-	static final int kSwitchHigh = 400;
-	static final int kScaleMiddle = 1610;
-	static final int kScaleHigh = 1910;
-	static final int kMaxArmHeight = 2100;
+	public final int kSwitchMiddle = 240;
+	public final int kSwitchHigh = 400;
+	public final int kScaleMiddle = 1610;
+	public final int kScaleHigh = 1910;
+	public final int kMaxArmHeight = 2100;
 	//モーター
 	public PWMTalonSRX lift;
 	//Limit Switch
@@ -46,7 +41,7 @@ public class Lift {
 	//PID
 	public PIDController lift_pidController;
 	static final double LiftAbsoluteTolerance = 50; //許容範囲
-	static final double kLift_P = 0.01; //調整中
+	static final double kLift_P = 0.01;
 	static final double kLift_I = 0.00; //基本0とする
 	static final double kLift_D = 0.01; //基本0とする
 	static final double kOutputResistingGravity = 0.2; //batteryの充電具合によって変動
@@ -66,7 +61,7 @@ public class Lift {
 				kCubeOriginalHeightFromE1, kE2OriginalHeightFromGround,kE2LengthMM, kArmsHeightOfItselfMM, kStringLengthMM,
 				kStringLengthLossMM);
 
-		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse); // using [mm] as unit would be good
+		liftEncoder.setDistancePerPulse(kLiftEncoderMMPerPulse);
 		lift_pidController = new PIDController(kLift_P, kLift_I, kLift_D, liftEncoder, new LiftPIDOutput(lift));
 		lift_pidController.setEnabled(false);
 		lift_pidController.setAbsoluteTolerance(LiftAbsoluteTolerance);
@@ -102,7 +97,7 @@ public class Lift {
 		if (xbox_ope.getStartButton()) {
 			lift.set(Util.outputCalc(kNoReact, x) - kOutputResistingGravity);
 		}else {
-			lift.set( Util.outputCalc(kNoReact, x) / 1.7 - kOutputResistingGravity);
+			lift.set( Util.outputCalc(kNoReact, x) / 1.7 - kOutputResistingGravity);  //***********力をいくらか解放するかも*******************
 			/*入力に等しい出力が欲しいならこちら
 			lift.set(x);
 			 */
@@ -151,9 +146,6 @@ public class Lift {
 			handControl();
 		}
 
-		SmartDashboard.putNumber("LiftMotorOutput", lift.get());
-		SmartDashboard.putBoolean("HeighestSwitch", liftHighestSwitch.get());
-		SmartDashboard.putBoolean("BottomSwitch", liftBottomSwitch.get());
 	}
 
 }

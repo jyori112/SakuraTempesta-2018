@@ -1,5 +1,9 @@
 package org.usfirst.frc.team69.robot;
 
+/*
+ * コントローラの意図しない入力のブレに対する不感帯を設けた場合でも、出力の範囲を変えないための関数
+ */
+
 public class Util {
 
 	static double outputCalc(double kNoReact, double input) {

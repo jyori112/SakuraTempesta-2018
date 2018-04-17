@@ -1,10 +1,7 @@
 package org.usfirst.frc.team69.robot;
 
-/* ToDo
- *
- * 今のとこなし
- *
- *
+/*
+ * Armのモーターが弱いため、最大出力がデフォルトになる。
  */
 
 import edu.wpi.first.wpilibj.GenericHID.Hand;
