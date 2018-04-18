@@ -6,6 +6,7 @@ package org.usfirst.frc.team69.robot;
 
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.Hand;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -30,7 +31,25 @@ public class Robot extends IterativeRobot {
 	AutonomousChooser_PID autonomousChooser_pid;
 	AutonomousChooser_TIME autonomousChooser_time;
 
-	final String DriveAutonomousMode = "SinglEncoder"; // "DualEncoder" or "SinglEncoder" or "TIME"
+
+	String DriveAutonomousMode; // "DualEncoder" or "SingleEncoder" or "TIME"
+	boolean driveAutonomousModeChosen = false;
+	void driveAutonomousModeChooser() {
+		if (driveAutonomousModeChosen == false)  { // TIMEかSingleかだけ選べる
+			if (xbox_drive.getBumper(Hand.kLeft)) {
+				DriveAutonomousMode = "TIME";
+				driveAutonomousModeChosen = true;
+			}else if (xbox_drive.getBumper(Hand.kRight)) {
+				DriveAutonomousMode = "SingleEncoder";
+				driveAutonomousModeChosen = true;
+			}
+		}else {
+			if (xbox_drive.getBackButton()) {
+				driveAutonomousModeChosen = false;
+				DriveAutonomousMode = ""; //空にする
+			}
+		}
+	}
 
 	@Override
 	public void robotInit() {
@@ -42,7 +61,7 @@ public class Robot extends IterativeRobot {
 
 		if (DriveAutonomousMode == "TIME") {
 			autonomousChooser_time = new AutonomousChooser_TIME(xbox_drive, drive_base, lift, arm);
-		}else {
+		}else if (DriveAutonomousMode == "SingleEncoder" || DriveAutonomousMode == "DualEncoder"){
 			drive_pid = new Drive_PID(DriveAutonomousMode, drive_base);
 			autonomousChooser_pid = new AutonomousChooser_PID(xbox_drive, drive_pid, lift, arm);
 		}
@@ -58,7 +77,13 @@ public class Robot extends IterativeRobot {
 	}
 	@Override
 	public void disabledPeriodic() {
-
+		if (DriveAutonomousMode == "TIME") {
+			driveAutonomousModeChooser();
+			autonomousChooser_time.chooseAutonomousMode();
+		}else if (DriveAutonomousMode == "SingleEncoder" || DriveAutonomousMode == "DualEncoder"){
+			driveAutonomousModeChooser();
+			autonomousChooser_pid.chooseAutonomousMode();
+		}
 	}
 
 	@Override
@@ -66,7 +91,7 @@ public class Robot extends IterativeRobot {
 		gameData = DriverStation.getInstance().getGameSpecificMessage();
 		if (DriveAutonomousMode == "TIME") {
 			autonomousChooser_time.init(gameData);
-		}else {
+		}else if (DriveAutonomousMode == "SingleEncoder" || DriveAutonomousMode == "DualEncoder"){
 			drive_pid = new Drive_PID(DriveAutonomousMode, drive_base);
 			autonomousChooser_pid.init(gameData);
 		}
@@ -77,7 +102,7 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {
 		if (DriveAutonomousMode == "TIME") {
 			autonomousChooser_time.periodic();
-		}else {
+		}else if (DriveAutonomousMode == "SingleEncoder" || DriveAutonomousMode == "DualEncoder"){
 			drive_pid = new Drive_PID(DriveAutonomousMode, drive_base);
 			autonomousChooser_pid.periodic();
 		}

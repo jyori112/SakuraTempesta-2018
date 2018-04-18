@@ -38,7 +38,7 @@ public class Drive_PID {
 		this.DriveAutonomousMode = DriveAutonomousMode;
 		this.drive_base = drive_base;
 
-		if (DriveAutonomousMode == "SinglEncoder") {
+		if (DriveAutonomousMode == "SingleEncoder") {
 			driveLeftEncoder = new Encoder(kDriveRightEncoderChannelAPort, kDriveRightEncoderChannelBPort, false);
 			driveLeftEncoder.setDistancePerPulse(kDriveEncoderMMPerPulse);
 			driveLeftEncoder.reset();
@@ -93,7 +93,7 @@ public class Drive_PID {
 	}
 
 	public void init() {
-		if (DriveAutonomousMode == "SinglEncoder") {
+		if (DriveAutonomousMode == "SingleEncoder") {
 			driveLeftEncoder.reset();
 			drive_base.gyro.reset();
 		}else if (DriveAutonomousMode == "DualEncoder") {
@@ -156,7 +156,7 @@ public class Drive_PID {
 
 		if (drivePIDMode != "straight") {
 			drivePIDMode = "straight";
-			if (DriveAutonomousMode == "SinglEncoder") {
+			if (DriveAutonomousMode == "SingleEncoder") {
 				driveLeftEncoder.reset();
 			}else if (DriveAutonomousMode == "DualEncoder") {
 				driveRightEncoder.reset(); //encoderをリセット

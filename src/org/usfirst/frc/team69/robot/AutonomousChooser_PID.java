@@ -22,7 +22,7 @@ public class AutonomousChooser_PID {
 	public int location;
 
 	int phase;
-	int autonomousChooser; // 0:何もしない 1:第一候補 2:第二候補
+	int autonomousChooser; // 0:線だけ超える 1:第一候補 2:第二候補
 	boolean isAutonomousModeChosen;
 	boolean isAutonomousDone;
 
@@ -86,10 +86,10 @@ public class AutonomousChooser_PID {
 		location = 9999;
 	}
 
-	void chooseAutonomusMode() {
+	void chooseAutonomousMode() {
 		if (isAutonomousModeChosen == false) {
-			if (xbox_ope.getAButton() && xbox_ope.getBackButton()) {
-				autonomousChooser = 0; //何もしないMode
+			if (xbox_ope.getAButton() && xbox_ope.getBButton()) {
+				autonomousChooser = 0; //線だけ超えるMode
 				patternChosen = true;
 			} else if (xbox_ope.getAButton() && xbox_ope.getXButton()) {
 				autonomousChooser = 1; //第一候補を選択
