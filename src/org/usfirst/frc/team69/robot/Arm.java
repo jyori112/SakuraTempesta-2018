@@ -14,7 +14,7 @@ public class Arm {
 	private static final int kRightArmPort = 5;
 	private static final int kLeftArmPort = 6;
 	//不感帯大きさ
-	private static final double kNoReact = 0.1;
+	private static final double kNoReact = 0.1; //Not used
 	//モーター
 	public PWMTalonSRX rightArm;
 	public PWMTalonSRX leftArm;

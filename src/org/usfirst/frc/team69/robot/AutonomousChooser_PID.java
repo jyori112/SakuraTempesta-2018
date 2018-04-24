@@ -401,7 +401,7 @@ public class AutonomousChooser_PID {
 						}
 					}
 				} else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) { // (左)sideから目の前のscale
+					if (true) { // (左)sideから目の前のscale
 						switch (phase) {
 						case 0:
 							Start();
@@ -424,7 +424,7 @@ public class AutonomousChooser_PID {
 						}
 					}
 				} else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) { // (左)sideから向こう側のscale
+					if (true) { // (左)sideから向こう側のscale
 						switch (phase) {
 						case 0:
 							Start();
@@ -453,7 +453,7 @@ public class AutonomousChooser_PID {
 						}
 					}
 				} else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) { // (左)centerからswitch
+					if (true) { // (左)centerからswitch
 						switch (phase) {
 						case 0:
 							Start();
@@ -482,7 +482,7 @@ public class AutonomousChooser_PID {
 						}
 					}
 				} else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) { // (左)centerからswitch
+					if (true) { // (左)centerからswitch
 						switch (phase) {
 						case 0:
 							Start();
@@ -511,7 +511,7 @@ public class AutonomousChooser_PID {
 						}
 					}
 				} else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) { // (右)centerからswitch
+					if (true) { // (右)centerからswitch
 						switch (phase) {
 						case 0:
 							Start();
@@ -540,7 +540,7 @@ public class AutonomousChooser_PID {
 						}
 					}
 				} else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) { // (右)centerからswitch
+					if (true) { // (右)centerからswitch
 						switch (phase) {
 						case 0:
 							Start();
@@ -569,7 +569,7 @@ public class AutonomousChooser_PID {
 						}
 					}
 				} else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) { // (右)sideから向こう側のscale
+					if (true) { // (右)sideから向こう側のscale
 						switch (phase) {
 						case 0:
 							Start();
@@ -598,7 +598,7 @@ public class AutonomousChooser_PID {
 						}
 					}
 				} else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) { // (右)sideから目の前のscale
+					if (true) { // (右)sideから目の前のscale
 						switch (phase) {
 						case 0:
 							Start();

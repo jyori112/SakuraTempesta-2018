@@ -33,7 +33,7 @@ public class AutonomousChooser_TIME {
 	static final int kForwardBitToTurn = 550; //ロボットの対角線の半分の長さ
 	//(右)(左)sideから目の前のScale
 	static final int kForwardZeroToTurnToScale = 6150;
-	 static final int kTurnLeftToScale = -30;
+	static final int kTurnLeftToScale = -30;
 	static final int kTurnRightToScale = 30;
 	static final int kForwardToScale = 1000;
 	//(右)(左)sideから向こう側のScale
@@ -91,7 +91,7 @@ public class AutonomousChooser_TIME {
 		isAutonomousDone = false;
 		timerOn = false;
 
-		lift.lift_pidController.setOutputRange(lift.kOutputResistingGravity, 0.7);
+		lift.lift_pidController.setOutputRange(Lift.kOutputResistingGravity, 0.7);
 		drive_base.gyro.reset();
 		lift.liftEncoder.reset();
 		timer.reset();
@@ -410,7 +410,7 @@ public class AutonomousChooser_TIME {
 						}
 					}
 				} else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) { // (左)sideから目の前のscale
+					if (true) { // (左)sideから目の前のscale
 						switch (phase) {
 						case 0:
 							Start();
@@ -433,7 +433,7 @@ public class AutonomousChooser_TIME {
 						}
 					}
 				} else if (location == 1 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) { // (左)sideから向こう側のscale
+					if (true) { // (左)sideから向こう側のscale
 						switch (phase) {
 						case 0:
 							Start();
@@ -462,7 +462,7 @@ public class AutonomousChooser_TIME {
 						}
 					}
 				} else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) { // (左)centerからswitch
+					if (true) { // (左)centerからswitch
 						switch (phase) {
 						case 0:
 							Start();
@@ -491,7 +491,7 @@ public class AutonomousChooser_TIME {
 						}
 					}
 				} else if (location == 2 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) { // (左)centerからswitch
+					if (true) { // (左)centerからswitch
 						switch (phase) {
 						case 0:
 							Start();
@@ -520,7 +520,7 @@ public class AutonomousChooser_TIME {
 						}
 					}
 				} else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) { // (右)centerからswitch
+					if (true) { // (右)centerからswitch
 						switch (phase) {
 						case 0:
 							Start();
@@ -549,7 +549,7 @@ public class AutonomousChooser_TIME {
 						}
 					}
 				} else if (location == 2 && gameData.charAt(0) == 'R' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) { // (右)centerからswitch
+					if (true) { // (右)centerからswitch
 						switch (phase) {
 						case 0:
 							Start();
@@ -578,7 +578,7 @@ public class AutonomousChooser_TIME {
 						}
 					}
 				} else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'L') {
-					if (autonomousChooser == 1) { // (右)sideから向こう側のscale
+					if (true) { // (右)sideから向こう側のscale
 						switch (phase) {
 						case 0:
 							Start();
@@ -607,7 +607,7 @@ public class AutonomousChooser_TIME {
 						}
 					}
 				} else if (location == 3 && gameData.charAt(0) == 'L' && gameData.charAt(1) == 'R') {
-					if (autonomousChooser == 1) { // (右)sideから目の前のscale
+					if (true) { // (右)sideから目の前のscale
 						switch (phase) {
 						case 0:
 							Start();
